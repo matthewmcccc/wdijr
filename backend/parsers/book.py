@@ -1,6 +1,6 @@
 class Book:
     def __init__(self):
-        pass
+        raise NotImplementedError
 
     def set_title(self):
         raise NotImplementedError
@@ -10,7 +10,7 @@ class Book:
 
     def set_author(self):
         raise NotImplementedError
-    
+
 
 class Chapter:
     def __init__(self, index, title, item):

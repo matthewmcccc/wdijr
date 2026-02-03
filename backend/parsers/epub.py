@@ -3,7 +3,7 @@ import ebooklib
 import os
 import re
 import json
-from utils.book import Book, Chapter
+from parsers.book import Book, Chapter
 from pathlib import Path
 from ebooklib import epub
 from bs4 import BeautifulSoup
@@ -11,7 +11,7 @@ from bs4 import BeautifulSoup
 class Epub(Book):
     def __init__(self, book_path):
         self.book: epub.EpubBook = epub.read_epub(book_path)
-        self.chapters: dict[Chapter] = self.set_chapters()
+        self.chapters: dict = self.set_chapters()
         self.author: str = self.set_author()
         self.title: str = self.set_title()
 
@@ -27,7 +27,7 @@ class Epub(Book):
             return self.book.get_metadata("DC", "title")[0][0]
         return "Untitled"
     
-    def set_chapters(self):
+    def set_chapters(self) -> dict:
         idx = 0
         chapters = {}
         for item in self.book.toc:
@@ -45,13 +45,14 @@ class Epub(Book):
             idx += 1
         return chapters
     
-    def check_valid_ch_title(self, ch_title):
+    def check_valid_ch_title(self, ch_title) -> bool:
         valid = True
         
-        if self.book.title in ch_title:
+        # skip title pages
+        if self.book.title.lower() == ch_title.lower():
             valid = False
 
-        config_path = os.path.join(os.path.dirname(__file__), "config.json")
+        config_path = os.path.join(os.path.dirname(__file__), "../config.json")
         try: 
             with open(config_path, "r") as file:
                 data = json.load(file)
@@ -62,7 +63,16 @@ class Epub(Book):
             print(f"Error opening config.json: {e}")
 
         return valid
+    
+    def get_full_text(self) -> str:
+        text = []
+        for chapter in self.chapters.values():
+            soup = BeautifulSoup(chapter.item.get_body_content(), "html.parser")
+            text.extend([para.get_text() for para in soup.find_all("p")])
+        return "\n\n".join(text)
 
-    def read_chapters(self):
-        for idx, chap in self.chapters.items():
-            print(chap.title)
+    def get_chapter_text(self, index) -> list[str]:
+        chapter = self.chapters[index]
+        soup = BeautifulSoup(chapter.item.get_body_content(), "html.parser")
+        text = [para.get_text() for para in soup.find_all("p")]
+        return text
