@@ -12,4 +12,4 @@ if __name__ == "__main__":
     valence_vals: list[float] = ps.get_section_valence(chapter_words)
     ps.normalize(valence_vals)
     ps.visualise_sentiment(valence_vals)
-    
+    ps.first_difference(valence_vals)
