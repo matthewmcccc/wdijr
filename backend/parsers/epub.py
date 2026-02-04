@@ -1,8 +1,10 @@
 import io
 import ebooklib
 import os
+import string
 import re
 import json
+from unidecode import unidecode
 from parsers.book import Book, Chapter
 from pathlib import Path
 from ebooklib import epub
@@ -11,9 +13,9 @@ from bs4 import BeautifulSoup
 class Epub(Book):
     def __init__(self, book_path):
         self.book: epub.EpubBook = epub.read_epub(book_path)
+        self.title: str = self.set_title()
         self.chapters: dict = self.set_chapters()
         self.author: str = self.set_author()
-        self.title: str = self.set_title()
 
     def set_author(self) -> str:
         if self.book.get_metadata("DC", "creator"):
@@ -35,6 +37,7 @@ class Epub(Book):
             ch_title = item.title
             if not self.check_valid_ch_title(ch_title):
                 continue
+            print(f"chapter title: {ch_title}")
             ch: Chapter = Chapter(
                 index=idx,
                 title=ch_title,
@@ -44,18 +47,21 @@ class Epub(Book):
             idx += 1
         return chapters
     
-    def check_valid_ch_title(self, ch_title) -> bool:
+    def check_valid_ch_title(self, ch_title: str) -> bool:
         valid = True
 
         # skip title pages
-        if self.book.title.lower() == ch_title.lower():
+        table = str.maketrans('', '', string.punctuation)
+        book_title_fmt = unidecode(self.book.title.lower().translate(table))
+        ch_title_fmt = unidecode(ch_title.lower()).translate(table)
+        if book_title_fmt == ch_title_fmt:
             valid = False
 
         config_path = os.path.join(os.path.dirname(__file__), "../config.json")
         try: 
             with open(config_path, "r") as file:
                 data = json.load(file)
-            for word in data["bad_words"]:
+            for word in data["excluded_phrases"]:
                 if word in ch_title.lower():
                     valid = False
         except json.JSONDecodeError as e:

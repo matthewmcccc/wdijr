@@ -7,7 +7,6 @@ from labMTsimple.storyLab import (
     stopper
 )
 
-
 CTX_WINDOW = 10000
 
 # the value we slide the context window across 
@@ -59,14 +58,16 @@ class PlotSentiment():
         
         return valence_vals
     
-    def normalize(self, valence_vals: list[float]) -> list[float]:
+    @staticmethod
+    def normalize(valence_vals: list[float]) -> list[float]:
         vals_len = len(valence_vals)
         normal_keys = [0] * vals_len
         for i in range(1, vals_len):
             normal_keys[i] = i / (vals_len - 1)
         return normal_keys
     
-    def first_difference(self, valence_vals: list[float]) -> list[(int, float)]:
+    @staticmethod
+    def first_difference(valence_vals: list[float]) -> list[(int, float)]:
         """
         finds the points in the emotional arc that
         have the highest absolute difference in valence.
@@ -88,6 +89,11 @@ class PlotSentiment():
         group = math.ceil(0.15 * len(delta))
         delta_sorted = sorted((delta), key=lambda x: abs(x[1]), reverse=True)
         return delta_sorted[:group]
+    
+    def get_text_for_summarization(self, valence_vals: list[float]) -> list[str]:
+        delta = self.first_difference(valence_vals)
+        for d in delta:
+            print(d)
 
 
     def visualise_sentiment(self, valence_vals: list[float]) -> None:

@@ -1,5 +1,6 @@
 {
-    "bad_words": [
-        "license", "translate", "licensed", "translated", "contents"    
+    "excluded_phrases": [
+        "license", "translate", "licensed", "translated", "contents",
+        "edition"    
     ]
 }
