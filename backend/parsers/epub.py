@@ -34,7 +34,6 @@ class Epub(Book):
             href = item.href.split("#")[0]
             ch_title = item.title
             if not self.check_valid_ch_title(ch_title):
-                print(f"title: {ch_title} is not a valid title")
                 continue
             ch: Chapter = Chapter(
                 index=idx,
@@ -47,7 +46,7 @@ class Epub(Book):
     
     def check_valid_ch_title(self, ch_title) -> bool:
         valid = True
-        
+
         # skip title pages
         if self.book.title.lower() == ch_title.lower():
             valid = False
@@ -71,8 +70,40 @@ class Epub(Book):
             text.extend([para.get_text() for para in soup.find_all("p")])
         return "\n\n".join(text)
 
-    def get_chapter_text(self, index) -> list[str]:
+    def get_chapter_text(self, index) -> str:
+        """
+        returns the raw text for a given chapter as a string
+
+        index: chapter index / number
+        """
         chapter = self.chapters[index]
         soup = BeautifulSoup(chapter.item.get_body_content(), "html.parser")
         text = [para.get_text() for para in soup.find_all("p")]
-        return text
+        return "\n".join(text)
+    
+    def get_full_words(self) -> list[str]:
+        """
+        returns a list of all of the words in a text
+        across all sections / chapters
+        """
+        text = []
+        for chapter in self.chapters.values():
+            soup = BeautifulSoup(chapter.item.get_body_content(), "html.parser")
+            text.extend([para.get_text() for para in soup.find_all("p")])
+        text_str = "\n".join(text)
+        words = text_str.split()
+        return words
+    
+    def get_chapter_words(self, index) -> list[str]:
+        """
+        returns all of the words for a given chapter
+        as a list of strings
+        
+        index: chapter index / number
+        """
+        chapter = self.chapters[index]
+        soup = BeautifulSoup(chapter.item.get_body_content(), "html.parser")
+        text = [para.get_text() for para in soup.find_all("p")]
+        text_str = "\n".join(text)
+        words = text_str.split()
+        return words

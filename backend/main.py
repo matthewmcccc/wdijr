@@ -2,10 +2,13 @@ import io
 from pathlib import Path
 from parsers.epub import Epub
 from nlp.ner import EntityExtractor
+from nlp.plot_sentiment import PlotSentiment
 
 if __name__ == "__main__":
-    book_path = Path("./temp/metamorphosis.epub")
+    book_path = Path("./temp/aaiw.epub")
     book: Epub = Epub(book_path)
-    ner = EntityExtractor("en_core_web_sm")
-    doc = ner.process_text(book.get_full_text())
-    ner.print_entity_counts()
+    chapter_words = book.get_full_words()
+    ps: PlotSentiment = PlotSentiment()
+    valence_vals: list[float] = ps.get_section_valence(chapter_words)
+    ps.visualise_sentiment(valence_vals)
+    
