@@ -90,11 +90,22 @@ class PlotSentiment():
         delta_sorted = sorted((delta), key=lambda x: abs(x[1]), reverse=True)
         return delta_sorted[:group]
     
-    def get_text_for_summarization(self, valence_vals: list[float]) -> list[str]:
-        delta = self.first_difference(valence_vals)
-        for d in delta:
-            print(d)
-
+    @staticmethod
+    def get_text_for_summarization( text: str,
+                                    delta: list[(int, float)],
+                                    valence_vals_len: int
+                                ) -> list[str]:
+        texts = []
+        for (i, _val) in delta:
+            base_start = SLIDE * i
+            base_end = base_start + CTX_WINDOW
+            # get the previous segments content also
+            # if the index of the segments allow for it
+            if i != 0 and i != valence_vals_len - 1:
+                base_start -= SLIDE
+                base_end += SLIDE
+            texts.append(" ".join(text[base_start : base_end]))
+        return texts
 
     def visualise_sentiment(self, valence_vals: list[float]) -> None:
         x_vals = self.normalize(valence_vals)
