@@ -18,7 +18,7 @@ def process_epub(self, book_path: str) -> None:
             meta={"status": "Extracting text from book..."}
         )
 
-        contents: list[str] = book.get_full_words()
+        contents: list[str] = book.get_full_text_word_list()
 
         self.update_state(
             state=TaskState.PROCESSING,

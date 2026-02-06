@@ -88,7 +88,7 @@ class Epub(Book):
         text = [para.get_text() for para in soup.find_all("p")]
         return "\n".join(text)
     
-    def get_full_words(self) -> list[str]:
+    def get_full_text_word_list(self) -> list[str]:
         """
         returns a list of all of the words in a text
         across all sections / chapters
@@ -101,7 +101,7 @@ class Epub(Book):
         words = text_str.split()
         return words
     
-    def get_chapter_words(self, index) -> list[str]:
+    def get_chapter_word_list(self, index) -> list[str]:
         """
         returns all of the words for a given chapter
         as a list of strings
@@ -114,3 +114,22 @@ class Epub(Book):
         text_str = "\n".join(text)
         words = text_str.split()
         return words
+    
+    def get_full_text_quotes(self) -> list[str]:
+        """
+        get a list of all of the quotes from the text
+        """
+        quotes = []
+        for idx, chapter in self.chapters.items():
+            text = self.get_chapter_text(idx)
+            for i in range(len(text)):
+                if text[i] in ('"', '“'):
+                    quote_str = ""
+                    while text[i] not in ('"', '”'):
+                        quote_str += text[i]
+                        i += 1
+                    # todo: theres almost definitely a better
+                    # way to strip the string than this
+                    quote_str = quote_str.replace("“", "").replace("”", "").replace("\n", " ")
+                    quotes.append(quote_str)
+        print(quotes)
