@@ -37,7 +37,6 @@ class Epub(Book):
             ch_title = item.title
             if not self.check_valid_ch_title(ch_title):
                 continue
-            print(f"chapter title: {ch_title}")
             ch: Chapter = Chapter(
                 index=idx,
                 title=ch_title,
@@ -54,7 +53,9 @@ class Epub(Book):
         table = str.maketrans('', '', string.punctuation)
         book_title_fmt = unidecode(self.book.title.lower().translate(table))
         ch_title_fmt = unidecode(ch_title.lower()).translate(table)
-        if book_title_fmt == ch_title_fmt:
+        # for cases where the chapter title == book title
+        # seperated by spaces e.g. "D R A C U L A"
+        if book_title_fmt.replace(" ", "") == ch_title_fmt.replace(" ", ""):
             valid = False
 
         config_path = os.path.join(os.path.dirname(__file__), "../config.json")
