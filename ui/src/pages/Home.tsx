@@ -1,10 +1,11 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import FilePicker from "../components/FilePicker"
 import axios from "axios"
 
 type AppState = "idle" | "processing" | "done"
 
 export default function Home() {
+    const [taskId, setTaskId] = useState<string | null>(null)
     const [file, setFile] = useState<File | null>(null)
     const [appState, setAppState] = useState<AppState>("idle")
 
@@ -13,12 +14,12 @@ export default function Home() {
         const formData = new FormData()
         formData.append("file", selectedFile)
         try {
-            await axios.post(`${import.meta.env.VITE_API_URL}/upload`, formData, {
+            const res = await axios.post(`${import.meta.env.VITE_API_URL}/upload`, formData, {
                 headers: {
                     "Content-Type": "multipart/form-data"
                 }
             })
-            setAppState("done")
+            setTaskId(res.data.task_id)
         } catch (error) {
             console.error("Error processing file:", error)
             setAppState("idle")
@@ -33,6 +34,26 @@ export default function Home() {
             setAppState("idle")
         }
     }
+
+    useEffect(() => {
+        if (!taskId && appState !== "processing") return
+
+        const pollInterval = setInterval(async () => {
+            try {
+                const res = await axios.get(`${import.meta.env.VITE_API_URL}/task/${taskId}`)
+                if (res.data.state === "SUCCESS") {
+                    setAppState("done")
+                    clearInterval(pollInterval)
+                }
+            } catch (error) {
+                console.error("Error polling task status:", error)
+                clearInterval(pollInterval)
+                setAppState("idle")
+            }
+        }, 2000)
+
+        return () => clearInterval(pollInterval)
+    }, [appState, taskId])
 
     return (
         <>

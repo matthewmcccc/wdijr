@@ -36,16 +36,13 @@ async def upload(file: UploadFile):
             shutil.copyfileobj(file.file, tmp)
             book_path = tmp.name
         if "epub" in suffix:
-            book: Epub = Epub(book_path)
-            task = book_processor.process_epub.delay(book)
+            task = book_processor.process_epub.delay(book_path)
             return {"task_id": task.id, "status": "Task submitted"}
         # todo
         if "pdf" in suffix:
             pass
     except Exception:
         raise HTTPException(status_code=500, detail="Couldn't read uploaded file")
-    finally:
-        os.remove(book_path)
     return {"filename": file.filename }
 
 @app.get("/task/{task_id}")
