@@ -118,6 +118,7 @@ class Epub(Book):
     def get_full_text_quotes(self) -> list[str]:
         """
         get a list of all of the quotes from the text
+        quotes in this context are instances of speech
         """
         quotes = []
         for idx, chapter in self.chapters.items():
