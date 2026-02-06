@@ -121,7 +121,7 @@ class Epub(Book):
         quotes in this context are instances of speech
         """
         quotes = []
-        for idx, chapter in self.chapters.items():
+        for idx in self.chapters.keys():
             text = self.get_chapter_text(idx)
             for i in range(len(text)):
                 if text[i] in ('"', '“'):
