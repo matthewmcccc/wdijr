@@ -115,22 +115,39 @@ class Epub(Book):
         words = text_str.split()
         return words
     
-    def get_full_text_quotes(self) -> list[str]:
+    def get_full_text_quotes(self) -> list[dict]:
         """
         get a list of all of the quotes from the text
         quotes in this context are instances of speech
+
+        return: list[str] containing all of the quote/instances of speech
         """
         quotes = []
         for idx in self.chapters.keys():
             text = self.get_chapter_text(idx)
             for i in range(len(text)):
                 if text[i] in ('"', '“'):
-                    quote_str = ""
+                    chars = []
+                    i += 1
                     while text[i] not in ('"', '”'):
-                        quote_str += text[i]
+                        chars.append(text[i])
                         i += 1
-                    # todo: theres almost definitely a better
-                    # way to strip the string than this
+                    
+                    quote_dict = {}
+                    quote_len = len(chars)
+
+                    prior = text[i-quote_len-50:i-quote_len].replace("\n", " ")
+                    post = text[i:i+50].replace("\n", " ")
+                    
+                    quote_str = "".join(chars)
                     quote_str = quote_str.replace("“", "").replace("”", "").replace("\n", " ")
-                    quotes.append(quote_str)
-        print(quotes)
+                    
+                    quote_dict["quote"] = quote_str
+                    quote_dict["prior"] = prior
+                    quote_dict["post"] = post
+                    
+                    quotes.append(quote_dict)
+        for quote in quotes:
+            print(f"prior: {quote["prior"]}")
+            print(f"post: {quote["post"]}")
+        return quotes

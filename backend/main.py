@@ -5,7 +5,7 @@ from nlp.ner import EntityExtractor
 from nlp.plot_sentiment import PlotSentiment
 
 if __name__ == "__main__":
-    book_path = Path("./temp/metamorphosis.epub")
+    book_path = Path("./temp/dracula.epub")
     book: Epub = Epub(book_path)
     book.get_full_text_quotes()
     # delta: list[(int, float)] = ps.first_difference(valence_vals)
