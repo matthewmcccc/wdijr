@@ -54,18 +54,15 @@ class EntityExtractor():
         """
         sorted_persons = sorted(self.persons, reverse=True, key=lambda entity: len(entity["name"]))
         gen_persons = []
-        name = self.clean_string(sorted_persons[0]["name"])
-        gen_persons.append([name, *name.split(" ")])
         stop_words = self.nlp.Defaults.stop_words
+        name = self.clean_string(sorted_persons[0]["name"])
+        gen_persons.append([name, *[item for item in name.split(" ") if len(item) >= 3 and item not in stop_words]])
         for p_idx in range(len(sorted_persons)):
             seen = False
             p = self.clean_string(sorted_persons[p_idx]["name"])
             if len(p) <= 3 or p in stop_words:
                 break
             p_split = p.split(" ") 
-            for item in p_split:
-                if len(item) <= 3 or item in stop_words:
-                    break
             for g_idx in range(len(gen_persons)):
                 if p in gen_persons[g_idx]:
                     seen = True
@@ -78,11 +75,31 @@ class EntityExtractor():
                 if [p] == p_split:
                     gen_persons.append([p])
                 else:
-                    gen_persons.append([p, *p_split])
+                    gen_persons.append([p, *[item for item in p_split if len(item) >= 3 and item not in stop_words]])
         return gen_persons
+    
+    def build_persons_dict(self) -> dict:
+        persons_dict = {}
+        consolidated_persons = self.consolidate_persons()
+        for group in consolidated_persons:
+            for idx in range(len(group)):
+                persons_dict[group[idx]] = group[0]
+        print(persons_dict)
+        return persons_dict
+
+
     
     @staticmethod
     def clean_string(s: str) -> str:
+        """
+        Removes all newspaces, punctuation, apostrophes, and converts
+        the given string to lower case.
+                
+        :param s: String to be cleaned
+        :type s: str
+        :return: Cleaned string
+        :rtype: str
+        """
         s = s.replace("\n", " ").replace("’s", "").replace("'s", "").lower()
         return re.sub(r"\p{P}+", "", s)
 
