@@ -1,6 +1,8 @@
 import spacy
+from spacy.language import Language
 import string
 from collections import Counter
+import regex as re
 
 spacy.prefer_gpu()
 
@@ -8,13 +10,26 @@ class EntityExtractor():
     def __init__(self, model: str, text: str):
         self.nlp = spacy.load(model)
         self.doc = self.process_text(text)
-        self.persons = self.get_persons_from_doc()
+        self.persons = self.get_persons_from_text()
 
     def process_text(self, text: str) -> None:
+        """
+        Docstring for process_text
+        
+        :param self: Description
+        :param text: Description
+        :type text: str
+        """
         self.doc = self.nlp(text)
         return self.doc
     
-    def get_persons_from_doc(self) -> list[str]:
+    def get_persons_from_text(self) -> list[dict]:
+        """
+        Retrieve all entities with the label person from a text.
+                
+        :return: A list of all of the persons from a text and their counts.
+        :rtype: list[dict]
+        """
         persons = []
         if self.doc is None:
             return
@@ -41,10 +56,16 @@ class EntityExtractor():
         gen_persons = []
         name = self.clean_string(sorted_persons[0]["name"])
         gen_persons.append([name, *name.split(" ")])
+        stop_words = self.nlp.Defaults.stop_words
         for p_idx in range(len(sorted_persons)):
             seen = False
             p = self.clean_string(sorted_persons[p_idx]["name"])
+            if len(p) <= 3 or p in stop_words:
+                break
             p_split = p.split(" ") 
+            for item in p_split:
+                if len(item) <= 3 or item in stop_words:
+                    break
             for g_idx in range(len(gen_persons)):
                 if p in gen_persons[g_idx]:
                     seen = True
@@ -61,6 +82,8 @@ class EntityExtractor():
         return gen_persons
     
     @staticmethod
-    def clean_string(str: str) -> str:
-        return str.replace("\n", " ").lower().translate(str.maketrans('', '', string.punctuation))
+    def clean_string(s: str) -> str:
+        s = s.replace("\n", " ").replace("’s", "").replace("'s", "").lower()
+        return re.sub(r"\p{P}+", "", s)
+
 
