@@ -1,16 +1,17 @@
-class Book:
-    def __init__(self):
-        raise NotImplementedError
+from abc import ABC, abstractmethod
 
+class Book(ABC):
+    @abstractmethod
     def set_title(self):
-        raise NotImplementedError
+        pass
     
+    @abstractmethod
     def set_chapters(self):
-        raise NotImplementedError
+        pass
 
+    @abstractmethod
     def set_author(self):
-        raise NotImplementedError
-
+        pass
 
 class Chapter:
     def __init__(self, index, title, item):

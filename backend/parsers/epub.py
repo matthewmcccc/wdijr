@@ -117,15 +117,17 @@ class Epub(Book):
     
     def get_full_text_quotes(self) -> list[dict]:
         """
-        get a list of all of the quotes from the text
-        quotes in this context are instances of speech
-
-        return: list[str] containing all of the quote/instances of speech
+        get a list of all of the quotes from the text,
+        and spans of text before and after the quote.
+        quotes in this context are instances of speech.
+        
+        :rtype list[dict]
         """
         quotes = []
         for idx in self.chapters.keys():
             text = self.get_chapter_text(idx)
-            for i in range(len(text)):
+            text_len = range(len(text))
+            for i in text_len:
                 if text[i] in ('"', '“'):
                     chars = []
                     i += 1
@@ -147,7 +149,4 @@ class Epub(Book):
                     quote_dict["post"] = post
                     
                     quotes.append(quote_dict)
-        for quote in quotes:
-            print(f"prior: {quote["prior"]}")
-            print(f"post: {quote["post"]}")
         return quotes
