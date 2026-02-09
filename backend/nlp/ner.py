@@ -1,10 +1,18 @@
+import json
+import os
 import spacy
 from spacy.language import Language
-import string
 from collections import Counter
 import regex as re
+from typing import TypedDict
+from collections import defaultdict
 
 spacy.prefer_gpu()
+
+
+class QuoteInfo(TypedDict):
+    quotes: list[str]
+    quote_count: int
 
 
 class EntityExtractor:
@@ -117,6 +125,39 @@ class EntityExtractor:
                 persons_dict[group[idx]] = group[0]
         return persons_dict
 
+    def associate_text_quotes(self, quotes: list[dict]) -> dict[str, QuoteInfo]:
+        """
+        Associate the quotes from a text with an entity (specifically a person)
+
+        :param er: EntityExtractor for grabbing the dictionary of all variations of a persons canonical name
+        :type er: EntityExtractor
+        :return: A dictionary mapping canonical character names to a QuoteInfo object
+        :rtype: dict[str, QuoteInfo]
+        """
+        persons_dict = self.build_persons_dict()
+
+        quote_dict = defaultdict(lambda: {"quotes": [], "quote_count": 0})
+        for quote in quotes:
+            q = quote["quote"]
+            prior = quote["prior"]
+            post = quote["post"]
+            span = quote["span"]
+            word_count = quote["word_count"]
+            for variation, canonical in persons_dict.items():
+                if (variation in prior.lower() or variation in post.lower()) and (
+                    self.match_speech_verbs_regex(prior.lower())
+                    or self.match_speech_verbs_regex(post.lower())
+                ):
+                    quote_dict[canonical]["quotes"].append(
+                        {"quote": q, "span": span, "len_words": word_count}
+                    )
+                    quote_dict[canonical]["quote_count"] += 1
+        return quote_dict
+
+    def match_speech_verbs_regex(self, s: str) -> bool:
+        speech_verbs = self.build_speech_verbs_regex()
+        return bool(re.search(speech_verbs, s))
+
     @staticmethod
     def clean_string(s: str) -> str:
         """
@@ -130,3 +171,16 @@ class EntityExtractor:
         """
         s = s.replace("\n", " ").replace("’s", "").replace("'s", "").lower()
         return re.sub(r"\p{P}+", "", s)
+
+    @staticmethod
+    def build_speech_verbs_regex() -> str:
+        verbs = set()
+        config_path = os.path.join(os.path.dirname(__file__), "../config.json")
+        try:
+            with open(config_path, "r") as file:
+                data = json.load(file)
+            for word in data["speech_verbs"]:
+                verbs.add(word)
+        except json.JSONDecodeError as e:
+            print(f"Error opening config.json: {e}")
+        return r"\b(" + "|".join(verbs) + r")\b"

@@ -1,16 +1,12 @@
-import io
-import ebooklib
 import os
 import string
 import re
 import json
-from collections import defaultdict
 from unidecode import unidecode
 from parsers.book import Book, Chapter
-from pathlib import Path
 from ebooklib import epub
 from bs4 import BeautifulSoup
-from nlp.ner import EntityExtractor
+from typing import TypedDict
 
 SPAN_WINDOW = 200
 
@@ -21,7 +17,6 @@ class Epub(Book):
         self.title: str = self.set_title()
         self.chapters: dict = self.set_chapters()
         self.author: str = self.set_author()
-        self.speech_verbs: str = self.build_speech_verbs_regex()
 
     def set_author(self) -> str:
         if self.book.get_metadata("DC", "creator"):
@@ -131,69 +126,38 @@ class Epub(Book):
         :rtype list[dict]
         """
         quotes = []
-        for idx in self.chapters.keys():
-            text = self.get_chapter_text(idx)
-            text_len = range(len(text))
-            for i in text_len:
-                if text[i] in ('"', "“"):
-                    chars = []
+        text = self.get_full_text()
+        text_len = range(len(text))
+        for i in text_len:
+            if text[i] in ('"', "“"):
+                start_idx = i + 1
+                chars = []
+                i += 1
+                while text[i] not in ('"', "”"):
+                    chars.append(text[i])
                     i += 1
-                    while text[i] not in ('"', "”"):
-                        chars.append(text[i])
-                        i += 1
 
-                    quote_dict = {}
-                    quote_len = len(chars)
+                end_idx = i - 1
+                quote_dict = {}
+                quote_len = len(chars)
 
-                    prior = text[i - quote_len - SPAN_WINDOW : i - quote_len].replace(
-                        "\n", " "
-                    )
-                    post = text[i : i + SPAN_WINDOW].replace("\n", " ")
+                prior = text[i - quote_len - SPAN_WINDOW : i - quote_len].replace(
+                    "\n", " "
+                )
+                post = text[i : i + SPAN_WINDOW].replace("\n", " ")
 
-                    quote_str = "".join(chars)
-                    quote_str = (
-                        quote_str.replace("“", "").replace("”", "").replace("\n", " ")
-                    )
+                quote_str = "".join(chars)
+                quote_str = (
+                    quote_str.replace("“", "").replace("”", "").replace("\n", " ")
+                )
 
-                    quote_dict["quote"] = quote_str
-                    quote_dict["prior"] = prior
-                    quote_dict["post"] = post
+                word_count = len(quote_str.split(" "))
 
-                    quotes.append(quote_dict)
+                quote_dict["quote"] = quote_str
+                quote_dict["prior"] = prior
+                quote_dict["post"] = post
+                quote_dict["span"] = (start_idx, end_idx)
+                quote_dict["word_count"] = word_count
+
+                quotes.append(quote_dict)
         return quotes
-
-    def associate_text_quotes(self, er: EntityExtractor) -> None:
-        text_quotes = self.get_full_text_quotes()
-        persons_dict = er.build_persons_dict()
-
-        quote_dict = defaultdict(lambda: {"quotes": [], "quote_count": 0})
-        for quote in text_quotes:
-            prior = quote["prior"]
-            post = quote["post"]
-            for variation, canonical in persons_dict.items():
-                if (variation in prior.lower() or variation in post.lower()) and (
-                    self.match_speech_verbs_regex(prior.lower())
-                    or self.match_speech_verbs_regex(post.lower())
-                ):
-                    quote_dict[canonical]["quotes"].append(
-                        [prior if variation in prior else post]
-                    )
-                    quote_dict[canonical]["quote_count"] += 1
-        for person in quote_dict:
-            print(f"person {person}, quote count: {quote_dict[person]["quote_count"]}")
-
-    def match_speech_verbs_regex(self, s: str) -> bool:
-        return bool(re.search(self.speech_verbs, s))
-
-    @staticmethod
-    def build_speech_verbs_regex() -> str:
-        verbs = set()
-        config_path = os.path.join(os.path.dirname(__file__), "../config.json")
-        try:
-            with open(config_path, "r") as file:
-                data = json.load(file)
-            for word in data["speech_verbs"]:
-                verbs.add(word)
-        except json.JSONDecodeError as e:
-            print(f"Error opening config.json: {e}")
-        return r"\b(" + "|".join(verbs) + r")\b"
