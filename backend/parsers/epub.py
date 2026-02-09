@@ -20,6 +20,7 @@ class Epub(Book):
         self.title: str = self.set_title()
         self.chapters: dict = self.set_chapters()
         self.author: str = self.set_author()
+        self.speech_verbs: str = self.build_speech_verbs_regex()
 
     def set_author(self) -> str:
         if self.book.get_metadata("DC", "creator"):
@@ -167,12 +168,29 @@ class Epub(Book):
             prior = quote["prior"]
             post = quote["post"]
             for variation, canonical in persons_dict.items():
-                if variation in prior.lower() or variation in post.lower():
+                if  (variation in prior.lower() or variation in post.lower()) and \
+                    (self.match_speech_verbs_regex(prior.lower()) or self.match_speech_verbs_regex(post.lower())):
                     quote_dict[canonical]["quotes"].append([prior if variation in prior else post])
                     quote_dict[canonical]["quote_count"] += 1
-        
         for person in quote_dict:
             print(f"person {person}, quote count: {quote_dict[person]["quote_count"]}")
 
         
+    def match_speech_verbs_regex(self, s: str) -> bool:
+        return bool(re.search(self.speech_verbs, s))
+
+    @staticmethod
+    def build_speech_verbs_regex() -> str:
+        verbs = set()
+        config_path = os.path.join(os.path.dirname(__file__), "../config.json")
+        try: 
+            with open(config_path, "r") as file:
+                data = json.load(file)
+            for word in data["speech_verbs"]:
+                verbs.add(word)
+        except json.JSONDecodeError as e:
+            print(f"Error opening config.json: {e}")
+        return r"\b(" + "|".join(verbs) + r")\b"
+
+
 

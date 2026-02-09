@@ -2,5 +2,19 @@
     "excluded_phrases": [
         "license", "translate", "licensed", "translated", "contents",
         "edition"    
+    ],
+    "speech_verbs": [
+        "say", "says", "said", "tell", "tells", "told",
+        "ask", "asks", "asked", "reply", "replies", "replied",
+        "explain", "explains", "explained", "mention", "mentions", "mentioned",
+        "state", "states", "stated", "expressed", "expresses", "expressed",
+        "claim", "claims", "claimed", "assert", "asserts", "asserted",
+        "respond", "responds", "responded", "announce", "announces", "announced",
+        "report", "reports", "reported", "note", "notes", "noted", "add", "adds", "added",
+        "comment", "comments", "commented", "suggest", "suggests", "suggested", "indicate", "indicates", "indicated",
+        "mention", "mentions", "mentioned", "state", "states", "stated", "express", "expresses", "expressed",
+        "claim", "claims", "claimed", "assert", "asserts", "asserted", "respond", "responds", "responded", 
+        "announce", "announces"
+
     ]
 }
