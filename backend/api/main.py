@@ -24,10 +24,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.get("/")
 def root():
     return {"status": "API is running"}
-    
+
+
 @app.post("/upload")
 async def upload(file: UploadFile):
     try:
@@ -38,41 +40,27 @@ async def upload(file: UploadFile):
         if "epub" in suffix:
             task = book_processor.process_epub.delay(book_path)
             return {"task_id": task.id, "status": "Task submitted"}
-        # todo  
+        # todo
         if "pdf" in suffix:
             pass
     except Exception:
         raise HTTPException(status_code=500, detail="Couldn't read uploaded file")
-    return {"filename": file.filename }
+    return {"filename": file.filename}
+
 
 @app.get("/task/{task_id}")
 async def get_task_status(task_id: str):
     task = AsyncResult(task_id, app=celery_app)
 
     if task.state == TaskState.PENDING:
-        response = {
-            "state": task.state,
-            "status": "Task is waiting to start..."
-        }
+        response = {"state": task.state, "status": "Task is waiting to start..."}
     elif task.state == TaskState.PROCESSING:
-        response = {
-            "state": task.state,
-            "status": task.info.get("status", "")
-        }
+        response = {"state": task.state, "status": task.info.get("status", "")}
     elif task.state == TaskState.SUCCESS:
-        response = {
-            "state": task.state,
-            "result": task.result
-        }
+        response = {"state": task.state, "result": task.result}
     elif task.state == TaskState.FAILURE:
-        response = {
-            "state": task.state,
-            "status": str(task.info)
-        }
+        response = {"state": task.state, "status": str(task.info)}
     else:
-        response = {
-            "state": task.state,
-            "status": "Unknown state"
-        }
+        response = {"state": task.state, "status": "Unknown state"}
 
     return response

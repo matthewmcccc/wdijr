@@ -4,21 +4,22 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-class Gemini():
+
+class Gemini:
     def __init__(self):
-        self.api_key = os.getenv('GEMINI_API_KEY')
+        self.api_key = os.getenv("GEMINI_API_KEY")
         self.client = genai.Client(api_key=self.api_key)
 
     def prompt(self, model, prompt: str) -> str:
-        response = self.client.models.generate_content(
-            model=model,
-            contents=prompt
-        )
+        response = self.client.models.generate_content(model=model, contents=prompt)
 
         return response.text
-    
+
+
 g: Gemini = Gemini()
-res = g.prompt("gemini-3-flash-preview", """You are an expert in literary named-entity resolution.
+res = g.prompt(
+    "gemini-3-flash-preview",
+    """You are an expert in literary named-entity resolution.
 
 Task:
 I will give you a list of PERSON entities extracted from the novel "Dracula" along with their occurrence counts.
@@ -67,6 +68,6 @@ John Seward (PERSON): 8
 Abraham Van Helsing (PERSON): 3
 Wilhelmina Murray (PERSON): 1
 Count Dracula (PERSON): 1
-""")
+""",
+)
 print(res)
-        

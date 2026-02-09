@@ -1,10 +1,11 @@
 from abc import ABC, abstractmethod
 
+
 class Book(ABC):
     @abstractmethod
     def set_title(self):
         pass
-    
+
     @abstractmethod
     def set_chapters(self):
         pass
@@ -12,6 +13,7 @@ class Book(ABC):
     @abstractmethod
     def set_author(self):
         pass
+
 
 class Chapter:
     def __init__(self, index, title, item):

@@ -14,6 +14,7 @@ from nlp.ner import EntityExtractor
 
 SPAN_WINDOW = 200
 
+
 class Epub(Book):
     def __init__(self, book_path):
         self.book: epub.EpubBook = epub.read_epub(book_path)
@@ -33,7 +34,7 @@ class Epub(Book):
         if self.book.get_metadata("DC", "title"):
             return self.book.get_metadata("DC", "title")[0][0]
         return "Untitled"
-    
+
     def set_chapters(self) -> dict:
         idx = 0
         chapters = {}
@@ -43,19 +44,17 @@ class Epub(Book):
             if not self.check_valid_ch_title(ch_title):
                 continue
             ch: Chapter = Chapter(
-                index=idx,
-                title=ch_title,
-                item=self.book.get_item_with_href(href)
+                index=idx, title=ch_title, item=self.book.get_item_with_href(href)
             )
             chapters[idx] = ch
             idx += 1
         return chapters
-    
+
     def check_valid_ch_title(self, ch_title: str) -> bool:
         valid = True
 
         # skip title pages
-        table = str.maketrans('', '', string.punctuation)
+        table = str.maketrans("", "", string.punctuation)
         book_title_fmt = unidecode(self.book.title.lower().translate(table))
         ch_title_fmt = unidecode(ch_title.lower()).translate(table)
         # for cases where the chapter title == book title
@@ -64,7 +63,7 @@ class Epub(Book):
             valid = False
 
         config_path = os.path.join(os.path.dirname(__file__), "../config.json")
-        try: 
+        try:
             with open(config_path, "r") as file:
                 data = json.load(file)
             for word in data["excluded_phrases"]:
@@ -74,7 +73,7 @@ class Epub(Book):
             print(f"Error opening config.json: {e}")
 
         return valid
-    
+
     def get_full_text(self) -> str:
         text = []
         for chapter in self.chapters.values():
@@ -92,7 +91,7 @@ class Epub(Book):
         soup = BeautifulSoup(chapter.item.get_body_content(), "html.parser")
         text = [para.get_text() for para in soup.find_all("p")]
         return "\n".join(text)
-    
+
     def get_full_text_word_list(self) -> list[str]:
         """
         returns a list of all of the words in a text
@@ -105,12 +104,12 @@ class Epub(Book):
         text_str = "\n".join(text)
         words = text_str.split()
         return words
-    
+
     def get_chapter_word_list(self, index) -> list[str]:
         """
         Returns all of the words for a given chapter
         as a list of strings
-        
+
         :param index: Chapter index / number
         :rtype list[str]
         :return A list of all words from a given chapter
@@ -121,13 +120,13 @@ class Epub(Book):
         text_str = "\n".join(text)
         words = text_str.split()
         return words
-    
+
     def get_full_text_quotes(self) -> list[dict]:
         """
         Get a list of all of the quotes from the text,
         and spans of text before and after the quote.
         quotes in this context are instances of speech.
-        
+
         :return A list of all of the quotes, and spans of text surrounding the quote
         :rtype list[dict]
         """
@@ -136,26 +135,30 @@ class Epub(Book):
             text = self.get_chapter_text(idx)
             text_len = range(len(text))
             for i in text_len:
-                if text[i] in ('"', '“'):
+                if text[i] in ('"', "“"):
                     chars = []
                     i += 1
-                    while text[i] not in ('"', '”'):
+                    while text[i] not in ('"', "”"):
                         chars.append(text[i])
                         i += 1
-                    
+
                     quote_dict = {}
                     quote_len = len(chars)
 
-                    prior = text[i-quote_len-SPAN_WINDOW:i-quote_len].replace("\n", " ")
-                    post = text[i:i+SPAN_WINDOW].replace("\n", " ")
-                    
+                    prior = text[i - quote_len - SPAN_WINDOW : i - quote_len].replace(
+                        "\n", " "
+                    )
+                    post = text[i : i + SPAN_WINDOW].replace("\n", " ")
+
                     quote_str = "".join(chars)
-                    quote_str = quote_str.replace("“", "").replace("”", "").replace("\n", " ")
-                    
+                    quote_str = (
+                        quote_str.replace("“", "").replace("”", "").replace("\n", " ")
+                    )
+
                     quote_dict["quote"] = quote_str
                     quote_dict["prior"] = prior
                     quote_dict["post"] = post
-                    
+
                     quotes.append(quote_dict)
         return quotes
 
@@ -168,14 +171,17 @@ class Epub(Book):
             prior = quote["prior"]
             post = quote["post"]
             for variation, canonical in persons_dict.items():
-                if  (variation in prior.lower() or variation in post.lower()) and \
-                    (self.match_speech_verbs_regex(prior.lower()) or self.match_speech_verbs_regex(post.lower())):
-                    quote_dict[canonical]["quotes"].append([prior if variation in prior else post])
+                if (variation in prior.lower() or variation in post.lower()) and (
+                    self.match_speech_verbs_regex(prior.lower())
+                    or self.match_speech_verbs_regex(post.lower())
+                ):
+                    quote_dict[canonical]["quotes"].append(
+                        [prior if variation in prior else post]
+                    )
                     quote_dict[canonical]["quote_count"] += 1
         for person in quote_dict:
             print(f"person {person}, quote count: {quote_dict[person]["quote_count"]}")
 
-        
     def match_speech_verbs_regex(self, s: str) -> bool:
         return bool(re.search(self.speech_verbs, s))
 
@@ -183,7 +189,7 @@ class Epub(Book):
     def build_speech_verbs_regex() -> str:
         verbs = set()
         config_path = os.path.join(os.path.dirname(__file__), "../config.json")
-        try: 
+        try:
             with open(config_path, "r") as file:
                 data = json.load(file)
             for word in data["speech_verbs"]:
@@ -191,6 +197,3 @@ class Epub(Book):
         except json.JSONDecodeError as e:
             print(f"Error opening config.json: {e}")
         return r"\b(" + "|".join(verbs) + r")\b"
-
-
-
