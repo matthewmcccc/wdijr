@@ -79,12 +79,21 @@ class EntityExtractor():
         return gen_persons
     
     def build_persons_dict(self) -> dict:
+        """
+        Build dictionary for associating variations of a name with their
+        canonical name
+
+        e.g. {"Van Helsing": "Van Helsing", "Van": "Van Helsing"}
+                
+        :return: Dictionary mapping variations of names to their parent or canonical name
+        :rtype: dict
+        """
         persons_dict = {}
         consolidated_persons = self.consolidate_persons()
+        print(consolidated_persons)
         for group in consolidated_persons:
             for idx in range(len(group)):
                 persons_dict[group[idx]] = group[0]
-        print(persons_dict)
         return persons_dict
 
 

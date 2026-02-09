@@ -4,11 +4,15 @@ import os
 import string
 import re
 import json
+from collections import defaultdict
 from unidecode import unidecode
 from parsers.book import Book, Chapter
 from pathlib import Path
 from ebooklib import epub
 from bs4 import BeautifulSoup
+from nlp.ner import EntityExtractor
+
+SPAN_WINDOW = 200
 
 class Epub(Book):
     def __init__(self, book_path):
@@ -103,10 +107,12 @@ class Epub(Book):
     
     def get_chapter_word_list(self, index) -> list[str]:
         """
-        returns all of the words for a given chapter
+        Returns all of the words for a given chapter
         as a list of strings
         
-        index: chapter index / number
+        :param index: Chapter index / number
+        :rtype list[str]
+        :return A list of all words from a given chapter
         """
         chapter = self.chapters[index]
         soup = BeautifulSoup(chapter.item.get_body_content(), "html.parser")
@@ -117,10 +123,11 @@ class Epub(Book):
     
     def get_full_text_quotes(self) -> list[dict]:
         """
-        get a list of all of the quotes from the text,
+        Get a list of all of the quotes from the text,
         and spans of text before and after the quote.
         quotes in this context are instances of speech.
         
+        :return A list of all of the quotes, and spans of text surrounding the quote
         :rtype list[dict]
         """
         quotes = []
@@ -138,8 +145,8 @@ class Epub(Book):
                     quote_dict = {}
                     quote_len = len(chars)
 
-                    prior = text[i-quote_len-50:i-quote_len].replace("\n", " ")
-                    post = text[i:i+50].replace("\n", " ")
+                    prior = text[i-quote_len-SPAN_WINDOW:i-quote_len].replace("\n", " ")
+                    post = text[i:i+SPAN_WINDOW].replace("\n", " ")
                     
                     quote_str = "".join(chars)
                     quote_str = quote_str.replace("“", "").replace("”", "").replace("\n", " ")
@@ -150,3 +157,22 @@ class Epub(Book):
                     
                     quotes.append(quote_dict)
         return quotes
+
+    def associate_text_quotes(self, er: EntityExtractor) -> None:
+        text_quotes = self.get_full_text_quotes()
+        persons_dict = er.build_persons_dict()
+
+        quote_dict = defaultdict(lambda: {"quotes": [], "quote_count": 0})
+        for quote in text_quotes:
+            prior = quote["prior"]
+            post = quote["post"]
+            for variation, canonical in persons_dict.items():
+                if variation in prior.lower() or variation in post.lower():
+                    quote_dict[canonical]["quotes"].append([prior if variation in prior else post])
+                    quote_dict[canonical]["quote_count"] += 1
+        
+        for person in quote_dict:
+            print(f"person {person}, quote count: {quote_dict[person]["quote_count"]}")
+
+        
+
