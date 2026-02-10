@@ -10,16 +10,20 @@ from collections import defaultdict
 spacy.prefer_gpu()
 
 ALLOWED_CHARACTER_DIFF = 1500
+POST_SPAN_WINDOW = 3
+PRIOR_SPAN_WINDOW = 10
 
 class QuoteInfo(TypedDict):
     quotes: list[str]
     quote_count: int
+
 
 class EntityExtractor:
     def __init__(self, model: str, text: str):
         self.nlp = spacy.load(model)
         self.doc = self.process_text(text)
         self.persons = self.get_persons_from_text()
+        self.verbs_regex = self.build_speech_verbs_regex()
 
     def process_text(self, text: str) -> None:
         """
@@ -42,10 +46,21 @@ class EntityExtractor:
         persons = []
         if self.doc is None:
             return
-        counts = Counter((ent.text, ent.label_) for ent in self.doc.ents)
-        for (text, label), count in counts.most_common():
-            if label == "PERSON" and len(text) >= 3 and text not in self.nlp.Defaults.stop_words:
-                persons.append(text.lower())
+
+        label_counts = defaultdict(lambda: defaultdict(int))
+        for ent in self.doc.ents:
+            label_counts[ent.text.lower()][ent.label_] += 1
+
+        for text, labels in label_counts.items():
+            person_count = labels.get("PERSON", 0)
+            total = sum(labels.values())
+            if (
+                person_count / total > 0.5
+                and person_count > 3
+                and len(text) >= 3
+                and text not in self.nlp.Defaults.stop_words
+            ):
+                persons.append(text)
         return persons
 
     def consolidate_persons(self) -> list[list[str]]:
@@ -132,31 +147,44 @@ class EntityExtractor:
         """
         persons_dict = self.build_persons_dict()
         attributed_quotes = []
+        unattributed_quotes = 0
         for quote in quotes:
             quote_obj = {
                 "quote": quote["quote"],
                 "span": quote["span"],
                 "word_count": quote["word_count"],
-                "speaker": None
+                "speaker": None,
             }
             prior = quote["prior"]
             post = quote["post"]
             for variation, canonical in persons_dict.items():
-                if (self.check_span_for_speech(prior.lower() + " " + post.lower(), variation)):
+                if self.check_span_for_speech(
+                    post.lower(), variation, POST_SPAN_WINDOW
+                ):
                     quote_obj["speaker"] = canonical
                     break
+                if self.check_span_for_speech(
+                    prior.lower(), variation, PRIOR_SPAN_WINDOW
+                ):
+                    quote_obj["speaker"] = canonical
+                    break
+            # if quote_obj["speaker"] == None:
+            #     print("Speaker was none")
+            #     print(f"Prior: {prior}, Post: {post}")
             attributed_quotes.append(quote_obj)
+            attributed = len([q for q in attributed_quotes if q["speaker"] is not None])
+            total = len(attributed_quotes)
+            print(f"total: {total} attributed: {attributed} ratio: {attributed/total}")
         return attributed_quotes
-    
-    def check_span_for_speech(self, span: str, name: str) -> bool:
-        WINDOW = 3
-        words = span.lower().split()
+
+    def check_span_for_speech(self, span: str, name: str, span_len: int) -> bool:
+        words = span.split(" ")
         name_lower = name.lower()
         for i, word in enumerate(words):
             if self.match_speech_verbs_regex(word):
-                context = words[max(0, i - WINDOW): i + WINDOW + 1]
+                context = words[max(0, i - span_len) : i + span_len + 1]
                 context_str = " ".join(context)
-                if re.search(r'\b' + re.escape(name_lower) + r'\b', context_str):
+                if re.search(r"\b" + re.escape(name_lower) + r"\b", context_str):
                     return True
         return False
 
@@ -164,25 +192,22 @@ class EntityExtractor:
         quotes_len = len(quotes)
         nw_dict = defaultdict(lambda: defaultdict(list))
         for q_idx in range(1, quotes_len):
-            prev_speaker = quotes[q_idx-1]["speaker"]
+            prev_speaker = quotes[q_idx - 1]["speaker"]
             curr_speaker = quotes[q_idx]["speaker"]
             if prev_speaker is None or curr_speaker is None:
-                break
-            prev_end = quotes[q_idx-1]["span"][1]
+                continue
+            prev_end = quotes[q_idx - 1]["span"][1]
             curr_start = quotes[q_idx]["span"][0]
             space = curr_start - prev_end
-            if (curr_speaker != prev_speaker) and \
-                (space < ALLOWED_CHARACTER_DIFF):
+            if (curr_speaker != prev_speaker) and (space < ALLOWED_CHARACTER_DIFF):
                 nw_dict[prev_speaker][curr_speaker].append(quotes[q_idx]["quote"])
-        print(nw_dict)
-            
-
+        return nw_dict
 
     def match_speech_verbs_regex(self, s: str) -> bool:
-        speech_verbs = self.build_speech_verbs_regex()
-        return bool(re.search(speech_verbs, s))
+        verbs_regex = self.verbs_regex
+        return bool(re.search(verbs_regex, s))
 
-    # todo: finish this? 
+    # todo: finish this?
     def coref_res(self, s: str) -> None:
         """
         Lightweight coreference resolution that replaces pronouns with
@@ -190,7 +215,7 @@ class EntityExtractor:
 
         e.g. if Alice and John are the most recently used entities,
         "she said" becomes "Alice said", and "he said" becomes "John said".
-                
+
         :param self: Description
         :param s: Description
         :type s: str

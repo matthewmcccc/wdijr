@@ -8,8 +8,8 @@ from ebooklib import epub
 from bs4 import BeautifulSoup
 from typing import TypedDict
 
-SPAN_WINDOW = 50
-
+PRIOR_SPAN_WINDOW = 75
+POST_SPAN_WINDOW = 50
 class Epub(Book):
     def __init__(self, book_path):
         self.book: epub.EpubBook = epub.read_epub(book_path)
@@ -140,10 +140,10 @@ class Epub(Book):
                 quote_dict = {}
                 quote_len = len(chars)
 
-                prior = text[i - quote_len - SPAN_WINDOW : i - quote_len].replace(
+                prior = text[i - quote_len - PRIOR_SPAN_WINDOW : i - quote_len].replace(
                     "\n", " "
                 )
-                post = text[i : i + SPAN_WINDOW].replace("\n", " ")
+                post = text[i : i + POST_SPAN_WINDOW].replace("\n", " ")
 
                 quote_str = "".join(chars)
                 quote_str = (

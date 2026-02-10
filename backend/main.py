@@ -10,9 +10,8 @@ if __name__ == "__main__":
     text = book.get_full_text()
     quotes = book.get_full_text_quotes()
     er: EntityExtractor = EntityExtractor("en_core_web_trf", text)
-    post = '" cried Alice (she was so much surprised...'
     associated_quotes = er.associate_text_quotes(quotes)
-    er.build_conversational_network(associated_quotes)
+    print(er.build_conversational_network(associated_quotes))
     # delta: list[(int, float)] = ps.first_difference(valence_vals)
     # ps.get_text_for_summarization(chapter_words, delta, len(valence_vals))
     # ps.normalize(valence_vals)
