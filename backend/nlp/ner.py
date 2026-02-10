@@ -9,11 +9,11 @@ from collections import defaultdict
 
 spacy.prefer_gpu()
 
+ALLOWED_CHARACTER_DIFF = 1500
 
 class QuoteInfo(TypedDict):
     quotes: list[str]
     quote_count: int
-
 
 class EntityExtractor:
     def __init__(self, model: str, text: str):
@@ -32,7 +32,7 @@ class EntityExtractor:
         self.doc = self.nlp(text)
         return self.doc
 
-    def get_persons_from_text(self) -> list[dict]:
+    def get_persons_from_text(self) -> list[str]:
         """
         Retrieve all entities with the label person from a text.
 
@@ -44,11 +44,8 @@ class EntityExtractor:
             return
         counts = Counter((ent.text, ent.label_) for ent in self.doc.ents)
         for (text, label), count in counts.most_common():
-            if label == "PERSON":
-                person_dict = {}
-                person_dict["name"] = text
-                person_dict["count"] = count
-                persons.append(person_dict)
+            if label == "PERSON" and len(text) >= 3 and text not in self.nlp.Defaults.stop_words:
+                persons.append(text.lower())
         return persons
 
     def consolidate_persons(self) -> list[list[str]]:
@@ -62,11 +59,11 @@ class EntityExtractor:
         :rtype: list[list[str]]
         """
         sorted_persons = sorted(
-            self.persons, reverse=True, key=lambda entity: len(entity["name"])
+            self.persons, reverse=True, key=lambda entity: len(entity)
         )
         gen_persons = []
         stop_words = self.nlp.Defaults.stop_words
-        name = self.clean_string(sorted_persons[0]["name"])
+        name = self.clean_string(sorted_persons[0])
         gen_persons.append(
             [
                 name,
@@ -79,7 +76,7 @@ class EntityExtractor:
         )
         for p_idx in range(len(sorted_persons)):
             seen = False
-            p = self.clean_string(sorted_persons[p_idx]["name"])
+            p = self.clean_string(sorted_persons[p_idx])
             if len(p) <= 3 or p in stop_words:
                 break
             p_split = p.split(" ")
@@ -119,13 +116,12 @@ class EntityExtractor:
         """
         persons_dict = {}
         consolidated_persons = self.consolidate_persons()
-        print(consolidated_persons)
         for group in consolidated_persons:
             for idx in range(len(group)):
                 persons_dict[group[idx]] = group[0]
         return persons_dict
 
-    def associate_text_quotes(self, quotes: list[dict]) -> dict[str, QuoteInfo]:
+    def associate_text_quotes(self, quotes: list[dict]) -> list[dict]:
         """
         Associate the quotes from a text with an entity (specifically a person)
 
@@ -135,28 +131,77 @@ class EntityExtractor:
         :rtype: dict[str, QuoteInfo]
         """
         persons_dict = self.build_persons_dict()
-
-        quote_dict = defaultdict(lambda: {"quotes": [], "quote_count": 0})
+        attributed_quotes = []
         for quote in quotes:
-            q = quote["quote"]
+            quote_obj = {
+                "quote": quote["quote"],
+                "span": quote["span"],
+                "word_count": quote["word_count"],
+                "speaker": None
+            }
             prior = quote["prior"]
             post = quote["post"]
-            span = quote["span"]
-            word_count = quote["word_count"]
             for variation, canonical in persons_dict.items():
-                if (variation in prior.lower() or variation in post.lower()) and (
-                    self.match_speech_verbs_regex(prior.lower())
-                    or self.match_speech_verbs_regex(post.lower())
-                ):
-                    quote_dict[canonical]["quotes"].append(
-                        {"quote": q, "span": span, "len_words": word_count}
-                    )
-                    quote_dict[canonical]["quote_count"] += 1
-        return quote_dict
+                if (self.check_span_for_speech(prior.lower() + " " + post.lower(), variation)):
+                    quote_obj["speaker"] = canonical
+                    break
+            attributed_quotes.append(quote_obj)
+        return attributed_quotes
+    
+    def check_span_for_speech(self, span: str, name: str) -> bool:
+        WINDOW = 3
+        words = span.lower().split()
+        name_lower = name.lower()
+        for i, word in enumerate(words):
+            if self.match_speech_verbs_regex(word):
+                context = words[max(0, i - WINDOW): i + WINDOW + 1]
+                context_str = " ".join(context)
+                if re.search(r'\b' + re.escape(name_lower) + r'\b', context_str):
+                    return True
+        return False
+
+    def build_conversational_network(self, quotes: list[dict]) -> dict:
+        quotes_len = len(quotes)
+        nw_dict = defaultdict(lambda: defaultdict(list))
+        for q_idx in range(1, quotes_len):
+            prev_speaker = quotes[q_idx-1]["speaker"]
+            curr_speaker = quotes[q_idx]["speaker"]
+            if prev_speaker is None or curr_speaker is None:
+                break
+            prev_end = quotes[q_idx-1]["span"][1]
+            curr_start = quotes[q_idx]["span"][0]
+            space = curr_start - prev_end
+            if (curr_speaker != prev_speaker) and \
+                (space < ALLOWED_CHARACTER_DIFF):
+                nw_dict[prev_speaker][curr_speaker].append(quotes[q_idx]["quote"])
+        print(nw_dict)
+            
+
 
     def match_speech_verbs_regex(self, s: str) -> bool:
         speech_verbs = self.build_speech_verbs_regex()
         return bool(re.search(speech_verbs, s))
+
+    # todo: finish this? 
+    def coref_res(self, s: str) -> None:
+        """
+        Lightweight coreference resolution that replaces pronouns with
+        the most recently named entity relative to gender.
+
+        e.g. if Alice and John are the most recently used entities,
+        "she said" becomes "Alice said", and "he said" becomes "John said".
+                
+        :param self: Description
+        :param s: Description
+        :type s: str
+        """
+        text_words = s.split(" ")
+        male_entity = None
+        female_entity = None
+        for word in text_words:
+            clean_word = self.clean_string(word)
+            if word[0].isupper() and clean_word in self.persons:
+                pass
 
     @staticmethod
     def clean_string(s: str) -> str:

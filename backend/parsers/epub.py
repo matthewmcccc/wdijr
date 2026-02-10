@@ -8,8 +8,7 @@ from ebooklib import epub
 from bs4 import BeautifulSoup
 from typing import TypedDict
 
-SPAN_WINDOW = 200
-
+SPAN_WINDOW = 50
 
 class Epub(Book):
     def __init__(self, book_path):
