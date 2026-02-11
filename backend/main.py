@@ -5,7 +5,7 @@ from nlp.ner import EntityExtractor
 from nlp.plot_sentiment import PlotSentiment
 
 if __name__ == "__main__":
-    book_path = Path("./temp/emma.epub")
+    book_path = Path("./temp/aaiw.epub")
     book: Epub = Epub(book_path)
     text = book.get_full_text()
     er: EntityExtractor = EntityExtractor("en_core_web_trf", text)

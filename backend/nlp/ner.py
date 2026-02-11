@@ -7,6 +7,7 @@ from collections import Counter
 import regex as re
 from typing import TypedDict
 from collections import defaultdict
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 spacy.prefer_gpu()
 
@@ -27,6 +28,7 @@ class EntityExtractor:
         self.verbs_regex = self.build_speech_verbs_regex()
         self.gender_detector = gender.Detector()
         self.entity_index = self.build_entity_index(text)
+        self.sid_obj = SentimentIntensityAnalyzer()
 
     def process_text(self, text: str) -> None:
         """
@@ -150,13 +152,13 @@ class EntityExtractor:
         """
         persons_dict = self.build_persons_dict()
         attributed_quotes = []
-        unattributed_quotes = 0
         for quote in quotes:
             quote_obj = {
                 "quote": quote["quote"],
                 "span": quote["span"],
                 "word_count": quote["word_count"],
                 "speaker": None,
+                "sentiment": None,
             }
             prior = quote["prior"]
             post = quote["post"]
@@ -173,7 +175,7 @@ class EntityExtractor:
                     break
             if quote_obj["speaker"] == None:
                 span_start = quote_obj["span"][0]
-                for span_text, direction in [(post.lower(), 1), (prior.lower(), -1)]:
+                for span_text, _direction in [(post.lower(), 1), (prior.lower(), -1)]:
                     words = span_text.split()
                     for word in words:
                         if self.match_speech_verbs_regex(word):
@@ -187,10 +189,11 @@ class EntityExtractor:
                     if quote_obj["speaker"] is None:
                         break
 
+            quote_obj["sentiment"] = self.sid_obj.polarity_scores(quote_obj["quote"])["compound"]
             attributed_quotes.append(quote_obj)
-            attributed = len([q for q in attributed_quotes if q["speaker"] is not None])
-            total = len(attributed_quotes)
-            print(f"total: {total} attributed: {attributed} ratio: {attributed/total}")
+            # attributed = len([q for q in attributed_quotes if q["speaker"] is not None])
+            # total = len(attributed_quotes)
+            # print(f"total: {total} attributed: {attributed} ratio: {attributed/total}")
         return attributed_quotes
 
     def check_span_for_speech(self, span: str, name: str, span_len: int) -> bool:
@@ -214,9 +217,10 @@ class EntityExtractor:
                 continue
             prev_end = quotes[q_idx - 1]["span"][1]
             curr_start = quotes[q_idx]["span"][0]
+            sentiment = quotes[q_idx]["sentiment"]
             space = curr_start - prev_end
             if (curr_speaker != prev_speaker) and (space < ALLOWED_CHARACTER_DIFF):
-                nw_dict[prev_speaker][curr_speaker].append(quotes[q_idx]["quote"])
+                nw_dict[prev_speaker][curr_speaker].append({"quote": quotes[q_idx]["quote"], "sentiment": sentiment})
         return nw_dict
 
     def match_speech_verbs_regex(self, s: str) -> bool:
@@ -263,6 +267,7 @@ class EntityExtractor:
         if pronoun in ("he", "his", "himself"):
             return self.male_at[index]
             
+        
     @staticmethod
     def clean_string(s: str) -> str:
         """
