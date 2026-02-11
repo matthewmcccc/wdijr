@@ -115,7 +115,7 @@ class Epub(Book):
         words = text_str.split()
         return words
 
-    def get_full_text_quotes(self) -> list[dict]:
+    def get_full_text_quotes(self, text: str) -> list[dict]:
         """
         Get a list of all of the quotes from the text,
         and spans of text before and after the quote.
@@ -125,7 +125,6 @@ class Epub(Book):
         :rtype list[dict]
         """
         quotes = []
-        text = self.get_full_text()
         text_len = range(len(text))
         for i in text_len:
             if text[i] in ('"', "“"):

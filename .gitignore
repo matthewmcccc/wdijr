@@ -2,4 +2,3 @@ venv
 temp
 __pycache__
 .env
-*.txt

@@ -5,11 +5,11 @@ from nlp.ner import EntityExtractor
 from nlp.plot_sentiment import PlotSentiment
 
 if __name__ == "__main__":
-    book_path = Path("./temp/aaiw.epub")
+    book_path = Path("./temp/emma.epub")
     book: Epub = Epub(book_path)
     text = book.get_full_text()
-    quotes = book.get_full_text_quotes()
     er: EntityExtractor = EntityExtractor("en_core_web_trf", text)
+    quotes = book.get_full_text_quotes(text)
     associated_quotes = er.associate_text_quotes(quotes)
     print(er.build_conversational_network(associated_quotes))
     # delta: list[(int, float)] = ps.first_difference(valence_vals)

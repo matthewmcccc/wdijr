@@ -1,6 +1,7 @@
 import json
 import os
 import spacy
+import gender_guesser.detector as gender
 from spacy.language import Language
 from collections import Counter
 import regex as re
@@ -24,6 +25,8 @@ class EntityExtractor:
         self.doc = self.process_text(text)
         self.persons = self.get_persons_from_text()
         self.verbs_regex = self.build_speech_verbs_regex()
+        self.gender_detector = gender.Detector()
+        self.entity_index = self.build_entity_index(text)
 
     def process_text(self, text: str) -> None:
         """
@@ -168,9 +171,22 @@ class EntityExtractor:
                 ):
                     quote_obj["speaker"] = canonical
                     break
-            # if quote_obj["speaker"] == None:
-            #     print("Speaker was none")
-            #     print(f"Prior: {prior}, Post: {post}")
+            if quote_obj["speaker"] == None:
+                span_start = quote_obj["span"][0]
+                for span_text, direction in [(post.lower(), 1), (prior.lower(), -1)]:
+                    words = span_text.split()
+                    for word in words:
+                        if self.match_speech_verbs_regex(word):
+                            for w in words:
+                                if w in ("he", "his", "himself"):
+                                    quote_obj["speaker"] = self.coref_res(span_start, "he")
+                                if w in ("she", "her", "herself"):
+                                    quote_obj["speaker"] = self.coref_res(span_start, "she")
+                                    break
+                            break
+                    if quote_obj["speaker"] is None:
+                        break
+
             attributed_quotes.append(quote_obj)
             attributed = len([q for q in attributed_quotes if q["speaker"] is not None])
             total = len(attributed_quotes)
@@ -206,9 +222,31 @@ class EntityExtractor:
     def match_speech_verbs_regex(self, s: str) -> bool:
         verbs_regex = self.verbs_regex
         return bool(re.search(verbs_regex, s))
+    
+    def build_entity_index(self, s: str) -> None:
+        words = s.split(" ")
+        male_at = [None] * len(s)
+        female_at = [None] * len(s)
+        male_entity = None
+        female_entity = None
+        ch_idx = 0
+        for word_idx in range(len(words)):
+            word = words[word_idx]
+            clean_word = self.clean_string(word)
+            if len(word) > 0 and word[0].isupper() and clean_word in self.persons:
+                g = self.gender_detector.get_gender(word)
+                if g == "male":
+                    male_entity = clean_word
+                if g == "female":
+                    female_entity = clean_word
+            for i in range(ch_idx, min(ch_idx + len(word), len(s))):
+                male_at[i] = male_entity
+                female_at[i] = female_entity
+            ch_idx += len(word) + 1
+        self.male_at = male_at
+        self.female_at = female_at
 
-    # todo: finish this?
-    def coref_res(self, s: str) -> None:
+    def coref_res(self, index: int, pronoun: str) -> str:
         """
         Lightweight coreference resolution that replaces pronouns with
         the most recently named entity relative to gender.
@@ -220,14 +258,11 @@ class EntityExtractor:
         :param s: Description
         :type s: str
         """
-        text_words = s.split(" ")
-        male_entity = None
-        female_entity = None
-        for word in text_words:
-            clean_word = self.clean_string(word)
-            if word[0].isupper() and clean_word in self.persons:
-                pass
-
+        if pronoun in ("she", "hers", "herself"):
+            return self.female_at[index]
+        if pronoun in ("he", "his", "himself"):
+            return self.male_at[index]
+            
     @staticmethod
     def clean_string(s: str) -> str:
         """
