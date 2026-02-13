@@ -191,9 +191,9 @@ class EntityExtractor:
 
             quote_obj["sentiment"] = self.sid_obj.polarity_scores(quote_obj["quote"])["compound"]
             attributed_quotes.append(quote_obj)
-            # attributed = len([q for q in attributed_quotes if q["speaker"] is not None])
-            # total = len(attributed_quotes)
-            # print(f"total: {total} attributed: {attributed} ratio: {attributed/total}")
+            attributed = len([q for q in attributed_quotes if q["speaker"] is not None])
+            total = len(attributed_quotes)
+            print(f"total: {total} attributed: {attributed} ratio: {attributed/total}")
         return attributed_quotes
 
     def check_span_for_speech(self, span: str, name: str, span_len: int) -> bool:
@@ -207,7 +207,8 @@ class EntityExtractor:
                     return True
         return False
 
-    def build_conversational_network(self, quotes: list[dict]) -> dict:
+    # TODO: write a TypedDict class for this return type...
+    def build_conversational_network(self, quotes: list[dict]) -> dict[str, dict[str, list[dict]]]:
         quotes_len = len(quotes)
         nw_dict = defaultdict(lambda: defaultdict(list))
         for q_idx in range(1, quotes_len):
@@ -221,6 +222,7 @@ class EntityExtractor:
             space = curr_start - prev_end
             if (curr_speaker != prev_speaker) and (space < ALLOWED_CHARACTER_DIFF):
                 nw_dict[prev_speaker][curr_speaker].append({"quote": quotes[q_idx]["quote"], "sentiment": sentiment})
+        print(nw_dict)
         return nw_dict
 
     def match_speech_verbs_regex(self, s: str) -> bool:
@@ -266,7 +268,20 @@ class EntityExtractor:
             return self.female_at[index]
         if pronoun in ("he", "his", "himself"):
             return self.male_at[index]
-            
+        
+    # TODO: used typeddict
+    @staticmethod 
+    def normalize_sentiment(quotes: dict[str, dict[str, list[dict]]]) -> dict[str, dict[str, float]]:
+        character_sentiment = defaultdict(lambda: defaultdict(float))
+        
+        for speaker, quotes_dict in quotes.items():
+            for target, quotes in quotes_dict.items():
+                avg_sentiment = sum(q["sentiment"] for q in quotes) / len(quotes)
+                character_sentiment[speaker][target] = avg_sentiment
+
+        return character_sentiment
+                
+
         
     @staticmethod
     def clean_string(s: str) -> str:
