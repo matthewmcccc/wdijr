@@ -222,7 +222,6 @@ class EntityExtractor:
             space = curr_start - prev_end
             if (curr_speaker != prev_speaker) and (space < ALLOWED_CHARACTER_DIFF):
                 nw_dict[prev_speaker][curr_speaker].append({"quote": quotes[q_idx]["quote"], "sentiment": sentiment})
-        print(nw_dict)
         return nw_dict
 
     def match_speech_verbs_regex(self, s: str) -> bool:
@@ -269,6 +268,42 @@ class EntityExtractor:
         if pronoun in ("he", "his", "himself"):
             return self.male_at[index]
         
+    # TODO: move static methods from here to 
+    # a helper or service where applicable
+    @staticmethod
+    def get_nodes_from_network_dict(nw_dict: dict[str, dict[str, list[dict]]]) -> list[dict]:
+        seen_nodes = set()
+        seen_links = set()
+        nodes = []
+        links = []
+        for character, network in nw_dict.items():
+            if character not in seen_nodes():
+                seen_nodes.add(character)
+                nodes.append({"id": str(character), "group": 1})
+
+            for name, quotes in network.items():
+                if name not in seen_nodes:
+                    seen_nodes.add(name)
+                    nodes.append({"id": str(name), "group": 1})
+
+                edge_key = tuple(sorted([character, name]))
+
+                if edge_key not in seen_links:
+                    seen_links.add(edge_key)
+
+                    sentiments = [q["senitment"] for q in quotes]
+                    avg_sentiment = sum(sentiments) / len(quotes["sentiment"]) if sentiments else 0.0
+
+                    links.append({
+                        "source": str(character),
+                        "target": str(name),
+                        "value": len(quotes),
+                        "sentiment": avg_sentiment
+                    })
+                    
+        return {"nodes": nodes, "links": links}
+        
+
     # TODO: used typeddict
     @staticmethod 
     def normalize_sentiment(quotes: dict[str, dict[str, list[dict]]]) -> dict[str, dict[str, float]]:
@@ -280,8 +315,6 @@ class EntityExtractor:
                 character_sentiment[speaker][target] = avg_sentiment
 
         return character_sentiment
-                
-
         
     @staticmethod
     def clean_string(s: str) -> str:

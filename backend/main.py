@@ -12,7 +12,7 @@ if __name__ == "__main__":
     quotes = book.get_full_text_quotes(text)
     associated_quotes = er.associate_text_quotes(quotes)
     nw = er.build_conversational_network(associated_quotes)
-    er.normalize_sentiment(nw)
+    er.get_nodes_from_network_dict(nw)
     # delta: list[(int, float)] = ps.first_difference(valence_vals)
     # ps.get_text_for_summarization(chapter_words, delta, len(valence_vals))
     # ps.normalize(valence_vals)
