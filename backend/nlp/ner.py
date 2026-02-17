@@ -2,9 +2,11 @@ import json
 import os
 import spacy
 import gender_guesser.detector as gender
+import regex as re
+import networkx as nx
+from networkx.algorithms import community
 from spacy.language import Language
 from collections import Counter
-import regex as re
 from typing import TypedDict
 from collections import defaultdict
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
@@ -272,37 +274,36 @@ class EntityExtractor:
     # a helper or service where applicable
     @staticmethod
     def get_nodes_from_network_dict(nw_dict: dict[str, dict[str, list[dict]]]) -> list[dict]:
-        seen_nodes = set()
-        seen_links = set()
         nodes = []
         links = []
+        seen_nodes = set()
+        seen_links = set()
+
         for character, network in nw_dict.items():
-            if character not in seen_nodes():
-                seen_nodes.add(character)
+            if character not in seen_nodes:
                 nodes.append({"id": str(character), "group": 1})
+                seen_nodes.add(character)
 
             for name, quotes in network.items():
                 if name not in seen_nodes:
-                    seen_nodes.add(name)
                     nodes.append({"id": str(name), "group": 1})
+                    seen_nodes.add(name)
 
-                edge_key = tuple(sorted([character, name]))
+                links.append({"source" : str(character), "target": str(name), "value": sum(q["sentiment"] for q in quotes)})
+        G = nx.Graph()
+        G.add_nodes_from([n["id"] for n in nodes])
+        G.add_edges_from([(l["source"], l["target"]) for l in links])
 
-                if edge_key not in seen_links:
-                    seen_links.add(edge_key)
-
-                    sentiments = [q["senitment"] for q in quotes]
-                    avg_sentiment = sum(sentiments) / len(quotes["sentiment"]) if sentiments else 0.0
-
-                    links.append({
-                        "source": str(character),
-                        "target": str(name),
-                        "value": len(quotes),
-                        "sentiment": avg_sentiment
-                    })
-                    
-        return {"nodes": nodes, "links": links}
+        communities = community.louvain_communities(G)
+        node_to_group = {}
+        for group_id, members in enumerate(communities):
+            for member in members:
+                node_to_group[member] = group_id
         
+        for node in nodes:
+            node["group"] = node_to_group.get(node["id"], 0)
+
+        return {"nodes": nodes, "links": links}
 
     # TODO: used typeddict
     @staticmethod 
