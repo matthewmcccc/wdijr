@@ -305,6 +305,7 @@ class EntityExtractor:
 
         return {"nodes": nodes, "links": links}
 
+
     # TODO: used typeddict
     @staticmethod 
     def normalize_sentiment(quotes: dict[str, dict[str, list[dict]]]) -> dict[str, dict[str, float]]:

@@ -40,6 +40,7 @@ const data = {
 };
 
 const getColor = (group: number): string => {
+    
     const colors = ["#6366f1", "#f59e0b", "#06b6d4"];
     return colors[group] || "#999";
 };
