@@ -1,5 +1,31 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: 'RF Dewi';
+  src: url('./assets/fonts/RFDewi-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'RF Dewi';
+  src: url('./assets/fonts/RFDewi-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-display: swap;
+} 
+
+@font-face {
+  font-family: 'British Green';
+  src: url('./assets/fonts/British\ Green.otf') format('opentype');
+  font-weight: 400;
+  font-display: swap;
+}
+
+@theme {
+  --color-brand-50: #707070;
+  --color-brand-cta: #228B22;
+}
+
 body {
   padding: 20px;
 }

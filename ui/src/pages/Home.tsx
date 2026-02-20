@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react"
-import FilePicker from "../components/FilePicker"
+import uploadIcon from "../assets/img/upload_icon.png"
+import bookIcon from "../assets/img/book_icon.png"
+
 import axios from "axios"
 
 type AppState = "idle" | "processing" | "done"
@@ -58,15 +60,33 @@ export default function Home() {
     return (
         <>
             {appState == "idle" && (
-                <div className="flex flex-col justify-center items-center h-screen">
-                    <h1 className="text-2xl font-bold text-left">What Did I Just Read?</h1>
-                    <p>A web-tool for analysing literature</p>
+                <div className="flex flex-col gap-6 pt-75 items-center min-h-screen overflow-hidden">
+                    <h1 className="text-6xl font-serif text-left">What Did I Just Read?</h1>
+                    <p className="text-lg font-dewi text-brand-50">
+                        Upload your own text or choose from a pre-selected
+                        corpus for textual analysis.
+                    </p>
+                    <div className="flex gap-4">
+                        <button className="bg-brand-cta text-white font-dewi py-2 px-4 rounded cursor-pointer hover:bg-gray-700
+                        duration-300 transition-all
+                        ">
+                            <img src={uploadIcon} alt="Upload Icon" className="inline-block w-5 h-5 mr-3 mb-1 fill-white
+                            invert brightness-150" />
+                                Upload a Book
+                        </button>
+                        <button className="bg-white border-black-500 border text-black font-dewi py-2 px-4 rounded cursor-pointer hover:bg-black hover:text-white
+                        duration-300 transition-all
+                        ">
+                            <img src={bookIcon} alt="Book Icon" className="inline-block w-5 h-5 mr-3 mb-1 fill-white" />
+                                Choose from Corpus  
+                        </button>
+                    </div>
                     
-                    <FilePicker  onFileSelect={handleFileSelect} />
+                    {/* <FilePicker  onFileSelect={handleFileSelect} /> */}
                 </div>
             )}
-            {appState == "processing" && <p className="mt-4">Processing file: {file?.name}</p>}
-            {appState == "done" && <p className="mt-4">Done processing file: {file?.name}</p>}
+            {appState == "processing" && <p className="mt-4 font-dewi">Processing file: {file?.name}</p>}
+            {appState == "done" && <p className="mt-4 font-dewi">Done processing file: {file?.name}</p>}
         </>
     )
 }

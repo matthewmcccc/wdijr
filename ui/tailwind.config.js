@@ -4,7 +4,18 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        'dewi': ['RF Dewi', 'sans-serif'],
+        'serif': ['British Green', 'serif']
+      },
+      colors: {
+        brand: {
+          'light': '#fff',
+          'cta': '#04a84b'
+        }
+      }
+    },
   },
   plugins: [],
 }
