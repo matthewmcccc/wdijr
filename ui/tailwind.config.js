@@ -12,7 +12,8 @@ export default {
       colors: {
         brand: {
           'light': '#fff',
-          'cta': '#04a84b'
+          'cta': '#04a84b',
+          'cta-hover': '#016a2d',
         }
       }
     },

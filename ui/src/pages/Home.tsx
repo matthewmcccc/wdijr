@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react"
 import uploadIcon from "../assets/img/upload_icon.png"
 import bookIcon from "../assets/img/book_icon.png"
-
 import axios from "axios"
+import Navbar from "../components/Navbar"
+import AnalysisLanding from "./AnalysisLanding"
+import { Navigate, useNavigate } from "react-router-dom"
 
 type AppState = "idle" | "processing" | "done"
 
@@ -10,6 +12,8 @@ export default function Home() {
     const [taskId, setTaskId] = useState<string | null>(null)
     const [file, setFile] = useState<File | null>(null)
     const [appState, setAppState] = useState<AppState>("idle")
+
+    const navigate = useNavigate();
 
     const sendFile = async (selectedFile: File) => {
         setAppState("processing")
@@ -60,30 +64,31 @@ export default function Home() {
     return (
         <>
             {appState == "idle" && (
-                <div className="flex flex-col gap-6 pt-75 items-center min-h-screen overflow-hidden">
-                    <h1 className="text-6xl font-serif text-left">What Did I Just Read?</h1>
-                    <p className="text-lg font-dewi text-brand-50">
-                        Upload your own text or choose from a pre-selected
-                        corpus for textual analysis.
-                    </p>
-                    <div className="flex gap-4">
-                        <button className="bg-brand-cta text-white font-dewi py-2 px-4 rounded cursor-pointer hover:bg-gray-700
-                        duration-300 transition-all
-                        ">
-                            <img src={uploadIcon} alt="Upload Icon" className="inline-block w-5 h-5 mr-3 mb-1 fill-white
-                            invert brightness-150" />
-                                Upload a Book
-                        </button>
-                        <button className="bg-white border-black-500 border text-black font-dewi py-2 px-4 rounded cursor-pointer hover:bg-black hover:text-white
-                        duration-300 transition-all
-                        ">
-                            <img src={bookIcon} alt="Book Icon" className="inline-block w-5 h-5 mr-3 mb-1 fill-white" />
-                                Choose from Corpus  
-                        </button>
+                <div>
+                    <Navbar />
+                    <div className="flex flex-col gap-6 pt-60 items-center min-h-screen overflow-hidden">
+                        <h1 className="text-6xl font-serif text-left">What Did I Just Read?</h1>
+                        <p className="text-lg font-dewi text-brand-50">
+                            Upload your own text or choose from a pre-selected
+                            novel corpus for textual analysis.
+                        </p>
+                        <div className="flex gap-4">
+                            <button className="bg-brand-cta text-white font-dewi py-2 px-4 rounded-4xl cursor-pointer hover:bg-brand-cta-hover
+                            duration-300 transition-all
+                            " onClick={() => navigate("/analysis")}>
+                                <img src={uploadIcon} alt="Upload Icon" className="inline-block w-5 h-5 mr-3 mb-1 fill-white
+                                invert brightness-150" />
+                                    Upload a Book
+                            </button>
+                            <button className="bg-white border-black-500 border text-black font-dewi py-2 px-4 rounded-4xl cursor-pointer hover:bg-black hover:text-white
+                                duration-300 transition-all">
+                                    <img src={bookIcon} alt="Book Icon" className="inline-block w-5 h-5 mr-3 mb-1 fill-white" />
+                                    Choose from Corpus  
+                            </button>
+                        </div>
                     </div>
-                    
-                    {/* <FilePicker  onFileSelect={handleFileSelect} /> */}
                 </div>
+                
             )}
             {appState == "processing" && <p className="mt-4 font-dewi">Processing file: {file?.name}</p>}
             {appState == "done" && <p className="mt-4 font-dewi">Done processing file: {file?.name}</p>}

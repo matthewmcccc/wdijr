@@ -23,9 +23,7 @@
 
 @theme {
   --color-brand-50: #707070;
+  --color-brand-50-hover: #505050;
   --color-brand-cta: #228B22;
-}
-
-body {
-  padding: 20px;
+  --color-brand-cta-hover: #016a2d;
 }
