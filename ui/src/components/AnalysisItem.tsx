@@ -1,16 +1,30 @@
 interface AnalysisItemProps {
     analysis_type: string;
     img: string;
+    description?: string;
 }
 
-export default function AnalysisItem({ analysis_type, img }: AnalysisItemProps) {
+export default function AnalysisItem({ analysis_type, img, description }: AnalysisItemProps) {
     return (
-        <div className="px-6 py-4 w-sm rounded-md border border-gray-200 overflow-hidden">
-            <div className="font-serif text-2xl mb-2">{analysis_type}</div>
-            <img className="w-full" src={img} alt={analysis_type} />
-            <button className="font-serif text-lg">
-                View
-            </button>
+        <div className="w-sm rounded-md border border-gray-200 overflow-hidden cursor-pointer hover:shadow-lg transition-shadow duration-300">
+            <div className="font-serif text-2xl mb-2 px-6 mt-4">{analysis_type}</div>
+            <div className="px-6 font-dewi text-sm text-gray-400">
+                {description || "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."}
+            </div>
+            <div className="">
+                {img ? (
+                    <img className="w-full" src={img} alt={analysis_type} id="analysisImage"/>
+                ) : (
+                    <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
+                        <span className="text-gray-500">Image Placeholder</span>
+                    </div>
+                )}
+                {/* <div className="flex justify-end">
+<                   button className="cursor-pointer px-4 py-2 font-dewi font-bold text-lg">
+                        View
+                    </button>
+                </div> */}
+            </div>
         </div>
     )
 }
