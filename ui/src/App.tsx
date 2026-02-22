@@ -3,7 +3,7 @@ import { createContext } from "react";
 import NetworkGraph from "./pages/NetworkGraph"
 import Home from "./pages/Home"
 import GraphTest from "./pages/GraphTest"
-import AnalysisLanding from "./pages/AnalysisLanding"
+import AnalysisLanding from "./pages/AnalysisOverview"
 import CharacterAnalysis from "./pages/CharacterAnalysis"
 
 function App() {
