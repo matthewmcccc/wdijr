@@ -4,6 +4,7 @@ import NetworkGraph from "./pages/NetworkGraph"
 import Home from "./pages/Home"
 import GraphTest from "./pages/GraphTest"
 import AnalysisLanding from "./pages/AnalysisLanding"
+import CharacterAnalysis from "./pages/CharacterAnalysis"
 
 function App() {
   return (
@@ -11,6 +12,7 @@ function App() {
       <Routes>
         <Route path="/network-graph" element={<NetworkGraph />} />
         <Route path="/analysis" element={<AnalysisLanding />} />
+        <Route path="/character-analysis" element={<CharacterAnalysis />} />
         <Route path="/" element={<Home />} />
         <Route path="/graph-test" element={<GraphTest />} />
       </Routes>

@@ -3,12 +3,11 @@ import uploadIcon from "../assets/img/upload_icon.png"
 import bookIcon from "../assets/img/book_icon.png"
 import axios from "axios"
 import Navbar from "../components/Navbar"
-import AnalysisLanding from "./AnalysisLanding"
 import { Navigate, useNavigate } from "react-router-dom"
 
 type AppState = "idle" | "processing" | "done"
 
-export default function Home() {
+const Home = () => {
     const [taskId, setTaskId] = useState<string | null>(null)
     const [file, setFile] = useState<File | null>(null)
     const [appState, setAppState] = useState<AppState>("idle")
@@ -95,3 +94,5 @@ export default function Home() {
         </>
     )
 }
+
+export default Home;

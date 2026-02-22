@@ -7,7 +7,7 @@ interface AnalysisProps {
     text_title: string
 }
 
-export default function AnalysisLanding() {
+const AnalysisLanding = () => {
     return (
         <div className="">
             <Navbar />
@@ -16,9 +16,17 @@ export default function AnalysisLanding() {
                         Wuthering Heights
                     </div>
                     <div className="flex flex-row gap-12 mt-20 ml-80">
-                        <AnalysisItem analysis_type="Character Analysis" img={GraphImage} />
+                        <AnalysisItem 
+                            analysis_type="Character Analysis" 
+                            img={GraphImage} 
+                            url="/character-analysis" 
+                            description="View a list of characters and their details, as well as interactive
+                            visualisations."
+                        />
                     </div>
                 </div>
         </div>
     )
 }
+
+export default AnalysisLanding;
