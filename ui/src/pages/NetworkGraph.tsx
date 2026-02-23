@@ -1,5 +1,6 @@
 import * as d3 from "d3"
 import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const nameMap: Record<string, string> = {
     "ellen": "nelly",
@@ -44,7 +45,7 @@ const getColor = (group: number): string => {
 };
 
 const createNetworkGraph = (data: any, containerId: string) => {
-    const width = 700;
+    const width = 550;
     const height = 400;
 
     const links = data.links.map((d: any) => Object.create(d));
@@ -60,7 +61,6 @@ const createNetworkGraph = (data: any, containerId: string) => {
         .append("svg")
         .attr("width", width)
         .attr("height", height)
-        .style("background", "#1a1a1a");
     
     const g = svg.append("g");
 
@@ -109,7 +109,10 @@ const createNetworkGraph = (data: any, containerId: string) => {
         .enter().append("circle")
         .attr("r", (d: any) => connectedNodes.has(d.id) ? 10 : 5)
         .attr("opacity", (d: any) => connectedNodes.has(d.id) ? 1 : 0.4)
-        .attr("fill", (d: any) => getColor(d.group));
+        .attr("fill", (d: any) => getColor(d.group))
+        // .on("click", (d: any) => {
+        //     window.location.replace(`/analysis/character/${d.id}`);
+        // })
 
     const labels = g.append("g")
         .attr("class", "labels")
@@ -120,7 +123,7 @@ const createNetworkGraph = (data: any, containerId: string) => {
         .attr("dx", 15)
         .attr("dy", 4)
         .attr("pointer-events", "none")
-        .attr("fill", "white")
+        .attr("fill", "black")
         .text((d: any) => d.id.split(' ').map((w: string) => 
             w.charAt(0).toUpperCase() + w.slice(1)).join(' '));
 
@@ -154,7 +157,7 @@ const NetworkGraph = ({ id = "network-graph" }: NetworkGraphProps) => {
 
     return (
         <div>
-            <div className="border border-gray-300 rounded-lg" id={id}></div>
+            <div className="border border-gray-300 rounded-lg p-2" id={id}></div>
         </div>
     );  
 }

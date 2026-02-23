@@ -4,50 +4,37 @@ import { ChevronDownIcon } from "@heroicons/react/20/solid"
 const Dropdown = () => {
     return (
         <Menu as="div" className="relative inline-block">
-            <MenuButton className="inline-flex w-full justify-center gap-x-1.5 rounded-md 0 px-3 py-2 text-sm font-semibold text-white inset-ring-1 inset-ring-white/5 hover:0">
+            <MenuButton className="inline-flex w-full justify-center gap-x-1.5 border border-gray-300 rounded-md 0 px-3 py-2 text-sm font-semibold font-dewi text-black cursor-pointer">
                 Filter By
                 <ChevronDownIcon aria-hidden="true" className="-mr-1 size-5 text-gray-400" />
             </MenuButton>
 
             <MenuItems
                 transition
-                className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-gray-800 outline-1 -outline-offset-1 outline-white/10 transition data-closed:scale-95 data-closed:transform data-closed:opacity-0 data-enter:duration-100 data-enter:ease-out data-leave:duration-75 data-leave:ease-in"
+                className="text-black absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white border border-gray-300 outline-1 -outline-offset-1 outline-white/10 transition data-closed:scale-95 data-closed:transform data-closed:opacity-0 data-enter:duration-100 data-enter:ease-out data-leave:duration-75 data-leave:ease-in cur"
             >
-                <div className="py-1">
-                <MenuItem>
-                    <a
-                    href="#"
-                    className="block px-4 py-2 text-sm text-gray-300 data-focus: data-focus:text-white data-focus:outline-hidden"
-                    >
-                    Account settings
-                    </a>
-                </MenuItem>
-                <MenuItem>
-                    <a
-                    href="#"
-                    className="block px-4 py-2 text-sm text-gray-300 data-focus:bg-white/5 data-focus:text-white data-focus:outline-hidden"
-                    >
-                    Support
-                    </a>
-                </MenuItem>
-                <MenuItem>
-                    <a
-                    href="#"
-                    className="block px-4 py-2 text-sm text-gray-300 data-focus:bg-white/5 data-focus:text-white data-focus:outline-hidden"
-                    >
-                    License
-                    </a>
-                </MenuItem>
-                <form action="#" method="POST">
+                <div className="">
                     <MenuItem>
-                    <button
-                        type="submit"
-                        className="block w-full px-4 py-2 text-left text-sm text-gray-300 data-focus:bg-white/5 data-focus:text-white data-focus:outline-hidden"
-                    >
-                        Sign out
-                    </button>
+                        <a
+                        className="block px-4 py-2 text-sm cursor-pointer hover:bg-gray-100 transition-colors duration-300"
+                        >
+                        Default
+                        </a>
                     </MenuItem>
-                </form>
+                    <MenuItem>
+                        <a
+                        className="block px-4 py-2 text-sm cursor-pointer hover:bg-gray-100 transition-colors duration-300"
+                        >
+                        A-Z Descending
+                        </a>
+                    </MenuItem>
+                    <MenuItem>
+                        <a
+                        className="block px-4 py-2 text-sm cursor-pointer hover:bg-gray-100 transition-colors duration-300"
+                        >
+                        A-Z Ascending
+                        </a>
+                    </MenuItem>
                 </div>
             </MenuItems>
         </Menu>

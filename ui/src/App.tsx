@@ -1,21 +1,55 @@
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom"
-import { createContext } from "react";
+import buildNavigationDictionary from "./utils/buildNavigationDictionary";
 import NetworkGraph from "./pages/NetworkGraph"
 import Home from "./pages/Home"
 import GraphTest from "./pages/GraphTest"
 import AnalysisLanding from "./pages/AnalysisOverview"
-import CharacterAnalysis from "./pages/CharacterAnalysis"
+import CharacterAnalysisOverview from "./pages/CharacterAnalysisOverview"
+import CharacterAnalysis from "./pages/CharacterAnalysis";
+import { createContext } from "react";
+import { BookContext } from "./contexts/bookContext";
 
-function App() {
+const characterData = {
+    "Heathcliff": {
+        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+        "traits": ["Brooding", "Passionate", "Vengeful"],
+    },
+    "Catherine Earnshaw": {
+        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+        "traits": ["Headstrong", "Impulsive", "Loyal"],
+    },
+    "Edgar Linton": {
+        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+        "traits": ["Refined", "Gentle", "Protective"],
+    },
+    "Isabella Linton": {
+        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+        "traits": ["Naive", "Romantic", "Resilient"],
+    },
+    "Hindley Earnshaw": {
+        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+        "traits": ["Jealous", "Resentful", "Tragic"],
+    },
+}
+
+const navigationData = Object.keys(characterData)
+
+const App = () => {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route path="/network-graph" element={<NetworkGraph />} />
-        <Route path="/analysis" element={<AnalysisLanding />} />
-        <Route path="/character-analysis" element={<CharacterAnalysis />} />
-        <Route path="/" element={<Home />} />
-        <Route path="/graph-test" element={<GraphTest />} />
-      </Routes>
+      <BookContext.Provider value={{
+          characterData,
+          characterNavigationDict: buildNavigationDictionary(navigationData),
+        }}>
+        <Routes>
+          <Route path="/network-graph" element={<NetworkGraph />} />
+          <Route path="/analysis" element={<AnalysisLanding />} />
+          <Route path="/character-analysis" element={<CharacterAnalysisOverview />} />
+          <Route path="/character/:name" element={<CharacterAnalysis />} />
+          <Route path="/" element={<Home />} />
+          <Route path="/graph-test" element={<GraphTest />} />
+        </Routes>
+      </BookContext.Provider>
     </BrowserRouter>
   )
 }
