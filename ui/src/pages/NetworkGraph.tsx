@@ -1,5 +1,5 @@
 import * as d3 from "d3"
-import { useEffect } from "react";
+import { use, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const nameMap: Record<string, string> = {
@@ -44,8 +44,9 @@ const getColor = (group: number): string => {
     return colors[group] || "#999";
 };
 
+
 const createNetworkGraph = (data: any, containerId: string) => {
-    const width = 550;
+    const width = 600;
     const height = 400;
 
     const links = data.links.map((d: any) => Object.create(d));
@@ -64,18 +65,31 @@ const createNetworkGraph = (data: any, containerId: string) => {
     
     const g = svg.append("g");
 
-    svg.call(d3.zoom<SVGSVGElement, unknown>()
-        .scaleExtent([0.3, 4])
+    const zoom = d3.zoom<SVGSVGElement, unknown>()
+        .scaleExtent([0.1, 3])
         .on("zoom", (event) => {
             g.attr("transform", event.transform);
-        }));
+        });
+
+    svg.call(zoom);
+
+    const [xMin = 0, xMax = width] = d3.extent(nodes, (d: any) => d.x as number);
+    const [yMin = 0, yMax = height] = d3.extent(nodes, (d: any) => d.y as number);
+    const dx = xMax - xMin;
+    const dy = yMax - yMin;
+    const padding = 40;
+    const scale = Math.min(width / (dx + padding * 2), height / (dy + padding * 2));
+    const tx = width / 2 - scale * (xMin + dx / 2);
+    const ty = height / 2 - scale * (yMin + dy / 2);
+
+    svg.call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(scale));
 
     const simulation = d3.forceSimulation(nodes)
         .force("link", d3.forceLink(links)
             .id((d: any) => d.id)
-            .distance(100))
+            .distance(150))
         .force("charge", d3.forceManyBody()
-            .strength(-400))
+            .strength(-600))
         .force("center", d3.forceCenter(width / 2, height / 2))
         .force("collision", d3.forceCollide().radius(40))
         .force("x", d3.forceX((d: any) => {
@@ -114,6 +128,28 @@ const createNetworkGraph = (data: any, containerId: string) => {
         //     window.location.replace(`/analysis/character/${d.id}`);
         // })
 
+    node.on("click", (event: any, clickedNode: any) => {
+        const connectedNodeIds = new Set([clickedNode.id]);
+        links.forEach((l: any) => {
+            if (l.source.id === clickedNode.id) connectedNodeIds.add(l.target.id);
+            if (l.target.id === clickedNode.id) connectedNodeIds.add(l.source.id);
+        });
+
+        node.attr("opacity", (d: any) => connectedNodeIds.has(d.id) ? 1 : 0.1);
+        link.attr("opacity", (d: any) =>
+            d.source.id === clickedNode.id || d.target.id === clickedNode.id ? 1 : 0.1
+        );
+        labels.attr("opacity", (d: any) => connectedNodeIds.has(d.id) ? 1 : 0.1);
+    });
+
+    svg.on("click", (event: any) => {
+        if (event.target.tagName === "svg") {
+            node.attr("opacity", (d: any) => connectedNodes.has(d.id) ? 1 : 0.4);
+            link.attr("opacity", 0.7);
+            labels.attr("opacity", 1);
+        }
+    });
+
     const labels = g.append("g")
         .attr("class", "labels")
         .selectAll("text")
@@ -140,6 +176,81 @@ const createNetworkGraph = (data: any, containerId: string) => {
     labels
         .attr("x", (d: any) => d.x)
         .attr("y", (d: any) => d.y);
+
+    const legend = svg.append("g")
+        .attr("class", "legend")
+        .attr("transform", `translate(100), 20`);
+    
+    legend.append("rect")
+        .attr("width", 160)
+        .attr("height", 130)
+        .attr("rx", 5)
+        .attr("fill", "#000000")
+        .attr("stroke", "#444")
+        .attr("stroke-width", 0.5)
+        .attr("opacity", 0.8);
+
+    legend.append("text")
+        .attr("x", 10)
+        .attr("y", 20)
+        .attr("font-size", "14px")
+        .attr("font-weight", "bold")
+        .attr("font-family", "sans-serif")
+        .attr("fill", "white")
+        .text("Legend");
+    
+    const sentimentData = [
+        { label: "Positive Sentiment", color: "#2ecc71", y: 40 },
+        { label: "Neutral Sentiment",  color: "#555",    y: 58 },
+        { label: "Negative Sentiment", color: "#e74c3c", y: 76 },
+    ];
+
+    sentimentData.forEach(({ label, color, y }) => {
+        legend.append("line")
+            .attr("x1", 10).attr("y1", y)
+            .attr("x2", 22).attr("y2", y)
+            .attr("stroke", color)
+            .attr("stroke-width", 2);
+
+        legend.append("text")
+            .attr("x", 28).attr("y", y + 4)
+            .attr("font-size", "12px")
+            .attr("fill", "#f3f3f3")
+            .text(label);
+    });
+
+    legend.append("text")
+        .attr("x", 12)
+        .attr("y", 100)
+        .attr("fill", "#ededed")
+        .attr("font-size", 9)
+        .text("Thickness = dialogue volume");
+
+    legend.append("line")
+        .attr("x1", 16).attr("y1", 115)
+        .attr("x2", 45).attr("y2", 115)
+        .attr("stroke", "#888")
+        .attr("stroke-width", 1);
+
+    legend.append("text")
+        .attr("x", 50).attr("y", 118)
+        .attr("fill", "#777")
+        .attr("font-size", 9)
+        .text("less");
+
+    legend.append("line")
+        .attr("x1", 90).attr("y1", 115)
+        .attr("x2", 119).attr("y2", 115)
+        .attr("stroke", "#888")
+        .attr("stroke-width", 5);
+
+    legend.append("text")
+        .attr("x", 124).attr("y", 118)
+        .attr("fill", "#777")
+        .attr("font-size", 9)
+        .text("more");
+
+    
 };
 
 interface NetworkGraphProps {

@@ -15,13 +15,13 @@ const CharacterAnalysisOverview = () => {
             <div>
                 <Breadcrumbs items={[{ label: "Analysis", url: "/analysis" }, { label: "Character Analysis" }]} />
                 <h1 className="text-5xl font-serif">Character Analysis</h1>
-                <p className="font-dewi mt-4 text-gray-600 text-sm max-w-2xl">
+                <p className="font-dewi mt-4 text-gray-600 text-sm max-w-3xl">
                     Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
                 </p>
             </div>
             <hr className="border-gray-300 my-4"/>
             <div className="flex flex-col gap-12 mt-4">
-                <div className="flex flex-row gap-12 justify-between">
+                <div className="flex flex-row justify-between ">
                     <div className="flex flex-col gap-2">
                         <h1 className="font-dewi">Social Network Graph</h1>
                         <NetworkGraph id="network-graph-1" />
