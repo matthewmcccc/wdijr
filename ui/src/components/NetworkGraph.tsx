@@ -194,7 +194,6 @@ const createNetworkGraph = (data: any, containerId: string) => {
         .attr("x", 10)
         .attr("y", 20)
         .attr("font-size", "14px")
-        .attr("font-weight", "bold")
         .attr("font-family", "sans-serif")
         .attr("fill", "white")
         .text("Legend");
@@ -268,7 +267,7 @@ const NetworkGraph = ({ id = "network-graph" }: NetworkGraphProps) => {
 
     return (
         <div>
-            <div className="border border-gray-300 rounded-lg p-2" id={id}></div>
+            <div className="border border-gray-300 rounded-lg" id={id}></div>
         </div>
     );  
 }

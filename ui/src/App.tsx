@@ -1,11 +1,12 @@
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom"
 import buildNavigationDictionary from "./utils/buildNavigationDictionary";
-import NetworkGraph from "./pages/NetworkGraph"
+import NetworkGraph from "./components/NetworkGraph"
 import Home from "./pages/Home"
-import GraphTest from "./pages/GraphTest"
+import GraphTest from "./components/GraphTest"
 import AnalysisLanding from "./pages/AnalysisOverview"
 import CharacterAnalysisOverview from "./pages/CharacterAnalysisOverview"
 import CharacterAnalysis from "./pages/CharacterAnalysis";
+import PlotAnalysisOverview from "./pages/PlotAnalysisOverview";
 import { createContext } from "react";
 import { BookContext } from "./contexts/bookContext";
 
@@ -48,6 +49,7 @@ const App = () => {
           <Route path="/character/:name" element={<CharacterAnalysis />} />
           <Route path="/" element={<Home />} />
           <Route path="/graph-test" element={<GraphTest />} />
+          <Route path="/plot-analysis" element={<PlotAnalysisOverview />} />
         </Routes>
       </BookContext.Provider>
     </BrowserRouter>

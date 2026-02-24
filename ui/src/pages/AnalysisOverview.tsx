@@ -23,6 +23,12 @@ const AnalysisLanding = () => {
                             description="View a list of characters and their details, as well as interactive
                             visualisations."
                         />
+                        <AnalysisItem 
+                            analysis_type="Plot Analysis" 
+                            img={GraphImage} 
+                            url="/plot-analysis" 
+                            description="View a detailed analysis of the plot, including key events and their impact on the story."
+                        />
                     </div>
                 </div>
         </div>

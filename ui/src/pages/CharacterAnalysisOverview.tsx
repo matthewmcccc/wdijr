@@ -1,5 +1,5 @@
 import { useContext, createContext } from "react";
-import NetworkGraph from "./NetworkGraph";
+import NetworkGraph from "../components/NetworkGraph";
 import Navbar from "../components/Navbar";
 import Breadcrumbs from "../components/Breadcrumbs";
 import Dropdown from "../components/Dropdown";

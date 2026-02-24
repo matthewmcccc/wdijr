@@ -30,7 +30,7 @@ class PlotSentiment:
 
     def get_section_valence(self, word_list: list[str]) -> list[float]:
         """
-        get valence values for a section of a text.
+        Get valence values for a section of a text.
         a section can be the whole text, a paragraph etc.
 
         word_list: the list of words to get valence values for
@@ -71,19 +71,20 @@ class PlotSentiment:
     @staticmethod
     def first_difference(valence_vals: list[float]) -> list[(int, float)]:
         """
-        finds the points in the emotional arc that
+        Finds the points in the emotional arc that
         have the highest absolute difference in valence.
         these points will later be used as markers
         for key plot points when doing plot summarization.
 
-        valence_vals: list of valence/sentiment values
-        return: list[(int: index of segment, float: valence of segment)]
+        valence_vals: List of valence/sentiment values
+        return: list[(int: index of segment or sliding window position, 
+        float: valence of segment)]
         """
-        delta: list[float] = []
+        delta: list[(float, float)] = []
 
         for i in range(1, len(valence_vals)):
             d_val = valence_vals[i] - valence_vals[i - 1]
-            delta.append((i, d_val))
+            delta.append((i / (len(valence_vals) - 1), d_val))
 
         # 0.15 is a bit arbitrary, but esentially
         # its for retrieving the top 15% (roughly)
