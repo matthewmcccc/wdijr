@@ -2,6 +2,7 @@ import os
 import time
 from google import genai
 from dotenv import load_dotenv
+from concurrent.futures import ThreadPoolExecutor
 
 load_dotenv()
 
@@ -16,17 +17,20 @@ class Gemini:
 
         return response.text
 
-    def mass_prompt(self, model, prompts: list[str], instruction: str) -> str:
+    def mass_prompt(self, model, prompts: list[str], instruction: str) -> list[str]:
         responses = []
 
+        additional_instruction = ""
         if instruction == "excerpt_summary":
-            additional_instruction = self.excerpt_summary_prompt
+            additional_instruction = self.excerpt_summary_prompt()
 
-        for prompt in prompts:
-            response = self.client.models.generate_content(
+        def send_request(prompt):
+            return self.client.models.generate_content(
                 model=model, contents=additional_instruction + "\n" + prompt
-            )
-            responses.append(response)
+            ).candidates[0].content.parts[0].text
+
+        with ThreadPoolExecutor(max_workers=len(prompts)) as executor:
+            responses = list(executor.map(send_request, prompts))
 
         return responses
 
