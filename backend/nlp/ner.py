@@ -17,6 +17,7 @@ ALLOWED_CHARACTER_DIFF = 1500
 POST_SPAN_WINDOW = 3
 PRIOR_SPAN_WINDOW = 10
 
+
 class QuoteInfo(TypedDict):
     quotes: list[str]
     quote_count: int
@@ -183,15 +184,21 @@ class EntityExtractor:
                         if self.match_speech_verbs_regex(word):
                             for w in words:
                                 if w in ("he", "his", "himself"):
-                                    quote_obj["speaker"] = self.coref_res(span_start, "he")
+                                    quote_obj["speaker"] = self.coref_res(
+                                        span_start, "he"
+                                    )
                                 if w in ("she", "her", "herself"):
-                                    quote_obj["speaker"] = self.coref_res(span_start, "she")
+                                    quote_obj["speaker"] = self.coref_res(
+                                        span_start, "she"
+                                    )
                                     break
                             break
                     if quote_obj["speaker"] is None:
                         break
 
-            quote_obj["sentiment"] = self.sid_obj.polarity_scores(quote_obj["quote"])["compound"]
+            quote_obj["sentiment"] = self.sid_obj.polarity_scores(quote_obj["quote"])[
+                "compound"
+            ]
             attributed_quotes.append(quote_obj)
             attributed = len([q for q in attributed_quotes if q["speaker"] is not None])
             total = len(attributed_quotes)
@@ -210,7 +217,9 @@ class EntityExtractor:
         return False
 
     # TODO: write a TypedDict class for this return type...
-    def build_conversational_network(self, quotes: list[dict]) -> dict[str, dict[str, list[dict]]]:
+    def build_conversational_network(
+        self, quotes: list[dict]
+    ) -> dict[str, dict[str, list[dict]]]:
         quotes_len = len(quotes)
         nw_dict = defaultdict(lambda: defaultdict(list))
         for q_idx in range(1, quotes_len):
@@ -223,13 +232,15 @@ class EntityExtractor:
             sentiment = quotes[q_idx]["sentiment"]
             space = curr_start - prev_end
             if (curr_speaker != prev_speaker) and (space < ALLOWED_CHARACTER_DIFF):
-                nw_dict[prev_speaker][curr_speaker].append({"quote": quotes[q_idx]["quote"], "sentiment": sentiment})
+                nw_dict[prev_speaker][curr_speaker].append(
+                    {"quote": quotes[q_idx]["quote"], "sentiment": sentiment}
+                )
         return nw_dict
 
     def match_speech_verbs_regex(self, s: str) -> bool:
         verbs_regex = self.verbs_regex
         return bool(re.search(verbs_regex, s))
-    
+
     def build_entity_index(self, s: str) -> None:
         words = s.split(" ")
         male_at = [None] * len(s)
@@ -269,11 +280,13 @@ class EntityExtractor:
             return self.female_at[index]
         if pronoun in ("he", "his", "himself"):
             return self.male_at[index]
-        
-    # TODO: move static methods from here to 
+
+    # TODO: move static methods from here to
     # a helper or service where applicable
     @staticmethod
-    def get_nodes_from_network_dict(nw_dict: dict[str, dict[str, list[dict]]]) -> list[dict]:
+    def get_nodes_from_network_dict(
+        nw_dict: dict[str, dict[str, list[dict]]],
+    ) -> list[dict]:
         nodes = []
         links = []
         seen_nodes = set()
@@ -289,7 +302,13 @@ class EntityExtractor:
                     nodes.append({"id": str(name), "group": 1})
                     seen_nodes.add(name)
 
-                links.append({"source" : str(character), "target": str(name), "value": sum(q["sentiment"] for q in quotes)})
+                links.append(
+                    {
+                        "source": str(character),
+                        "target": str(name),
+                        "value": sum(q["sentiment"] for q in quotes),
+                    }
+                )
         G = nx.Graph()
         G.add_nodes_from([n["id"] for n in nodes])
         G.add_edges_from([(l["source"], l["target"]) for l in links])
@@ -299,25 +318,26 @@ class EntityExtractor:
         for group_id, members in enumerate(communities):
             for member in members:
                 node_to_group[member] = group_id
-        
+
         for node in nodes:
             node["group"] = node_to_group.get(node["id"], 0)
 
         return {"nodes": nodes, "links": links}
 
-
     # TODO: used typeddict
-    @staticmethod 
-    def normalize_sentiment(quotes: dict[str, dict[str, list[dict]]]) -> dict[str, dict[str, float]]:
+    @staticmethod
+    def normalize_sentiment(
+        quotes: dict[str, dict[str, list[dict]]],
+    ) -> dict[str, dict[str, float]]:
         character_sentiment = defaultdict(lambda: defaultdict(float))
-        
+
         for speaker, quotes_dict in quotes.items():
             for target, quotes in quotes_dict.items():
                 avg_sentiment = sum(q["sentiment"] for q in quotes) / len(quotes)
                 character_sentiment[speaker][target] = avg_sentiment
 
         return character_sentiment
-        
+
     @staticmethod
     def clean_string(s: str) -> str:
         """

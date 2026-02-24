@@ -14,6 +14,7 @@ PRIOR_SPAN_WINDOW = 75
 POST_SPAN_WINDOW = 50
 QUOTE_SPAN_WINDOW = 400
 
+
 class Epub(Book):
     def __init__(self, book_path):
         self.book: epub.EpubBook = epub.read_epub(book_path)
@@ -120,7 +121,7 @@ class Epub(Book):
         text_str = "\n".join(text)
         words = text_str.split()
         return words
-    
+
     def get_text_span(self, idx_start: int, idx_end: int) -> str:
         """
         Returns a span of the text as a single string
@@ -138,7 +139,7 @@ class Epub(Book):
             idx_start = 0
 
         return (" ").join(self.full_word_list[idx_start:idx_end])
-    
+
     def get_spans_from_index_list(self, fd: list[tuple[float, float]]) -> list[str]:
         wc = self.full_word_count
         fd_len = len(fd)
@@ -146,10 +147,11 @@ class Epub(Book):
 
         for i, (pct, _) in enumerate(fd):
             med = math.floor(pct * wc)
-            spans[i] = self.get_text_span(med - QUOTE_SPAN_WINDOW, med + QUOTE_SPAN_WINDOW)
-        
-        print(spans)
+            spans[i] = self.get_text_span(
+                med - QUOTE_SPAN_WINDOW, med + QUOTE_SPAN_WINDOW
+            )
 
+        return spans
 
     def get_full_text_quotes(self, text: str) -> list[dict]:
         """

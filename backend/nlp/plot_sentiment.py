@@ -9,6 +9,7 @@ CTX_WINDOW = 10000
 # but impacts performance, vice versa as you increase
 SLIDE = 1000
 
+
 class PlotSentiment:
     def __init__(self):
         self.lang = "english"
@@ -76,7 +77,7 @@ class PlotSentiment:
         for key plot points when doing plot summarization.
 
         valence_vals: List of valence/sentiment values
-        return: list[(int: index of segment or sliding window position, 
+        return: list[(int: index of segment or sliding window position,
         float: valence of segment)]
         """
         delta: list[(float, float)] = []
