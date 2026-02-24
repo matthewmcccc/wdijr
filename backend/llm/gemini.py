@@ -41,17 +41,13 @@ class Gemini:
     def excerpt_summary_prompt():
         return """You are an expert in literary summarization.
                     Task:
-                    I will give you a short excerpt from a novel. This excerpt is less than a thousand words and has been marked
-                    as a period of interest with respect to valence (emotional sentiment).
-                    Your job is to meaningfully summarize the text. Keep the summary to less than 150 words.
+                    Summarize this short novel excerpt in a single concise sentence of under 25 words.
+                    Focus on the key emotional or narrative event.
 
                     Rules:
-                    - Focus on what happens emotionally and narratively in the passage.
                     - Reference characters by their full canonical names where possible.
-                    - Note any significant shifts in tone, mood, or sentiment.
                     - Do not add interpretation beyond what is present in the text.
-                    - Write in clear, concise prose — no bullet points or lists.
-                    - Do not make any reference to the promptee or the prompt itself
+                    - Do not make any reference to the prompt itself.
                     - Only give the summarisation, nothing else.
 
                     Here is the excerpt to summarize:
