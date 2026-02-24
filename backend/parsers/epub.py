@@ -2,14 +2,18 @@ import os
 import string
 import re
 import json
+import math
 from unidecode import unidecode
 from parsers.book import Book, Chapter
 from ebooklib import epub
 from bs4 import BeautifulSoup
 from typing import TypedDict
 
+# yikes! need new names
 PRIOR_SPAN_WINDOW = 75
 POST_SPAN_WINDOW = 50
+QUOTE_SPAN_WINDOW = 400
+
 class Epub(Book):
     def __init__(self, book_path):
         self.book: epub.EpubBook = epub.read_epub(book_path)
@@ -128,7 +132,23 @@ class Epub(Book):
         :return A single string containing the desired
         span of text
         """
+        if idx_end > self.full_word_count:
+            idx_end = self.full_word_count
+        if idx_start < 0:
+            idx_start = 0
+
         return (" ").join(self.full_word_list[idx_start:idx_end])
+    
+    def get_spans_from_index_list(self, fd: list[tuple[float, float]]) -> list[str]:
+        wc = self.full_word_count
+        fd_len = len(fd)
+        spans = [""] * fd_len
+
+        for i, (pct, _) in enumerate(fd):
+            med = math.floor(pct * wc)
+            spans[i] = self.get_text_span(med - QUOTE_SPAN_WINDOW, med + QUOTE_SPAN_WINDOW)
+        
+        print(spans)
 
 
     def get_full_text_quotes(self, text: str) -> list[dict]:
