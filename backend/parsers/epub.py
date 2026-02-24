@@ -128,11 +128,7 @@ class Epub(Book):
         :return A single string containing the desired
         span of text
         """
-        words = self.full_word_list
-        span_str = ""
-        for i in range(idx_start, idx_end):
-            span_str += words[i]
-        print(span_str)
+        return (" ").join(self.full_word_list[idx_start:idx_end])
 
 
     def get_full_text_quotes(self, text: str) -> list[dict]:
