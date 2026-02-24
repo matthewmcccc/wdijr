@@ -16,6 +16,8 @@ class Epub(Book):
         self.title: str = self.set_title()
         self.chapters: dict = self.set_chapters()
         self.author: str = self.set_author()
+        self.full_word_list: list[str] = self.get_full_text_word_list()
+        self.full_word_count: int = self.get_full_word_count()
 
     def set_author(self) -> str:
         if self.book.get_metadata("DC", "creator"):
@@ -114,6 +116,24 @@ class Epub(Book):
         text_str = "\n".join(text)
         words = text_str.split()
         return words
+    
+    def get_text_span(self, idx_start: int, idx_end: int) -> str:
+        """
+        Returns a span of the text as a single string
+
+        :param idx_start: The index of the word at
+        the starting position of the span
+        :param idx_end: The index of the word at
+        the last position of the span
+        :return A single string containing the desired
+        span of text
+        """
+        words = self.full_word_list
+        span_str = ""
+        for i in range(idx_start, idx_end):
+            span_str += words[i]
+        print(span_str)
+
 
     def get_full_text_quotes(self, text: str) -> list[dict]:
         """
@@ -159,3 +179,7 @@ class Epub(Book):
 
                 quotes.append(quote_dict)
         return quotes
+
+    def get_full_word_count(self):
+        words = self.get_full_text_word_list()
+        return len(words)

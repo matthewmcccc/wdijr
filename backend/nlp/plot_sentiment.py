@@ -4,11 +4,10 @@ from labMTsimple.storyLab import emotion, emotionFileReader, emotionV, stopper
 
 CTX_WINDOW = 10000
 
-# the value we slide the context window across
-# by. lower value gives more valence values
+# the value we slide the context window across by.
+# lower value gives more valence values
 # but impacts performance, vice versa as you increase
 SLIDE = 1000
-
 
 class PlotSentiment:
     def __init__(self):
@@ -98,7 +97,7 @@ class PlotSentiment:
         text: str, delta: list[(int, float)], valence_vals_len: int
     ) -> list[str]:
         texts = []
-        for i, _val in delta:
+        for i, _ in delta:
             base_start = SLIDE * i
             base_end = base_start + CTX_WINDOW
             # get the previous segments content also
