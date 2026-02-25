@@ -7,6 +7,7 @@ import { use, useContext } from "react";
 import { BookContext } from "../contexts/bookContext";
 import CharacterCard from "../components/CharacterCard";
 import SentimentAreaChart from "../components/SentimentAreaChart";
+import NetworkGraph from "../components/NetworkGraph";
 
 const smooth = (data: number[], windowSize: number = 10): number[] => {
     return data.map((_, i) => {
@@ -53,15 +54,13 @@ const CharacterAnalysis = () => {
                         "...{topCharacterQuote[0].quote}..."
                     </div>
                 )}
-                <div className="flex flex-col justify-between px-12 mt-8">
+                <div className="flex flex-col justify-between mt-8">
                     <div className="font-serif flex-1 text-2xl">
                         Character Summary
                     </div>
                     <div className="flex-1 flex flex-row mt-8 gap-8">
-                        <div className="justify-end flex w-full">
-                            <SentimentAreaChart 
-                                data={smooth(attributedQuotes.map(q => q.sentiment))}
-                            />
+                        <div>
+
                         </div>
                         <div className="justify-end flex w-full">
                             {topCharacterRelationships.length > 0 && (
@@ -81,6 +80,28 @@ const CharacterAnalysis = () => {
                                     ))}
                                 </div>
                             )}
+                        </div>
+                    </div>
+                    <div className="justify-between  flex flex-row mt-12">
+                        <div>
+                            <h1 className="font-dewi text-md mb-4">
+                                {characterName ? `${humanize(characterName)}'s Sentiment Over Time` : "Sentiment Over Time"}
+                            </h1>
+                            <SentimentAreaChart 
+                                data={smooth(attributedQuotes.map(q => q.sentiment))}
+                            />
+                        </div>
+                        <div>
+                            <h1 className="font-dewi text-md mb-4">
+                                {characterName ? `${humanize(characterName)}'s Social Network` : "Social Network"}
+                            </h1>
+                            <NetworkGraph 
+                                    key={characterName}
+                                    id={`network-${characterName}`} 
+                                    filterCharacter={characterName} 
+                                    height={385}
+                                    width={700}
+                                />
                         </div>
                     </div>
                 </div>

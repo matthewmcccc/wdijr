@@ -45,10 +45,7 @@ const getColor = (group: number): string => {
 };
 
 
-const createNetworkGraph = (data: any, containerId: string) => {
-    const width = 1500;
-    const height = 400;
-
+const createNetworkGraph = (data: any, containerId: string, height: number = 400, width: number = 600) => {
     const links = data.links.map((d: any) => Object.create(d));
     const nodes = data.nodes.map((d: any) => Object.create(d));
 
@@ -254,22 +251,40 @@ const createNetworkGraph = (data: any, containerId: string) => {
 
 interface NetworkGraphProps {
     id?: string;
+    filterCharacter?: string;
+    height?: number;
+    width?: number;
 }
 
-const NetworkGraph = ({ id = "network-graph" }: NetworkGraphProps) => {
-    useEffect(() => {
-        createNetworkGraph(data, id);
+const NetworkGraph = ({ id = "network-graph", filterCharacter, height = 400, width = 400 }: NetworkGraphProps) => {
+    const filteredData = filterCharacter
+        ? (() => {
+            const name = filterCharacter.toLowerCase();
+            const filteredLinks = data.links.filter(
+                l => l.source === name || l.target === name
+            );
+            const connectedIds = new Set(
+                filteredLinks.flatMap(l => [l.source, l.target])
+            );
+            return {
+                nodes: data.nodes.filter(n => connectedIds.has(n.id)),
+                links: filteredLinks,
+            };
+        })()
+        : data;
 
+    useEffect(() => {
+        createNetworkGraph(filteredData, id, height, width);
         return () => {
             d3.select(`#${id}`).selectAll("*").remove();
         };
-    }, [id]);
+    }, [id, filterCharacter, height, width]);
 
     return (
         <div>
             <div className="border border-gray-300 rounded-lg" id={id}></div>
         </div>
-    );  
-}
+    );
+};
 
 export default NetworkGraph;

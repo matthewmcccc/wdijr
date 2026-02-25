@@ -7,8 +7,8 @@ import { selectAll } from 'd3';
 
 
 const createAreaChart = (containerId: string, valenceData: number[]) => {
-    const margin = { top: 20, right: 30, bottom: 30, left: 40 };
-    const width = 800 - margin.left - margin.right;
+    const margin = { top: 20, right: 30, bottom: 50, left: 40 };
+    const width = 700 - margin.left - margin.right;
     const height = 350 - margin.top - margin.bottom;
 
     const x = d3.scaleLinear()
@@ -16,7 +16,7 @@ const createAreaChart = (containerId: string, valenceData: number[]) => {
         .range([0, width]);
 
     const y = d3.scaleLinear()
-        .domain([0, 1])
+        .domain([0, d3.max(valenceData)! * 1.5])
         .range([height, 0]);
 
     const svg = d3.select(`#${containerId}`)
@@ -32,6 +32,14 @@ const createAreaChart = (containerId: string, valenceData: number[]) => {
 
     svg.append('g')
         .call(d3.axisLeft(y));
+
+    svg.append("text")
+        .attr("class", "x label")
+        .attr("text-anchor", "end")
+        .attr("font-size", "12px")
+        .attr("x", width / 2 + margin.left + 50)
+        .attr("y", height + margin.top + 10)
+        .text("Progression through the novel ->");
 
     const area = d3.area<number>()
         .x((_, i) => x(i))
@@ -65,7 +73,7 @@ const SentimentAreaChart = ({ data }: { data: number[] }) => {
     }, [valenceData]);
 
     return (
-        <div id="sentimentAreaChartContainer"></div>
+        <div id="sentimentAreaChartContainer" className="border border-gray-300 rounded-lg pt-8 w-fit"></div>
     );
 };
 
