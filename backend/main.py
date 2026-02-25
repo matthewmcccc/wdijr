@@ -16,7 +16,9 @@ if __name__ == "__main__":
     associated_quotes = er.associate_text_quotes(quotes)
     nw_dict = er.build_conversational_network(associated_quotes)
     relationship_dict: dict[str, list[tuple[str, int]]] = {}
+    character_top_quotes = {}
     for character in er.get_all_characters(nw_dict):
-        relationships = er.get_top_relationships(nw_dict, str(character))
-        relationship_dict[character] = relationships
-    print(relationship_dict)
+        quotes = er.get_top_character_quotes(nw_dict, str(character))
+        character_top_quotes[character] = quotes
+    print(character_top_quotes)
+   

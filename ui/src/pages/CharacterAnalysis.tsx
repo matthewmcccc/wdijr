@@ -12,6 +12,7 @@ const CharacterAnalysis = () => {
     const characterNavigationDict = useContext(BookContext)?.characterNavigationDict;
     const characterData = useContext(BookContext)?.characterData?.[characterName || ""];
     const topCharacterRelationships = useContext(BookContext)?.topCharacterRelationships?.[characterName || ""] || [];
+    const topCharacterQuote = useContext(BookContext)?.topCharacterQuotes?.[characterName || ""] || [];
 
     return (
         <div className="container mx-auto px-4 py-8"> 
@@ -27,6 +28,7 @@ const CharacterAnalysis = () => {
                     </div>
                     <h1 className="text-4xl flex-1 text-center">
                         {characterName ? humanize(characterName) : "Character Analysis"}
+                        
                     </h1>
                     <div className="flex-1 flex justify-end">
                         <CharacterNavigation 
@@ -35,15 +37,21 @@ const CharacterAnalysis = () => {
                         />
                     </div>
                 </div>
+                {topCharacterQuote.length > 0 && (
+                    <div className="text-sm mt-2 italic text-gray-600 max-w-4xl font-serif mx-auto text-center">
+                        "...{topCharacterQuote[0].quote}..."
+                    </div>
+                )}
                 <div className="flex flex-col md:flex-row mt-8 gap-8">
                     {topCharacterRelationships.length > 0 && (
-                        <div className="md:w-1/3">
+                        <div className="md:w-1/4">
                             {topCharacterRelationships.map(([relatedCharacter, _strength], index) => (
                                 <CharacterCard 
                                     key={index}
                                     name={humanize(relatedCharacter)}
-                                    description={``}
-                                    traits={[]}
+                                    description={characterData?.description || ""}
+                                    traits={characterData?.traits || []}
+                                    size={"small"}
                                 />
                             ))}
                         </div>

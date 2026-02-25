@@ -283,6 +283,25 @@ class EntityExtractor:
             return self.female_at[index]
         if pronoun in ("he", "his", "himself"):
             return self.male_at[index]
+        
+    @staticmethod
+    def get_top_character_quotes(
+        nw_dict: dict[str, dict[str, list[dict]]],
+        character: str,
+        n=1,
+    ) -> list[dict]:
+        """
+        Get the top n quotes for a given character with respect to
+        sentiment value.
+        """
+        network = nw_dict[character]
+        character_quotes = []
+        for _target, quotes in network.items():
+            for q in quotes:
+                if abs(q["sentiment"]) > 0.5 and len(q["quote"].split()) < 60:
+                    character_quotes.append(q)
+        return sorted(character_quotes, key=lambda x: (-abs(x["sentiment"]), len(x["quote"])))[:n]
+
 
     # TODO: move static methods from here to
     # a helper or service where applicable
@@ -370,7 +389,6 @@ class EntityExtractor:
         
         return sorted(counts.items(), key=lambda x: x[1], reverse=True)[:n]
         
-
     @staticmethod
     def build_speech_verbs_regex() -> str:
         verbs = set()

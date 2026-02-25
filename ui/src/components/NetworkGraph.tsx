@@ -46,7 +46,7 @@ const getColor = (group: number): string => {
 
 
 const createNetworkGraph = (data: any, containerId: string) => {
-    const width = 600;
+    const width = 1500;
     const height = 400;
 
     const links = data.links.map((d: any) => Object.create(d));

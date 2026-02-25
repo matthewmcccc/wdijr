@@ -21,15 +21,11 @@ const CharacterAnalysisOverview = () => {
             </div>
             <hr className="border-gray-300 my-4"/>
             <div className="flex flex-col gap-12 mt-4">
-                <div className="flex flex-row justify-between ">
+                <div className="flex flex-row">
                     <div className="flex flex-col gap-2">
                         <h1 className="font-dewi">Social Network Graph</h1>
                         <NetworkGraph id="network-graph-1" />
                     </div>   
-                    <div className="flex flex-col gap-2">
-                        <h1 className="font-dewi">Co-occurrence Graph</h1>
-                        <NetworkGraph id="network-graph-2" />
-                    </div>
                 </div>
                 <div className="flex flex-col gap-4">
                     <div className="justify-between flex flex-row">
