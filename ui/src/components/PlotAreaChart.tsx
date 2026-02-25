@@ -77,7 +77,7 @@ const createAreaChart = (containerId: string) => {
 }
 
 
-const AreaChart = () => {
+const PlotAreaChart = () => {
     useEffect(() => {
         createAreaChart('areaChartContainer')
 
@@ -93,4 +93,4 @@ const AreaChart = () => {
     )
 }
 
-export default AreaChart
+export default PlotAreaChart

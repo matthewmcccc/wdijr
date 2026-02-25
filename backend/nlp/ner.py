@@ -202,7 +202,8 @@ class EntityExtractor:
             attributed_quotes.append(quote_obj)
             attributed = len([q for q in attributed_quotes if q["speaker"] is not None])
             total = len(attributed_quotes)
-            print(f"total: {total} attributed: {attributed} ratio: {attributed/total}")
+            # UNCOMMENT TO SEE AWESOME QUOTE ATTRIBUTION STATS!!!
+            # print(f"total: {total} attributed: {attributed} ratio: {attributed/total}")
         return attributed_quotes
 
     def check_span_for_speech(self, span: str, name: str, span_len: int) -> bool:

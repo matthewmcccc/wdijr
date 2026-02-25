@@ -1,7 +1,8 @@
-import AreaChart from "../components/AreaChart"
+import AreaChart from "../components/PlotAreaChart"
 import Breadcrumbs from "../components/Breadcrumbs"
 import Navbar from "../components/Navbar"
 import NetworkGraph from "../components/NetworkGraph"
+import PlotAreaChart from "../components/PlotAreaChart"
 
 const PlotAnalysisOverview = () => {
     return (
@@ -19,7 +20,7 @@ const PlotAnalysisOverview = () => {
                 <div className="flex flex-row justify-between ">
                     <div className="flex flex-col gap-2">
                         <h1 className="font-dewi">Plot Sentiment Over Time</h1>
-                        <AreaChart />
+                        <PlotAreaChart />
                     </div>   
                     <div className="flex flex-col gap-2">
                     </div>

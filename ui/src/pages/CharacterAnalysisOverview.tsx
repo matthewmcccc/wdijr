@@ -29,7 +29,7 @@ const CharacterAnalysisOverview = () => {
                 </div>
                 <div className="flex flex-col gap-4">
                     <div className="justify-between flex flex-row">
-                        <h1 className="font-serif text-4xl">Character List</h1>
+                        <h1 className="font-serif text-4xl">Characters</h1>
                         <Dropdown />
                     </div>
                     <hr className="border-gray-300 my-4" />
@@ -40,6 +40,7 @@ const CharacterAnalysisOverview = () => {
                                 name={name} 
                                 description={data.description} 
                                 traits={data.traits} 
+                                size={"large"}
                             />
                         ))
                     }   

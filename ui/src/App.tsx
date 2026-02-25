@@ -9,6 +9,14 @@ import CharacterAnalysis from "./pages/CharacterAnalysis";
 import PlotAnalysisOverview from "./pages/PlotAnalysisOverview";
 import { createContext } from "react";
 import { BookContext } from "./contexts/bookContext";
+import * as quotesData from "../data/quotes.json"
+import { text } from "d3";
+
+type AttributedQuote = {
+  speaker: string,
+  span: [number, number],
+  sentiment: number,
+}
 
 const characterData = {
     "Heathcliff": {
@@ -27,7 +35,7 @@ const characterData = {
         "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
         "traits": ["Naive", "Romantic", "Resilient"],
     },
-    "Hindley Earnshaw": {
+    "Hindley": {
         "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
         "traits": ["Jealous", "Resentful", "Tragic"],
     },
@@ -41,6 +49,9 @@ const topCharacterQuotes: Record<string, { quote: string, sentiment: number }[]>
 
 const navigationData = Object.keys(characterData)
 
+const attributedQuotes = (quotesData as any).default ?? quotesData
+
+
 const App = () => {
   return (
     <BrowserRouter>
@@ -49,6 +60,7 @@ const App = () => {
           characterNavigationDict: buildNavigationDictionary(navigationData),
           topCharacterRelationships,
           topCharacterQuotes,
+          attributedQuotes,
         }}>
         <Routes>
           <Route path="/network-graph" element={<NetworkGraph />} />
