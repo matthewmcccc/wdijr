@@ -25,9 +25,14 @@ class Gemini:
             additional_instruction = self.excerpt_summary_prompt()
 
         def send_request(prompt):
-            return self.client.models.generate_content(
-                model=model, contents=additional_instruction + "\n" + prompt
-            ).candidates[0].content.parts[0].text
+            return (
+                self.client.models.generate_content(
+                    model=model, contents=additional_instruction + "\n" + prompt
+                )
+                .candidates[0]
+                .content.parts[0]
+                .text
+            )
 
         with ThreadPoolExecutor(max_workers=len(prompts)) as executor:
             responses = list(executor.map(send_request, prompts))

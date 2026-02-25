@@ -46,7 +46,7 @@ class EntityExtractor:
 
     def get_persons_from_text(self) -> list[str]:
         """
-        Retrieve all entities with the label person from a text.
+        Retrieve all entities with the "PERSON" entity label from a text.
 
         :return: A list of all of the persons from a text and their counts.
         :rtype: list[dict]
@@ -73,7 +73,7 @@ class EntityExtractor:
 
     def consolidate_persons(self) -> list[list[str]]:
         """
-        Consolidates character name variations into groups.
+        Consolidates unique character name variations into groups.
 
         Each group contains a full name and some of it's possible variations
         e.g. ["Van Helsing", "Van", "Helsing"]
@@ -220,6 +220,9 @@ class EntityExtractor:
     def build_conversational_network(
         self, quotes: list[dict]
     ) -> dict[str, dict[str, list[dict]]]:
+        """
+        Build a conversational network from a list of associated quotes.
+        """
         quotes_len = len(quotes)
         nw_dict = defaultdict(lambda: defaultdict(list))
         for q_idx in range(1, quotes_len):
@@ -351,6 +354,22 @@ class EntityExtractor:
         """
         s = s.replace("\n", " ").replace("’s", "").replace("'s", "").lower()
         return re.sub(r"\p{P}+", "", s)
+
+    @staticmethod
+    def get_top_relationships(
+        nw_dict: dict[str, dict[str, list[dict]]], character, n=3
+    ) -> list[str]:
+        counts = {}
+
+        for target, quotes in nw_dict[character].items():
+            counts[target] = len(quotes)
+        for speaker, network in nw_dict.items():
+            if character in network and speaker != character:
+                incoming = len(network[character])
+                counts[speaker] = counts.get(speaker, 0) + incoming
+        
+        return sorted(counts.items(), key=lambda x: x[1], reverse=True)[:n]
+        
 
     @staticmethod
     def build_speech_verbs_regex() -> str:
