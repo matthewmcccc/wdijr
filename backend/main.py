@@ -15,5 +15,8 @@ if __name__ == "__main__":
     quotes = book.get_full_text_quotes(text)
     associated_quotes = er.associate_text_quotes(quotes)
     nw_dict = er.build_conversational_network(associated_quotes)
-    print(nw_dict)
-    # print(er.get_top_relationships(nw_dict, "catherine earnshaw"))
+    relationship_dict: dict[str, list[tuple[str, int]]] = {}
+    for character in er.get_all_characters(nw_dict):
+        relationships = er.get_top_relationships(nw_dict, str(character))
+        relationship_dict[character] = relationships
+    print(relationship_dict)

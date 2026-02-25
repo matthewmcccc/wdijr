@@ -383,3 +383,7 @@ class EntityExtractor:
         except json.JSONDecodeError as e:
             print(f"Error opening config.json: {e}")
         return r"\b(" + "|".join(verbs) + r")\b"
+
+    @staticmethod
+    def get_all_characters(nw_dict: dict) -> list[str]:
+        return list(nw_dict.keys())

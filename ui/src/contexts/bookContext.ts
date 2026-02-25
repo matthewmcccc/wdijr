@@ -9,6 +9,7 @@ interface BookContextType {
         left: string | null,
         right: string | null,
     }>,
+    topCharacterRelationships: Record<string, [string, number][]>,
 }
 
 export const BookContext = createContext<BookContextType | null>(null);

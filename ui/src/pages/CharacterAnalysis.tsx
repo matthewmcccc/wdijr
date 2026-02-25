@@ -5,16 +5,13 @@ import Breadcrumbs from "../components/Breadcrumbs";
 import CharacterNavigation from "../components/CharacterNavigation";
 import { useContext } from "react";
 import { BookContext } from "../contexts/bookContext";
+import CharacterCard from "../components/CharacterCard";
 
 const CharacterAnalysis = () => {
     const characterName = useParams<{ name: string }>().name;
     const characterNavigationDict = useContext(BookContext)?.characterNavigationDict;
     const characterData = useContext(BookContext)?.characterData?.[characterName || ""];
-
-    for (const name in characterNavigationDict)
-    {
-        console.log(`${name}: ${JSON.stringify(characterNavigationDict[name])}`);
-    }
+    const topCharacterRelationships = useContext(BookContext)?.topCharacterRelationships?.[characterName || ""] || [];
 
     return (
         <div className="container mx-auto px-4 py-8"> 
@@ -37,6 +34,20 @@ const CharacterAnalysis = () => {
                             position={characterNavigationDict && characterName && characterNavigationDict[humanize(characterName)]?.right ? "right" : "none"}
                         />
                     </div>
+                </div>
+                <div className="flex flex-col md:flex-row mt-8 gap-8">
+                    {topCharacterRelationships.length > 0 && (
+                        <div className="md:w-1/3">
+                            {topCharacterRelationships.map(([relatedCharacter, _strength], index) => (
+                                <CharacterCard 
+                                    key={index}
+                                    name={humanize(relatedCharacter)}
+                                    description={``}
+                                    traits={[]}
+                                />
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
