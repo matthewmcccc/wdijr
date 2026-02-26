@@ -5,33 +5,33 @@ const valenceData = [5.758832917705742, 5.757223291626568, 5.741433397683406, 5.
 const peakPoints = [[0.580952380952381, 0.05719257877280093], [0.6761904761904762, -0.05002646099208086], [0.49523809523809526, -0.047884585121606094], [0.22857142857142856, 0.04387443155312454], [0.4, 0.04347136812921715], [0.8761904761904762, 0.04346611141022283], [0.6285714285714286, -0.04005721083878466], [1.0, -0.03968074162754931], [0.9714285714285714, -0.038229227147259515], [0.06666666666666667, 0.03697519645817415], [0.9428571428571428, 0.03660244662988976], [0.5904761904761905, 0.03567601010101029], [0.41904761904761906, 0.03502332458995916], [0.8095238095238095, -0.03443943297149232], [0.09523809523809523, -0.032956147517248624], [0.37142857142857144, 0.032755883296171184]]
 const peakPointsTooltips = ['Catherine Linton weeps with disgust and scorn upon discovering that Hareton Earnshaw, whom she took for a servant, is her crude cousin.', 'Ellen Dean burns Catherine Linton’s letters to Linton, despite her desperate pleas and injury, leaving her distraught and subdued.', 'Heathcliff, consumed by grief and rage for Catherine Earnshaw, secretly visits her corpse.', "Heathcliff overhears Catherine Earnshaw declare marrying him would degrade her, despite her profound love and soul's connection.", "Newly married, Isabella Linton writes Ellen Dean, lamenting her misery at Wuthering Heights and questioning Heathcliff's humanity.", 'Catherine Heathcliff erupts in disgust when Hareton Earnshaw touches her hair, then scornfully rejects his presence.', 'Catherine Linton is arrested by Mr. Heathcliff for poaching on his land.', 'Mr. Lockwood flees the returning couple, later contemplating the graves of Catherine, Edgar Linton, and Heathcliff.', 'Mr. Heathcliff exhibits unsettling joy, declaring himself "within sight of my heaven," deeply terrifying Nelly Dean.', "Mr. Lockwood's violent nightmare of Catherine Linton's ghost leaves Heathcliff profoundly disturbed.", "Enraged by Catherine Linton's defiance and threats, Heathcliff violently attacks her, with Hareton Earnshaw attempting to intervene.", 'Catherine Linton joyfully reunited with Edgar Linton, then saw a sickly Linton Heathcliff for the first time.', "Dismayed by Joseph's rudeness and Hareton's wildness, the narrator struggles to secure an acceptable sleeping room.", 'Heathcliff detains Catherine and Ellen, forcing Catherine to agree to marry Linton by holding her captive.', 'Mr. Earnshaw returns from Liverpool with a mysterious, ragged child, startling the Earnshaw family.', 'Edgar Linton finds his delirious wife, Catherine Linton, yearning for death and Heathcliff.']
 
-const createAreaChart = (containerId: string) => {
+const createAreaChart = (containerId: string, width: number, height: number) => {
     const margin = { top: 20, right: 5, bottom: 30, left: 5 }
-    const width = 600 - margin.left - margin.right
-    const height = 400 - margin.top - margin.bottom
+    const innerWidth = width - margin.left - margin.right
+    const innerHeight = height - margin.top - margin.bottom
 
     const svg = d3.select(`#${containerId}`)
         .append('svg')
-        .attr('width', width + margin.left + margin.right)
-        .attr('height', height + margin.top + margin.bottom)
+        .attr('width', width)
+        .attr('height', height)
         .append('g')
         .attr('transform', `translate(${margin.left},${margin.top})`)
 
     const x = d3.scaleLinear()
         .domain([0, valenceData.length - 1])
-        .range([0, width])
+        .range([0, innerWidth])
     
     const y = d3.scaleLinear()
         .domain([d3.min(valenceData)!, d3.max(valenceData)!])
-        .range([height, 0])
+        .range([innerHeight, 0])
 
     svg.append('g')
-        .attr('transform', `translate(0,${height})`)
+        .attr('transform', `translate(0,${innerHeight})`)
         .call(d3.axisBottom(x))
     
     const area = d3.area<number>()
         .x((d, i) => x(i))
-        .y0(height)
+        .y0(innerHeight)
         .y1(d => y(d))
 
     svg.append('path')
@@ -77,9 +77,9 @@ const createAreaChart = (containerId: string) => {
 }
 
 
-const PlotAreaChart = () => {
+const PlotAreaChart = ({ width, height }: { width: number, height: number }) => {
     useEffect(() => {
-        createAreaChart('areaChartContainer')
+        createAreaChart('areaChartContainer', width, height)
 
         return () => {
             d3.select(`#areaChartContainer`).selectAll("*").remove()

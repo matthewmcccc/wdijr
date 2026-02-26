@@ -5,9 +5,11 @@ import Breadcrumbs from "../components/Breadcrumbs";
 import Dropdown from "../components/Dropdown";
 import CharacterCard from "../components/CharacterCard";
 import { BookContext } from "../contexts/bookContext";
+import humanize from "../utils/humanize";
 
 const CharacterAnalysisOverview = () => {
     const characterData = useContext(BookContext)?.characterData;
+    const characterDescriptions = useContext(BookContext)?.summaries;
 
     return (
         <div className="container mx-auto px-4 py-8">
@@ -16,7 +18,8 @@ const CharacterAnalysisOverview = () => {
                 <Breadcrumbs items={[{ label: "Analysis", url: "/analysis" }, { label: "Character Analysis" }]} />
                 <h1 className="text-5xl font-serif">Character Analysis</h1>
                 <p className="font-dewi mt-4 text-gray-600 text-sm max-w-3xl">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                    Browse the analyis of Wuthering Heights characters. Click on a character to see a summary, their closely related
+                    characters, and their sentiment arc throughout the novel. The social network graph below shows the relationships between the characters of the novel.
                 </p>
             </div>
             <hr className="border-gray-300 my-4"/>
@@ -39,13 +42,16 @@ const CharacterAnalysisOverview = () => {
                     <hr className="border-gray-300 my-4" />
                     {
                         characterData && Object.entries(characterData).map(([name, data]) => (
-                            <CharacterCard 
-                                key={name} 
-                                name={name} 
-                                description={data.description} 
-                                traits={data.traits} 
-                                size={"large"}
-                            />
+                            <>
+                            {console.log(name, characterDescriptions?.[name.toLowerCase()]?.description)}
+                                <CharacterCard 
+                                    key={name} 
+                                    name={name} 
+                                    description={characterDescriptions?.[name.toLowerCase()]?.description ?? "No description available."}
+                                    traits={data.traits} 
+                                    size={"large"}
+                                />
+                            </>
                         ))
                     }   
                 </div>

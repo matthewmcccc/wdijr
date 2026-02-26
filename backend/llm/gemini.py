@@ -77,7 +77,9 @@ class Gemini:
                 Each quote is seperated by a newline.
                 The name of the story and the character's name will be provided alongside the quotes.
                 It is your job to generate a summary of this character. The summary should span roughly two
-                paragraphs, approximately 150-200 words.
+                paragraphs, approximately 150-200 words. You should also generate a short summary, a sentence at most.
+                This sentence should describe either their role in the story, i.e. antagonist or protagonist, or
+                their relation to other characters in the story i.e. wife, husband, mother etc.
 
                 Rules:
                 - After the first named reference, exclusively refer to the character by their pronoun.
@@ -95,6 +97,8 @@ class Gemini:
                 - Do not use markdown formatting, headers, or bullet points.
                 - Do not make any reference to the prompt whatsoever.
                 - Provide ONLY the character summary.
+                - The response must be in the following JSON format: "summary": *LONG SUMMARY IN DOUBLE QUOTES*,
+                "description": *SHORT DESCRIPTION IN DOUBLE QUOTES* 
 
                 Below are the quotes, the name of the title, and the name of the character:
                 Character name: {character_name}
