@@ -24,7 +24,11 @@ const CharacterAnalysisOverview = () => {
                 <div className="flex flex-row">
                     <div className="flex flex-col gap-2">
                         <h1 className="font-dewi">Social Network Graph</h1>
-                        <NetworkGraph id="network-graph-1" />
+                        <NetworkGraph 
+                            id="network-graph-1" 
+                            height={400}
+                            width={1250}
+                        />
                     </div>   
                 </div>
                 <div className="flex flex-col gap-4">

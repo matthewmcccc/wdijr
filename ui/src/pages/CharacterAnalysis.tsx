@@ -89,6 +89,8 @@ const CharacterAnalysis = () => {
                             </h1>
                             <SentimentAreaChart 
                                 data={smooth(attributedQuotes.map(q => q.sentiment))}
+                                width={550}
+                                height={350}
                             />
                         </div>
                         <div>
@@ -99,8 +101,8 @@ const CharacterAnalysis = () => {
                                     key={characterName}
                                     id={`network-${characterName}`} 
                                     filterCharacter={characterName} 
-                                    height={385}
-                                    width={700}
+                                    height={350}
+                                    width={550}
                                 />
                         </div>
                     </div>
