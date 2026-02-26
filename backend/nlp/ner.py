@@ -200,8 +200,6 @@ class EntityExtractor:
                 "compound"
             ]
             attributed_quotes.append(quote_obj)
-            attributed = len([q for q in attributed_quotes if q["speaker"] is not None])
-            total = len(attributed_quotes)
             # UNCOMMENT TO SEE AWESOME QUOTE ATTRIBUTION STATS!!!
             # print(f"total: {total} attributed: {attributed} ratio: {attributed/total}")
         return attributed_quotes
@@ -284,12 +282,14 @@ class EntityExtractor:
             return self.female_at[index]
         if pronoun in ("he", "his", "himself"):
             return self.male_at[index]
-        
+
     @staticmethod
-    def get_top_character_quotes(
+    def get_character_quotes(
         nw_dict: dict[str, dict[str, list[dict]]],
         character: str,
         n=1,
+        sentiment_descending=True,
+        length_descending=False,
     ) -> list[dict]:
         """
         Get the top n quotes for a given character with respect to
@@ -301,8 +301,16 @@ class EntityExtractor:
             for q in quotes:
                 if abs(q["sentiment"]) > 0.5 and len(q["quote"].split()) < 60:
                     character_quotes.append(q)
-        return sorted(character_quotes, key=lambda x: (-abs(x["sentiment"]), len(x["quote"])))[:n]
-
+        sorted_quotes = []
+        if sentiment_descending and not length_descending:
+            sorted_quotes = sorted(
+                character_quotes, key=lambda x: (-abs(x["sentiment"]), len(x["quote"]))
+            )[:n]
+        if sentiment_descending and length_descending:
+            sorted_quotes = sorted(
+                character_quotes, key=lambda x: (-abs(x["sentiment"]), -len(x["quote"]))
+            )[:n]
+        return sorted_quotes
 
     # TODO: move static methods from here to
     # a helper or service where applicable
@@ -387,9 +395,9 @@ class EntityExtractor:
             if character in network and speaker != character:
                 incoming = len(network[character])
                 counts[speaker] = counts.get(speaker, 0) + incoming
-        
+
         return sorted(counts.items(), key=lambda x: x[1], reverse=True)[:n]
-        
+
     @staticmethod
     def build_speech_verbs_regex() -> str:
         verbs = set()

@@ -57,3 +57,27 @@ class Gemini:
 
                     Here is the excerpt to summarize:
             """
+
+    @staticmethod
+    def character_summary_prompt():
+        return """You are an expert in literary analysis and summarisation.
+                You will be given a series of quotes from a character from a given story.
+                The name of the story and the character's name will be provided alongside the quotes.
+                It is your job to generate a summary of this character. The summary should span roughly two
+                paragraphs, approximately 150-200 words.
+
+                Rules:
+                - After the first named reference, exclusively refer to the character by their pronoun.
+                i.e. He, his, himself etc.
+                - Ground your analysis primarily in the provided quotes, using broader literary knowledge
+                only to contextualise. Where appropriate, briefly reference specific moments from the
+                provided quotes to support your characterisation.
+                - Address the character's key relationships, their role in the narrative, their emotional
+                arc, and how they relate to the broader themes of the work.
+                - If limited quotes are available, acknowledge the character's smaller role and focus on
+                what can be reasonably inferred from the available dialogue.
+                - Write in an accessible but analytically informed tone suitable for undergraduate readers.
+                - Do not use markdown formatting, headers, or bullet points.
+                - Do not make any reference to the prompt whatsoever.
+                - Provide ONLY the character summary.
+        """

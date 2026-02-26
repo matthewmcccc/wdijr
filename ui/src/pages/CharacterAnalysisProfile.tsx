@@ -18,7 +18,7 @@ const smooth = (data: number[], windowSize: number = 10): number[] => {
     });
 };
 
-const CharacterAnalysis = () => {
+const CharacterAnalysisProfile = () => {
     const characterName = useParams<{ name: string }>().name;
     const characterNavigationDict = useContext(BookContext)?.characterNavigationDict;
     const characterData = useContext(BookContext)?.characterData?.[humanize(characterName ?? "").toLowerCase() || ""];
@@ -112,5 +112,5 @@ const CharacterAnalysis = () => {
     )        
 }
 
-export default CharacterAnalysis;
+export default CharacterAnalysisProfile;
 

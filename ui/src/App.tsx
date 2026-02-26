@@ -5,7 +5,7 @@ import Home from "./pages/Home"
 import GraphTest from "./components/GraphTest"
 import AnalysisLanding from "./pages/AnalysisOverview"
 import CharacterAnalysisOverview from "./pages/CharacterAnalysisOverview"
-import CharacterAnalysis from "./pages/CharacterAnalysis";
+import CharacterAnalysisProfile from "./pages/CharacterAnalysisProfile";
 import PlotAnalysisOverview from "./pages/PlotAnalysisOverview";
 import { createContext } from "react";
 import { BookContext } from "./contexts/bookContext";
@@ -66,7 +66,7 @@ const App = () => {
           <Route path="/network-graph" element={<NetworkGraph />} />
           <Route path="/analysis" element={<AnalysisLanding />} />
           <Route path="/character-analysis" element={<CharacterAnalysisOverview />} />
-          <Route path="/character/:name" element={<CharacterAnalysis />} />
+          <Route path="/character/:name" element={<CharacterAnalysisProfile />} />
           <Route path="/" element={<Home />} />
           <Route path="/graph-test" element={<GraphTest />} />
           <Route path="/plot-analysis" element={<PlotAnalysisOverview />} />

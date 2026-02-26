@@ -17,14 +17,11 @@ if __name__ == "__main__":
     associated_quotes = er.associate_text_quotes(quotes)
     nw_dict = er.build_conversational_network
     associated_quotes_obj_list = []
-    for quote in associated_quotes:
-        if quote["speaker"] in ("heathcliff", "catherine", "catherine earnshaw", "edgar", "isabella linton", "isabella", "hindley"):
-            associated_quotes_obj_list.append({ "speaker": quote["speaker"], "span": list(quote["span"]), "sentiment": quote["sentiment"] })
-    print(json.dumps(associated_quotes_obj_list))
-    # relationship_dict: dict[str, list[tuple[str, int]]] = {}
-    # character_top_quotes = {}
-    # for character in er.get_all_characters(nw_dict):
-    #     quotes = er.get_top_character_quotes(nw_dict, str(character))
-    #     character_top_quotes[character] = quotes
-    # print(character_top_quotes)
-   
+    heathcliff_quotes = er.get_character_quotes(
+        nw_dict,
+        character="heathcliff",
+        n=20,
+        sentiment_descending=True,
+        length_descending=True,
+    )
+    print(heathcliff_quotes)
