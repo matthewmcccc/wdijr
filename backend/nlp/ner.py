@@ -292,6 +292,7 @@ class EntityExtractor:
         sentiment_descending=True,
         length_descending=False,
         min_quote_len=10,
+        max_quote_len=175
     ) -> list[dict]:
         """
         Get the top n quotes for a given character with respect to
@@ -301,7 +302,7 @@ class EntityExtractor:
         character_quotes = []
         for _target, quotes in network.items():
             for q in quotes:
-                if abs(q["sentiment"]) >= sentiment_boundary and len(q["quote"].split()) > min_quote_len:
+                if abs(q["sentiment"]) >= sentiment_boundary and len(q["quote"].split()) > min_quote_len and len(q["quote"].split()) < max_quote_len:
                     character_quotes.append(q)
         sorted_quotes = []
         if sentiment_descending and not length_descending:

@@ -18,6 +18,7 @@ interface BookContextType {
     topCharacterRelationships: Record<string, [string, number][]>,
     topCharacterQuotes: Record<string, { quote: string, sentiment: number }[]>,
     attributedQuotes: AttributedQuote[],
+    summaries: Record<string, { summary: string }>,
 }
 
 export const BookContext = createContext<BookContextType | null>(null);

@@ -25,6 +25,7 @@ const CharacterAnalysisProfile = () => {
     const topCharacterRelationships = useContext(BookContext)?.topCharacterRelationships?.[humanize(characterName ?? "").toLowerCase() || ""] || [];
     const topCharacterQuote = useContext(BookContext)?.topCharacterQuotes?.[humanize(characterName ?? "").toLowerCase() || ""] || [];
     const attributedQuotes = useContext(BookContext)?.attributedQuotes?.filter(q => q.speaker.toLowerCase() === humanize(characterName ?? "").toLowerCase()) || [];
+    const attributedSummary = useContext(BookContext)?.summaries?.[humanize(characterName ?? "").toLowerCase()] || "No summary available.";
 
     return (
         <div className="container mx-auto px-4 py-8"> 
@@ -58,11 +59,13 @@ const CharacterAnalysisProfile = () => {
                     <div className="font-serif flex-1 text-2xl">
                         Character Summary
                     </div>
-                    <div className="flex-1 flex flex-row mt-8 gap-8">
-                        <div>
-
+                    <div className="flex-1 flex flex-row mt-8">
+                        <div className="flex flex-1">
+                            <p className="font-serif text-gray-900">
+                                {typeof attributedSummary === 'string' ? attributedSummary : attributedSummary.summary}
+                            </p>
                         </div>
-                        <div className="justify-end flex w-full">
+                        <div className="justify-end flex flex-1">
                             {topCharacterRelationships.length > 0 && (
                                 <div className="md:w-1/2">
                                     <div className="font-serif text-lg">

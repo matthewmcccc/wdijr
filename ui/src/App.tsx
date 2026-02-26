@@ -10,6 +10,7 @@ import PlotAnalysisOverview from "./pages/PlotAnalysisOverview";
 import { createContext } from "react";
 import { BookContext } from "./contexts/bookContext";
 import * as quotesData from "../data/quotes.json"
+import * as summaryData from "../data/summaries.json"
 import { text } from "d3";
 
 type AttributedQuote = {
@@ -51,6 +52,7 @@ const navigationData = Object.keys(characterData)
 
 const attributedQuotes = (quotesData as any).default ?? quotesData
 
+const summaries = (summaryData as any).default ?? summaryData
 
 const App = () => {
   return (
@@ -61,6 +63,7 @@ const App = () => {
           topCharacterRelationships,
           topCharacterQuotes,
           attributedQuotes,
+          summaries,
         }}>
         <Routes>
           <Route path="/network-graph" element={<NetworkGraph />} />

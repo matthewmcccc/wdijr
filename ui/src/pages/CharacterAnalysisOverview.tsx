@@ -27,7 +27,7 @@ const CharacterAnalysisOverview = () => {
                         <NetworkGraph 
                             id="network-graph-1" 
                             height={400}
-                            width={1250}
+                            width={1500}
                         />
                     </div>   
                 </div>

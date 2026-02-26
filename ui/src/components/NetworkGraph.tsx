@@ -282,7 +282,7 @@ const NetworkGraph = ({ id = "network-graph", filterCharacter, height = 400, wid
 
     return (
         <div>
-            <div className="border border-gray-300 rounded-lg" id={id}></div>
+            <div className="border border-gray-300 rounded-lg w-fit" id={id}></div>
         </div>
     );
 };
