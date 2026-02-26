@@ -15,13 +15,15 @@ if __name__ == "__main__":
     g: Gemini = Gemini()
     quotes = book.get_full_text_quotes(text)
     associated_quotes = er.associate_text_quotes(quotes)
-    nw_dict = er.build_conversational_network
+    nw_dict = er.build_conversational_network(associated_quotes)
     associated_quotes_obj_list = []
     heathcliff_quotes = er.get_character_quotes(
-        nw_dict,
+        nw_dict=nw_dict,
         character="heathcliff",
         n=20,
         sentiment_descending=True,
+        sentiment_boundary=0.0,
         length_descending=True,
+        min_quote_len=10,
     )
     print(heathcliff_quotes)

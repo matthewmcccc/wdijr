@@ -233,8 +233,8 @@ class EntityExtractor:
             curr_start = quotes[q_idx]["span"][0]
             sentiment = quotes[q_idx]["sentiment"]
             space = curr_start - prev_end
-            if (curr_speaker != prev_speaker) and (space < ALLOWED_CHARACTER_DIFF):
-                nw_dict[prev_speaker][curr_speaker].append(
+            if (prev_speaker != curr_speaker) and (space < ALLOWED_CHARACTER_DIFF):
+                nw_dict[curr_speaker][prev_speaker].append(
                     {"quote": quotes[q_idx]["quote"], "sentiment": sentiment}
                 )
         return nw_dict
@@ -288,8 +288,10 @@ class EntityExtractor:
         nw_dict: dict[str, dict[str, list[dict]]],
         character: str,
         n=1,
+        sentiment_boundary=0.5,
         sentiment_descending=True,
         length_descending=False,
+        min_quote_len=10,
     ) -> list[dict]:
         """
         Get the top n quotes for a given character with respect to
@@ -299,7 +301,7 @@ class EntityExtractor:
         character_quotes = []
         for _target, quotes in network.items():
             for q in quotes:
-                if abs(q["sentiment"]) > 0.5 and len(q["quote"].split()) < 60:
+                if abs(q["sentiment"]) >= sentiment_boundary and len(q["quote"].split()) > min_quote_len:
                     character_quotes.append(q)
         sorted_quotes = []
         if sentiment_descending and not length_descending:

@@ -19,10 +19,8 @@ class Gemini:
 
     def mass_prompt(self, model, prompts: list[str], instruction: str) -> list[str]:
         responses = []
-
-        additional_instruction = ""
-        if instruction == "excerpt_summary":
-            additional_instruction = self.excerpt_summary_prompt()
+        
+        additional_instruction = self.get_additional_instruction(instruction)
 
         def send_request(prompt):
             return (
@@ -41,6 +39,13 @@ class Gemini:
 
     def get_models(self):
         return self.client.models.list()
+    
+    def get_additional_instruction(self, instruction: str) -> str:
+        additional_instruction = ""
+        if instruction == "excerpt_summary":
+            additional_instruction = self.excerpt_summary_prompt()
+        if instruction == "character_summary":
+            additional_instruction = self.character_summary_prompt()
 
     @staticmethod
     def excerpt_summary_prompt():
