@@ -21,7 +21,7 @@ const PlotAnalysisOverview = () => {
                     <div className="flex flex-col gap-2">
                         <h1 className="font-dewi">Plot Sentiment Over Time</h1>
                         <PlotAreaChart 
-                            width={1500}
+                            width={1250}
                             height={400}
                         />
                     </div>   

@@ -48,7 +48,6 @@ const CharacterAnalysisOverview = () => {
                                     key={name} 
                                     name={name} 
                                     description={characterDescriptions?.[name.toLowerCase()]?.description ?? "No description available."}
-                                    traits={data.traits} 
                                     size={"large"}
                                 />
                             </>

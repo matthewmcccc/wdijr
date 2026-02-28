@@ -1,7 +1,7 @@
 import { text } from "d3";
 import { useNavigate } from "react-router-dom";
 
-const CharacterCard = ({ name, description, traits, size }: { name: string, description: string, traits: string[], size: string }) => {
+const CharacterCard = ({ name, description, traits, size }: { name: string, description: string, traits?: string[], size: string }) => {
     const navigate = useNavigate();
     let padding;
     let textSize;
@@ -20,7 +20,7 @@ const CharacterCard = ({ name, description, traits, size }: { name: string, desc
             <p className="mb-4">{description}</p>
             <div>
                 <ul className="list-none list-inside flex flex-row gap-4">
-                    {traits.map((trait, index) => (
+                    {traits?.map((trait, index) => (
                         <li className="bg-gray-200 rounded-lg px-2 text-sm text-black" key={index}>{trait}</li>
                     ))}
                 </ul>

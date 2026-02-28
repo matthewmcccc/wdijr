@@ -9,7 +9,6 @@ CTX_WINDOW = 10000
 # but impacts performance, vice versa as you increase
 SLIDE = 1000
 
-
 class PlotSentiment:
     def __init__(self):
         self.lang = "english"
