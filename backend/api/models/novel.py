@@ -4,6 +4,7 @@ from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import relationship
+from typing import List
 
 class Base(DeclarativeBase):
     pass
@@ -15,9 +16,11 @@ class Novel(Base):
     title: Mapped[str] = mapped_column(String(100))
     author: Mapped[str] = mapped_column(String(50))
 
+    quotes: Mapped[List["Quote"]] = relationship(back_populates="novel")
+
 
 class Quote(Base):
-    __tablename__ = "quotes"
+    __tablename__ = "quote"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     content: Mapped[str] = mapped_column(String(500))
@@ -25,11 +28,12 @@ class Quote(Base):
 
     novel: Mapped["Novel"] = relationship(back_populates="quotes")
 
-
-class Analysis(Base):
-    __tablename__ = "analysis"
+class Character(Base):
+    __tablename__ = "character"
 
     id: Mapped[int] = mapped_column(primary_key=True)
+    first_name: Mapped[str] = mapped_column(String(50))
+    surname: Mapped[str] = mapped_column(String(50))
     novel_id: Mapped[int] = mapped_column(ForeignKey("novel.id"))
 
-    novel: Mapped["Novel"] = relationship(back_populates="quotes")
+    novel: Mapped["Novel"] = relationship(back_populates="characters")
