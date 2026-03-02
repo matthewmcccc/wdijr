@@ -4,21 +4,27 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
 from schemas.novel import NovelSchema, NovelSchemaCreate
 from models.novel import Novel as NovelModel
+from models.character import Character as CharacterModel
 from db import get_db
 
 router = APIRouter(prefix="/novel", tags=["novel"])
 
-@router.get("/get-novel", response_model=NovelSchema)
-async def get_novel(id: int, db: AsyncSession = Depends(get_db)):
-    novel = await NovelModel.get(db, id)
+@router.get("/novel/{novel_id}", response_model=NovelSchema)
+async def get_novel(novel_id: int, db: AsyncSession = Depends(get_db)):
+    novel = await NovelModel.get(db, novel_id)
     return novel
 
-@router.get("/get-novels", response_model=List[NovelSchema])
+@router.get("/novels", response_model=List[NovelSchema])
 async def get_novels(db: AsyncSession = Depends(get_db)):
     users = await NovelModel.get_all(db)
     return users
 
-@router.post("/create-novel", response_model=NovelSchema)
+@router.post("/create", response_model=NovelSchema)
 async def create_novel(novel: NovelSchemaCreate, db: AsyncSession = Depends(get_db)):
     novel = await NovelModel.create(db, **novel.dict())
     return novel
+
+@router.get("/{novel_id}/characters", response_model=List[CharacterModel])
+async def get_characters(novel_id: int, db: AsyncSession = Depends(get_db)):
+    characters = await CharacterModel.get_from_novel_id(db=db, id=novel_id)
+    return characters
