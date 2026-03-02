@@ -1,4 +1,3 @@
-from uuid import uuid4
 from typing import List
 from models.base import Base
 from sqlalchemy import String, ForeignKey, select
@@ -15,7 +14,6 @@ class Novel(Base):
 
     quotes: Mapped[List["Quote"]] = relationship(back_populates="novel")
     characters: Mapped[List["Character"]] = relationship(back_populates="novel")
-
     
 
 class Quote(Base):

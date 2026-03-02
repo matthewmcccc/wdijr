@@ -7,7 +7,7 @@ from db import get_db
 
 from models.novel import Novel as NovelModel
 
-router = APIRouter(prefix="/novel", targs=["novel"])
+router = APIRouter(prefix="/novel", tags=["novel"])
 
 class NovelSchemaBase(BaseModel):
     title: str | None = None
@@ -17,13 +17,13 @@ class NovelSchemaCreate(NovelSchemaBase):
     pass
 
 class NovelSchema(NovelSchemaBase):
-    id: str
+    id: int
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 @router.get("/get-novel", response_model=NovelSchema)
-async def get_novel(id: str, db: AsyncSession = Depends(get_db)):
+async def get_novel(id: int, db: AsyncSession = Depends(get_db)):
     novel = await NovelModel.get(db, id)
     return novel
 
@@ -34,5 +34,5 @@ async def get_novels(db: AsyncSession = Depends(get_db)):
 
 @router.post("/create-novel", response_model=NovelSchema)
 async def create_novel(novel: NovelSchemaCreate, db: AsyncSession = Depends(get_db)):
-    novel = await NovelModel.create(db, **novel.dict)
+    novel = await NovelModel.create(db, **novel.dict())
     return novel

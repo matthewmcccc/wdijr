@@ -1,22 +1,25 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from db import sessionmanager
+from dotenv import load_dotenv
 import os
 
 def init_app(init_db=True):
     lifespan = None
     db_url = ""
 
-    try:
-        db_url = os.getenv("DB_URL")
-    except:
-        raise Exception("Couldn't get DB URL") 
+    load_dotenv()
+    db_url = os.getenv("DB_URL")
+    if not db_url:
+        raise Exception("DB_URL env variable doesn't exist")
 
     if init_db:
         sessionmanager.init(db_url)
 
         @asynccontextmanager
         async def lifespan(app: FastAPI):
+            async with sessionmanager.connect() as connection:
+                await sessionmanager.create_all(connection)
             yield
             if sessionmanager._engine is not None:
                 await sessionmanager.close()
@@ -27,3 +30,5 @@ def init_app(init_db=True):
     server.include_router(novel_router, prefix="/api", tags=["novel"])
 
     return server
+
+server = init_app()

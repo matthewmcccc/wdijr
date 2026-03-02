@@ -9,6 +9,7 @@ class Base(DeclarativeBase):
     @classmethod
     async def create(cls, db: AsyncSession, id=None, **kwargs):
         tx = cls(id=id, **kwargs)
+        db.add(tx)
         await db.commit()
         await db.refresh(tx)
         return tx
