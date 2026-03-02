@@ -4,8 +4,6 @@ from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 
 class Base(DeclarativeBase):
-    pass
-
     @classmethod
     async def create(cls, db: AsyncSession, id=None, **kwargs):
         tx = cls(id=id, **kwargs)
