@@ -9,14 +9,6 @@ engine = create_engine(
     echo=True,
 )
 
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-class Base(DeclarativeBase):
-    pass
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+def create_db_and_tables():
+    from models.novel import Base
+    Base.metadata.create_all(engine)

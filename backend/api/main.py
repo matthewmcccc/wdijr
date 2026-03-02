@@ -1,4 +1,6 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, File, UploadFile, HTTPException, BackgroundTasks
+from db import create_db_and_tables
 from fastapi.middleware.cors import CORSMiddleware
 from nlp.plot_sentiment import PlotSentiment
 from parsers.epub import Epub, epub
@@ -23,7 +25,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 @app.get("/")
 def root():
@@ -64,3 +65,7 @@ async def get_task_status(task_id: str):
         response = {"state": task.state, "status": "Unknown state"}
 
     return response
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    create_db_and_tables()
