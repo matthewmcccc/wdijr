@@ -1,13 +1,9 @@
-from sqlalchemy import String
-from sqlalchemy import ForeignKey
-from sqlalchemy.orm import DeclarativeBase
-from sqlalchemy.orm import Mapped
-from sqlalchemy.orm import mapped_column
-from sqlalchemy.orm import relationship
 from typing import List
-
-class Base(DeclarativeBase):
-    pass
+from models.base import Base
+from sqlalchemy import String, ForeignKey, select
+from sqlalchemy.exc import IntegrityError, NoResultFound
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 class Novel(Base):
     __tablename__ = "novel"
@@ -18,7 +14,7 @@ class Novel(Base):
 
     quotes: Mapped[List["Quote"]] = relationship(back_populates="novel")
     characters: Mapped[List["Character"]] = relationship(back_populates="novel")
-
+    
 
 class Quote(Base):
     __tablename__ = "quote"
