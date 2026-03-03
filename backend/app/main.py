@@ -26,8 +26,10 @@ def init_app(init_db=True):
 
     server = FastAPI(title="FastAPI server", lifespan=lifespan)
     from routes.novel import router as novel_router
+    from routes.character import router as character_router
 
     server.include_router(novel_router, prefix="/api", tags=["novel"])
+    server.include_router(character_router, prefix="/api", tags=["character"])
 
     return server
 

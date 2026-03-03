@@ -4,9 +4,8 @@ from sqlalchemy import String, select
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from quote import Quote
-    from character import Character
+from models.quote import Quote
+from models.character import Character
 
 class Novel(Base):
     __tablename__ = "novel"

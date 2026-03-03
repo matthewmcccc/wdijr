@@ -4,6 +4,7 @@ class CharacterSchemaBase(BaseModel):
     first_name: str | None = None
     surname: str | None = None
     description: str | None = None
+    novel_id: int | None = None
 
 class CharacterSchemaCreate(CharacterSchemaBase):
     pass

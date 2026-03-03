@@ -13,7 +13,7 @@ class Base(DeclarativeBase):
         return tx
     
     @classmethod
-    async def get(cls, db: AsyncSession, id: str):
+    async def get(cls, db: AsyncSession, id: int):
         try:
             tx = await db.get(cls, id)
         except NoResultFound:
