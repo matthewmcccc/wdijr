@@ -11,6 +11,8 @@ const CharacterAnalysisLanding = () => {
     const characterData = useContext(BookContext)?.characterData;
     const characterDescriptions = useContext(BookContext)?.summaries;
 
+    console.log("Character data in CharacterAnalysisLanding:", characterData);
+
     return (
         <div className="container mx-auto px-4 py-8">
             <Navbar />
@@ -41,13 +43,13 @@ const CharacterAnalysisLanding = () => {
                     </div>
                     <hr className="border-gray-300 my-4" />
                     {
-                        characterData && Object.entries(characterData).map(([name, data]) => (
+                        characterData && Object.entries(characterData).map(([id, data]) => (
                             <>
-                            {console.log(name, characterDescriptions?.[name.toLowerCase()]?.description)}
+                            {(!data.last_name) ? "" : null}
                                 <CharacterCard 
-                                    key={name} 
-                                    name={name} 
-                                    description={characterDescriptions?.[name.toLowerCase()]?.description ?? "No description available."}
+                                    key={id} 
+                                    name={data.first_name ? `${humanize(data.first_name)} ${humanize(String(data.last_name))}` : humanize(id)}
+                                    description={characterDescriptions?.[id.toLowerCase()]?.description ?? "No description available."}
                                     size={"large"}
                                 />
                             </>

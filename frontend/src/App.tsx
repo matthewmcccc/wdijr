@@ -7,7 +7,7 @@ import AnalysisLanding from "./pages/AnalysisLanding"
 import AnalysisLoading from "./pages/AnalysisLoading";
 import CharacterAnalysisLanding from "./pages/CharacterAnalysisOverview"
 import CharacterAnalysisProfile from "./pages/CharacterAnalysisProfile";
-import { createContext } from "react";
+import { createContext, useState } from "react";
 import { BookContext } from "./contexts/bookContext";
 import * as quotesData from "../data/quotes.json"
 import * as summaryData from "../data/summaries.json"
@@ -31,10 +31,13 @@ const attributedQuotes = (quotesData as any).default ?? quotesData
 const summaries = (summaryData as any).default ?? summaryData
 
 const App = () => {
+  const [characterData, setCharacterData] = useState<Array<{ id: Number, first_name: string, last_name: string, description: string, novel_id: number }>>([])
+
   return (
     <BrowserRouter>
       <BookContext.Provider value={{
-          characterData: null,
+          characterData: characterData,
+          setCharacterData: setCharacterData,
           characterNavigationDict: buildNavigationDictionary(Object.keys(topCharacterRelationships)),
           topCharacterRelationships: topCharacterRelationships,
           topCharacterQuotes: topCharacterQuotes,
@@ -44,7 +47,7 @@ const App = () => {
         <Routes>
           <Route path="/network-graph" element={<NetworkGraph />} />
           <Route path="/analysis" element={<AnalysisLoading />} />
-          <Route path="/analysis/:id" element={<AnalysisLanding />} />
+          <Route path="/analysis/1" element={<AnalysisLanding />} />
           <Route path="/character-analysis" element={<CharacterAnalysisLanding />} />
           <Route path="/character/:name" element={<CharacterAnalysisProfile />} />
           <Route path="/" element={<Home />} />
