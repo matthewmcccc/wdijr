@@ -4,8 +4,6 @@ from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 
 class Base(DeclarativeBase):
-    pass
-
     @classmethod
     async def create(cls, db: AsyncSession, id=None, **kwargs):
         tx = cls(id=id, **kwargs)
@@ -15,7 +13,7 @@ class Base(DeclarativeBase):
         return tx
     
     @classmethod
-    async def get(cls, db: AsyncSession, id: str):
+    async def get(cls, db: AsyncSession, id: int):
         try:
             tx = await db.get(cls, id)
         except NoResultFound:
