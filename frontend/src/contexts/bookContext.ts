@@ -1,5 +1,6 @@
 import { createContext } from "react";
 
+
 type AttributedQuote = {
     speaker: string,
     span: [number, number],
@@ -7,9 +8,12 @@ type AttributedQuote = {
 }
 
 interface BookContextType {
-    characterData: Record<string, {
+    characterData: Array<{
+        id: Number,
+        first_name: string;
+        last_name: string;
         description: string,
-        traits: string[],
+        novel_id: number,
     }> | null,
     characterNavigationDict: Record<string, {
         left: string | null,
@@ -19,6 +23,7 @@ interface BookContextType {
     topCharacterQuotes: Record<string, { quote: string, sentiment: number }[]>,
     attributedQuotes: AttributedQuote[],
     summaries: Record<string, { summary: string, description: string }>,
+    setCharacterData: (data: Array<{ id: Number, first_name: string, last_name: string, description: string, novel_id: number }>) => void,
 }
 
 export const BookContext = createContext<BookContextType | null>(null);

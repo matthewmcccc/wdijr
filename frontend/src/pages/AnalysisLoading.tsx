@@ -1,14 +1,27 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useContext } from "react"
 import axios from "axios"
+import { BookContext } from "../contexts/bookContext";
+import { Navigate, useNavigate } from "react-router";
 
 const AnalysisLoading = () => {
+    const { setCharacterData } = useContext(BookContext) || {};
+    const [done, setDone] = useState(false);
+    const navigate = useNavigate();
+
     useEffect(() => {
         const fetchCharacterData = async () => {
             const data = await axios.get(`${import.meta.env.VITE_API_URL}/novel/1/characters`)
-            console.log("Fetched character data:", data.data)
+            if (setCharacterData) {
+                setCharacterData(data.data);
+            }
+            setDone(true);
         }
         fetchCharacterData();
     }, [])
+
+    if (done) {
+        return <Navigate to="/analysis/1" />
+    }
 
     return (
         <>
