@@ -7,7 +7,7 @@ import CharacterCard from "../components/CharacterCard";
 import { BookContext } from "../contexts/bookContext";
 import humanize from "../utils/humanize";
 
-const CharacterAnalysisOverview = () => {
+const CharacterAnalysisLanding = () => {
     const characterData = useContext(BookContext)?.characterData;
     const characterDescriptions = useContext(BookContext)?.summaries;
 
@@ -59,4 +59,4 @@ const CharacterAnalysisOverview = () => {
     )
 }
 
-export default CharacterAnalysisOverview;
+export default CharacterAnalysisLanding;

@@ -4,7 +4,7 @@ import Navbar from "../components/Navbar"
 import NetworkGraph from "../components/NetworkGraph"
 import PlotAreaChart from "../components/PlotAreaChart"
 
-const PlotAnalysisOverview = () => {
+const PlotAnalysisLanding = () => {
     return (
         <div className="container mx-auto px-4 py-8">
             <Navbar />
@@ -33,4 +33,4 @@ const PlotAnalysisOverview = () => {
     )
 }
 
-export default PlotAnalysisOverview
+export default PlotAnalysisLanding
