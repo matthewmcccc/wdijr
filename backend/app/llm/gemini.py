@@ -23,25 +23,22 @@ class Gemini:
 
         return response.text
 
-    def mass_prompt(self, model, prompts: list[str], instruction: str) -> list[str]:
-        responses = []
+    def character_summary_mass_prompt(self, model, associated_quotes: dict[str, list[dict]], instruction: str, book_title: str) -> dict[str, str]:
+        
+        characters = list(associated_quotes.keys())
+        
+        def send_request(character):
+            additional_instruction = self.get_additional_instruction(instruction, character_name=character, novel_title=book_title)
+            quotes_text = "\n".join(q["quote"] for q in associated_quotes[character])
+            prompt = f"{additional_instruction}\n\nCharacter: {character}\nBook: {book_title}\n\nQuotes:\n{quotes_text}"
+            return self.client.models.generate_content(
+                model=model, contents=prompt
+            ).candidates[0].content.parts[0].text
 
-        additional_instruction = self.get_additional_instruction(instruction)
+        with ThreadPoolExecutor(max_workers=len(characters)) as executor:
+            summaries = list(executor.map(send_request, characters))
 
-        def send_request(prompt):
-            return (
-                self.client.models.generate_content(
-                    model=model, contents=additional_instruction + "\n" + prompt
-                )
-                .candidates[0]
-                .content.parts[0]
-                .text
-            )
-
-        with ThreadPoolExecutor(max_workers=len(prompts)) as executor:
-            responses = list(executor.map(send_request, prompts))
-
-        return responses
+        return dict(zip(characters, summaries))
 
     def get_models(self):
         return self.client.models.list()

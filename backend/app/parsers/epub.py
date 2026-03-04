@@ -4,7 +4,7 @@ import re
 import json
 import math
 from unidecode import unidecode
-from app.parsers.book import Book, Chapter
+from parsers.book import Book, Chapter
 from ebooklib import epub
 from bs4 import BeautifulSoup
 from typing import TypedDict
