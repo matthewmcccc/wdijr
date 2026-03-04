@@ -1,10 +1,11 @@
 import os
 from parsers.epub import Epub
 from services.celery_worker import celery_app
+from nlp.ner import EntityExtractor
 from nlp.plot_sentiment import PlotSentiment
 from services.task_states import TaskState
 
-book_path = "../temp/aaiw.epub"
+book_path = os.path.join(os.path.dirname(__file__), "..", "temp", "aaiw.epub")
 
 @celery_app.task(bind=True)
 def process_epub(self) -> Epub:
@@ -30,15 +31,33 @@ def process_epub(self) -> Epub:
 
 
 @celery_app.task(bind=True)
-def get_quotes(self):
-    try:
-        book = process_epub(book_path)
+def process_text(self):
+    ps: PlotSentiment = PlotSentiment()
 
-        quotes = book.get_full_text_quotes()
+    self.update_state(state="PROCESSING", meta={"status": "Parsing book..."})
 
-        return quotes
-    except Exception as e:
-        print(f"Error grabbing quotes: {e}")
+    book = Epub(book_path)
+
+    self.update_state(state="PROCESSING", meta={"status": "Extracting quotes..."})
+
+    text = book.get_full_text()
+    quotes = book.get_full_text_quotes(text)
+
+    self.update_state(state="PROCESSING", meta={"status": "Identifying entities..."})
+
+    er: EntityExtractor = EntityExtractor("en_core_web_trf", text)
+
+    self.update_state(state="PROCESSING", meta={"status": "Associating quotes with entities..."})
+    
+    associated_quotes = er.associate_text_quotes(quotes)
+
+    self.update_state(state="PROCESSING", meta={"status": "Building social network..."})
+
+    nw = er.build_conversational_network(associated_quotes)
+
+    associated_quotes_obj_list = {}
+
+    return {"network": nw}
         
 
 

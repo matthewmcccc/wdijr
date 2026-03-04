@@ -4,6 +4,7 @@ from db import sessionmanager
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
 import os
+import models
 
 load_dotenv()
 

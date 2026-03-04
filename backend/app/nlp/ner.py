@@ -68,8 +68,9 @@ class EntityExtractor:
                 and len(text) >= 3
                 and text not in self.nlp.Defaults.stop_words
             ):
-                persons.append(text)
-        return persons
+                persons.append((text, person_count))
+        persons = sorted(persons, key=lambda x: x[1], reverse=True)
+        return [person[0] for person in persons]
 
     def consolidate_persons(self) -> list[list[str]]:
         """
@@ -404,7 +405,7 @@ class EntityExtractor:
     @staticmethod
     def build_speech_verbs_regex() -> str:
         verbs = set()
-        config_path = os.path.join(os.path.dirname(__file__), "../config.json")
+        config_path = os.path.join(os.path.dirname(__file__), "..", "..", "config.json")
         try:
             with open(config_path, "r") as file:
                 data = json.load(file)

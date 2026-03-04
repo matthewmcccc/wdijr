@@ -4,7 +4,7 @@ import re
 import json
 import math
 from unidecode import unidecode
-from parsers.book import Book, Chapter
+from app.parsers.book import Book, Chapter
 from ebooklib import epub
 from bs4 import BeautifulSoup
 from typing import TypedDict
@@ -63,7 +63,7 @@ class Epub(Book):
         if book_title_fmt.replace(" ", "") == ch_title_fmt.replace(" ", ""):
             valid = False
 
-        config_path = os.path.join(os.path.dirname(__file__), "../config.json")
+        config_path = os.path.join(os.path.dirname(__file__), "..", "..", "config.json")
         try:
             with open(config_path, "r") as file:
                 data = json.load(file)
