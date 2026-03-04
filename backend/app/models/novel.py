@@ -4,7 +4,6 @@ from sqlalchemy import String, select
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import TYPE_CHECKING
-from models.quote import Quote
 from models.character import Character
 
 class Novel(Base):

@@ -34,9 +34,11 @@ def init_app(init_db=True):
     )
     from routes.novel import router as novel_router
     from routes.character import router as character_router
+    from routes.analysis import router as analysis_router
 
     server.include_router(novel_router, prefix="/api", tags=["novel"])
     server.include_router(character_router, prefix="/api", tags=["character"])
+    server.include_router(analysis_router, prefix="/api", tags=["analysis"])
 
     return server
 
