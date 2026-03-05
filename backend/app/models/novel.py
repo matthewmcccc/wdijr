@@ -1,10 +1,10 @@
 from typing import List
-from models.base import Base
 from sqlalchemy import String, select
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import TYPE_CHECKING
-from models.character import Character
+from .character import Character
+from .base import Base
 
 class Novel(Base):
     __tablename__ = "novel"

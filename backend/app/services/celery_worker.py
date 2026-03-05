@@ -11,5 +11,3 @@ celery_app.conf.update(
     timezone="UTC",
     enable_utc=True,
 )
-
-from services import book_processor

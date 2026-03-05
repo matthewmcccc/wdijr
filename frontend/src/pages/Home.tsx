@@ -11,6 +11,7 @@ const Home = () => {
     const [taskId, setTaskId] = useState<string | null>(null)
     const [file, setFile] = useState<File | null>(null)
     const [appState, setAppState] = useState<AppState>("idle")
+    const [status, setStatus] = useState<string>("")
 
     const navigate = useNavigate();
 
@@ -19,12 +20,13 @@ const Home = () => {
         const formData = new FormData()
         formData.append("file", selectedFile)
         try {
-            const res = await axios.post(`${import.meta.env.VITE_API_URL}/upload`, formData, {
+            const res = await axios.post(`${import.meta.env.VITE_API_URL}/analysis/process`, formData, {
                 headers: {
                     "Content-Type": "multipart/form-data"
                 }
             })
             setTaskId(res.data.task_id)
+            navigate(`/processing/${res.data.task_id}`)
         } catch (error) {
             console.error("Error processing file:", error)
             setAppState("idle")
@@ -45,7 +47,7 @@ const Home = () => {
 
         const pollInterval = setInterval(async () => {
             try {
-                const res = await axios.get(`${import.meta.env.VITE_API_URL}/task/${taskId}`)
+                const res = await axios.get(`${import.meta.env.VITE_API_URL}/analysis/process/${taskId}`)
                 if (res.data.state === "SUCCESS") {
                     setAppState("done")
                     clearInterval(pollInterval)
@@ -72,9 +74,10 @@ const Home = () => {
                             novel corpus for textual analysis.
                         </p>
                         <div className="flex gap-4">
+                            <input id="file-upload" type="file" accept=".epub" className="hidden" onChange={(e) => handleFileSelect(e.target.files ? e.target.files[0] : null)} />
                             <button className="bg-brand-cta text-white font-dewi py-2 px-4 rounded-4xl cursor-pointer hover:bg-brand-cta-hover
                             duration-300 transition-all
-                            " onClick={() => navigate("/analysis")}>
+                            " onClick={() => document.getElementById("file-upload")?.click()}>
                                 <img src={uploadIcon} alt="Upload Icon" className="inline-block w-5 h-5 mr-3 mb-1 fill-white
                                 invert brightness-150" />
                                     Upload a Book

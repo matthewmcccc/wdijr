@@ -6,6 +6,7 @@ from app.parsers.epub import Epub
 from app.nlp.ner import EntityExtractor
 from app.nlp.plot_sentiment import PlotSentiment
 from app.llm.gemini import Gemini
+from app.services.book_processor import get_character_summaries
 
 if __name__ == "__main__":
     book_path = Path("./app/temp/aaiw.epub")
@@ -18,7 +19,9 @@ if __name__ == "__main__":
     associated_quotes = er.associate_text_quotes(quotes)
     nw_dict = er.build_conversational_network(associated_quotes)
     associated_quotes_obj_list = {}
-    print(er.get_persons_from_text())
+    characters = er.get_persons_from_text()
+    characters = [{"id": i, "name": name} for i, name in enumerate(characters)]
+    character_summaries = get_character_summaries(er, characters, nw_dict, g, book.title)
 
 # just putting this here so i can remove from main
 def get_character_summaries_from_gemini():
@@ -33,7 +36,7 @@ def get_character_summaries_from_gemini():
             length_descending=True,
             min_quote_len=10,
         )
-        associated_quotes_obj_list[character] = character_quotes
+        associated_quotes_obj_list[character.items()] = character_quotes
     character_summaries = {}
     for character, quotes in associated_quotes_obj_list.items():
         character_quotes = [q["quote"] for q in quotes]

@@ -4,7 +4,6 @@ import NetworkGraph from "./components/NetworkGraph"
 import Home from "./pages/Home"
 import GraphTest from "./components/GraphTest"
 import AnalysisLanding from "./pages/AnalysisLanding"
-import AnalysisLoading from "./pages/AnalysisLoading";
 import CharacterAnalysisLanding from "./pages/CharacterAnalysisOverview"
 import CharacterAnalysisProfile from "./pages/CharacterAnalysisProfile";
 import { createContext, useState } from "react";
@@ -13,6 +12,7 @@ import * as quotesData from "../data/quotes.json"
 import * as summaryData from "../data/summaries.json"
 import { text } from "d3";
 import PlotAnalysisLanding from "./pages/PlotAnalysisOverview";
+import Processing from "./pages/Processing";
 
 type AttributedQuote = {
   speaker: string,
@@ -46,7 +46,7 @@ const App = () => {
         }}>
         <Routes>
           <Route path="/network-graph" element={<NetworkGraph />} />
-          <Route path="/analysis" element={<AnalysisLoading />} />
+          <Route path="/processing/:taskid" element={<Processing />} />
           <Route path="/analysis/1" element={<AnalysisLanding />} />
           <Route path="/character-analysis" element={<CharacterAnalysisLanding />} />
           <Route path="/character/:name" element={<CharacterAnalysisProfile />} />

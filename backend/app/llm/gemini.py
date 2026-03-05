@@ -23,22 +23,23 @@ class Gemini:
 
         return response.text
 
-    def character_summary_mass_prompt(self, model, associated_quotes: dict[str, list[dict]], instruction: str, book_title: str) -> dict[str, str]:
-        
-        characters = list(associated_quotes.keys())
-        
+    def character_summary_mass_prompt(self, model, characters, associated_quotes: dict[str, list[dict]], instruction: str, book_title: str) -> dict[str, str]:
+        character_ids = list(associated_quotes.keys())
+
         def send_request(character):
+            id = character[0]
+            name = character[1]
             additional_instruction = self.get_additional_instruction(instruction, character_name=character, novel_title=book_title)
-            quotes_text = "\n".join(q["quote"] for q in associated_quotes[character])
-            prompt = f"{additional_instruction}\n\nCharacter: {character}\nBook: {book_title}\n\nQuotes:\n{quotes_text}"
+            quotes_text = "\n".join(q["quote"] for q in associated_quotes[id])
+            prompt = f"{additional_instruction}\n\nCharacter: {name}\nID: {id}\nBook: {book_title}\n\nQuotes:\n{quotes_text}"
             return self.client.models.generate_content(
                 model=model, contents=prompt
             ).candidates[0].content.parts[0].text
 
         with ThreadPoolExecutor(max_workers=len(characters)) as executor:
-            summaries = list(executor.map(send_request, characters))
+            summaries = list(executor.map(send_request, zip(character_ids, [character["name"] for character in characters])))
 
-        return dict(zip(characters, summaries))
+        return dict(zip(character_ids, summaries))
 
     def get_models(self):
         return self.client.models.list()

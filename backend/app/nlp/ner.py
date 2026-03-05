@@ -70,7 +70,7 @@ class EntityExtractor:
             ):
                 persons.append((text, person_count))
         persons = sorted(persons, key=lambda x: x[1], reverse=True)
-        return [person[0] for person in persons]
+        return [person[0] for i, person in enumerate(persons)]
 
     def consolidate_persons(self) -> list[list[str]]:
         """

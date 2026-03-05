@@ -1,15 +1,15 @@
 import os
-from parsers.epub import Epub
-from services.celery_worker import celery_app
-from nlp.ner import EntityExtractor
-from nlp.plot_sentiment import PlotSentiment
-from services.task_states import TaskState
-from llm.gemini import Gemini
+from app.parsers.epub import Epub
+from app.services.celery_worker import celery_app
+from app.nlp.ner import EntityExtractor
+from app.nlp.plot_sentiment import PlotSentiment
+from app.services.task_states import TaskState
+from app.llm.gemini import Gemini
 
 book_path = os.path.join(os.path.dirname(__file__), "..", "temp", "aaiw.epub")
 
 @celery_app.task(bind=True)
-def process_epub(self) -> Epub:
+def process_epub(self, book_path) -> Epub:
     try:
         if not os.path.exists(book_path):
             raise FileNotFoundError(f"File not found: {book_path}")
@@ -32,7 +32,7 @@ def process_epub(self) -> Epub:
 
 
 @celery_app.task(bind=True)
-def process_text(self):
+def process_text(self, book_path):
     ps: PlotSentiment = PlotSentiment()
 
     self.update_state(state="PROCESSING", meta={"status": "Parsing book..."})
@@ -58,6 +58,7 @@ def process_text(self):
     nw = er.build_conversational_network(associated_quotes)
 
     characters = er.get_persons_from_text()
+    characters = [{"id": i, "name": name} for i, name in enumerate(characters)]
 
     self.update_state(state="PROCESSING", meta={"status": "Generating character summaries..."})
 
@@ -66,21 +67,22 @@ def process_text(self):
     return {"summaries": summaries, "network": nw, "characters": characters}
         
 
-def get_character_summaries(er: EntityExtractor, characters: list[str], nw_dict, g: Gemini, title):
+def get_character_summaries(er: EntityExtractor, characters: list[dict], nw_dict, g: Gemini, title):
     associated_quotes_obj_list = {}
     for character in characters:
         char_quotes = er.get_character_quotes(
             nw_dict=nw_dict,
-            character=str(character),
+            character=str(character["name"]),
             n=20,
             sentiment_descending=True,
             sentiment_boundary=0.0,
             length_descending=True,
             min_quote_len=10,
         )
-        associated_quotes_obj_list[character] = char_quotes
+        associated_quotes_obj_list[character["id"]] = char_quotes
     character_summaries = g.character_summary_mass_prompt(
         "gemini-2.5-flash",
+        characters,
         associated_quotes_obj_list,
         "character_summary",
         title

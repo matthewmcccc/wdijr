@@ -1,13 +1,21 @@
-from fastapi import APIRouter, Depends
+import tempfile
+import os
+from fastapi import APIRouter, Depends, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
 from celery.result import AsyncResult
 from schemas.quote import QuoteSchema, QuoteSchemaCreate
 from schemas.analysis import AnalysisSchema, AnalysisSchemaCreate
+from models.analysis import Analysis as AnalysisModel
 from services.book_processor import process_text
 from db import get_db
 
 router = APIRouter(prefix="/analysis", tags=["analysis"])
+
+@router.post("/", response_model=AnalysisSchema)
+async def create_analysis(analysis: AnalysisSchemaCreate, db: AsyncSession = Depends(get_db)):
+    analysis = await AnalysisModel.create(db, **analysis.dict())
+    return analysis
 
 @router.get("/process/{task_id}")
 async def get_task_status(task_id: str):
@@ -23,6 +31,15 @@ async def get_task_status(task_id: str):
         return {"status": "failed", "detail": str(result.result)}
 
 @router.post("/process")
-async def get_analysis_quotes(db: AsyncSession = Depends(get_db)):
-    task = process_text.delay()
+async def get_analysis(file: UploadFile, db: AsyncSession = Depends(get_db)):
+    upload_dir = os.path.join(os.getcwd(), "uploads")
+    os.makedirs(upload_dir, exist_ok=True)
+
+    temp_file_path = os.path.join(upload_dir, file.filename)
+
+    with open(temp_file_path, 'wb') as temp_file:
+        content = await file.read()
+        temp_file.write(content)
+    
+    task = process_text.delay(temp_file_path)
     return {"task_id": task.id}
