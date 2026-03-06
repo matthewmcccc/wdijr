@@ -15,3 +15,4 @@ class Novel(Base):
 
     quotes: Mapped[List["Quote"]] = relationship(back_populates="novel")
     characters: Mapped[List["Character"]] = relationship(back_populates="novel")
+    analysis: Mapped["Analysis"] = relationship(back_populates="novel")

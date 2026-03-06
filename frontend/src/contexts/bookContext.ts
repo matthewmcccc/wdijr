@@ -24,6 +24,8 @@ interface BookContextType {
     attributedQuotes: AttributedQuote[],
     summaries: Record<string, { summary: string, description: string }>,
     setCharacterData: (data: Array<{ id: Number, first_name: string, last_name: string, description: string, novel_id: number }>) => void,
+    networkData: { nodes: any[], edges: any[] },
+    setNetworkData: (data: { nodes: any[], edges: any[] }) => void,
 }
 
 export const BookContext = createContext<BookContextType | null>(null);

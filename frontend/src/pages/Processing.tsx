@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react"
+import { useState, useEffect, useContext, use } from "react"
 import axios from "axios"
 import { useParams } from "react-router-dom"
 import { BookContext } from "../contexts/bookContext";
@@ -8,6 +8,11 @@ const Processing = () => {
     const taskId = useParams().taskid;
     const [done, setDone] = useState(false);
     const [status, setStatus] = useState<string>("Processing...");
+    const setNetworkData = useContext(BookContext)?.setNetworkData;
+    const setCharacterData = useContext(BookContext)?.setCharacterData;
+    const characterData = useContext(BookContext)?.characterData;
+    const networkData = useContext(BookContext)?.networkData;
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (done) return;
@@ -15,13 +20,21 @@ const Processing = () => {
         const pollInterval = setInterval(async () => {
             const data = await axios.get(`${import.meta.env.VITE_API_URL}/analysis/process/${taskId}`)
             setStatus(data.data.detail || "Processing...");
-            if (data.data.status == "complete") {
+        if (data.data.status == "complete") {
+                setNetworkData?.(data.data.data.network);
+                setCharacterData?.(data.data.data.characters);
                 setDone(true);
             }
         }, 2000);
 
         return () => clearInterval(pollInterval);
     }, [taskId, done]);   
+
+    useEffect(() => {
+        if (done) {
+            navigate("/analysis");
+        }
+    }, [done, networkData, characterData, navigate]);
 
     return (
         <>

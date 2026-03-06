@@ -7,6 +7,7 @@ class Analysis(Base):
     __tablename__ = "analysis"
 
     id: Mapped[int] = mapped_column(primary_key=True)
+    network: Mapped[dict] = mapped_column(JSON)
     novel_id: Mapped[int] = mapped_column(ForeignKey("novel.id"))
     
-    quotes: Mapped[List["Quote"]] = relationship(back_populates="analysis")
+    novel: Mapped["Novel"] = relationship(back_populates="analysis")

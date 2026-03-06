@@ -17,6 +17,11 @@ async def create_analysis(analysis: AnalysisSchemaCreate, db: AsyncSession = Dep
     analysis = await AnalysisModel.create(db, **analysis.dict())
     return analysis
 
+@router.get("/")
+async def get_all_analyses(db: AsyncSession = Depends(get_db)):
+    analyses = await AnalysisModel.get_all(db)
+    return analyses
+
 @router.get("/process/{task_id}")
 async def get_task_status(task_id: str):
     result = AsyncResult(task_id)

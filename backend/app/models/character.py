@@ -1,4 +1,4 @@
-from models.base import Base
+from .base import Base
 from sqlalchemy import String, ForeignKey, select
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -11,15 +11,13 @@ class Character(Base):
     __tablename__ = "character"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    first_name: Mapped[str] = mapped_column(String(50))
-    surname: Mapped[str] = mapped_column(String(50))
+    name: Mapped[str] = mapped_column(String(50))
     summary: Mapped[str] = mapped_column(String(5000))
     description: Mapped[str] = mapped_column(String(1000))
     novel_id: Mapped[int] = mapped_column(ForeignKey("novel.id"))
 
     novel: Mapped["Novel"] = relationship(back_populates="characters")
     quotes: Mapped[List["Quote"]] = relationship(back_populates="character")
-    summary: Mapped["Summary"] = relationship(back_populates="character")
 
     @classmethod
     async def get_from_novel_id(cls, db: AsyncSession, id: str):

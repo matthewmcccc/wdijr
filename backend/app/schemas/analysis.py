@@ -4,8 +4,8 @@ from schemas.quote import QuoteSchema
 
 
 class AnalysisSchemaBase(BaseModel):
-    quotes: List[QuoteSchema]
     novel_id: int
+    network: dict
 
 class AnalysisSchemaCreate(AnalysisSchemaBase):
     pass

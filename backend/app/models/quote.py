@@ -1,4 +1,4 @@
-from models.base import Base
+from .base import Base
 from sqlalchemy import String, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from typing import TYPE_CHECKING
@@ -14,4 +14,3 @@ class Quote(Base):
 
     novel: Mapped["Novel"] = relationship(back_populates="quotes")
     character: Mapped["Character"] = relationship(back_populates="quotes")
-    analysis: Mapped["Analysis"] = relationship(back_populates="quotes")

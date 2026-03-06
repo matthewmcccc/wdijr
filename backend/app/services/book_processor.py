@@ -5,6 +5,7 @@ from app.nlp.ner import EntityExtractor
 from app.nlp.plot_sentiment import PlotSentiment
 from app.services.task_states import TaskState
 from app.llm.gemini import Gemini
+from .db_helper import save_analysis_to_db
 
 book_path = os.path.join(os.path.dirname(__file__), "..", "temp", "aaiw.epub")
 
@@ -31,40 +32,54 @@ def process_epub(self, book_path) -> Epub:
                 print(f"Failed to delete {book_path}: {str(e)}")
 
 
-@celery_app.task(bind=True)
-def process_text(self, book_path):
+# @celery_app.task(bind=True)
+def process_text(book_path):
     ps: PlotSentiment = PlotSentiment()
 
-    self.update_state(state="PROCESSING", meta={"status": "Parsing book..."})
+    # self.update_state(state="PROCESSING", meta={"status": "Parsing book..."})
 
     book = Epub(book_path)
+    title = book.title
+    author = book.author
 
-    self.update_state(state="PROCESSING", meta={"status": "Extracting quotes..."})
+    # self.update_state(state="PROCESSING", meta={"status": "Extracting quotes..."})
 
     text = book.get_full_text()
     quotes = book.get_full_text_quotes(text)
 
-    self.update_state(state="PROCESSING", meta={"status": "Identifying entities..."})
+    # self.update_state(state="PROCESSING", meta={"status": "Identifying entities..."})
 
     er: EntityExtractor = EntityExtractor("en_core_web_trf", text)
     g: Gemini = Gemini()
 
-    self.update_state(state="PROCESSING", meta={"status": "Associating quotes with entities..."})
+    # self.update_state(state="PROCESSING", meta={"status": "Associating quotes with entities..."})
     
     associated_quotes = er.associate_text_quotes(quotes)
 
-    self.update_state(state="PROCESSING", meta={"status": "Building social network..."})
+    # self.update_state(state="PROCESSING", meta={"status": "Building social network..."})
 
     nw = er.build_conversational_network(associated_quotes)
+
+    mapping = er.persons_to_id()
+    print(mapping)
 
     characters = er.get_persons_from_text()
     characters = [{"id": i, "name": name} for i, name in enumerate(characters)]
 
-    self.update_state(state="PROCESSING", meta={"status": "Generating character summaries..."})
+    # self.update_state(state="PROCESSING", meta={"status": "Generating character summaries..."})
 
-    summaries = get_character_summaries(er, characters, nw, g, book.title)
+    # summaries = get_character_summaries(er, characters, nw, g, book.title)
 
-    return {"summaries": summaries, "network": nw, "characters": characters}
+    # novel_id = save_analysis_to_db(
+    #     title=title,
+    #     author=author,
+    #     characters=characters,
+    #     quotes=quotes,
+    #     network=nw
+    # )
+
+    return
+    # return {"novel_id": novel_id, "network": nw, "characters": characters, "quotes": quotes}
         
 
 def get_character_summaries(er: EntityExtractor, characters: list[dict], nw_dict, g: Gemini, title):

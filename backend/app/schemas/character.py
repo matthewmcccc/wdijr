@@ -1,8 +1,8 @@
 from pydantic import BaseModel
 
 class CharacterSchemaBase(BaseModel):
-    first_name: str | None = None
-    surname: str | None = None
+    name: str | None = None
+    summary: str | None = None
     description: str | None = None
     novel_id: int | None = None
 

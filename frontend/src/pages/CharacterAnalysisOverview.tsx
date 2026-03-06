@@ -16,6 +16,7 @@ const CharacterAnalysisLanding = () => {
     return (
         <div className="container mx-auto px-4 py-8">
             <Navbar />
+            {console.log(characterDescriptions)}
             <div>
                 <Breadcrumbs items={[{ label: "Analysis", url: "/analysis" }, { label: "Character Analysis" }]} />
                 <h1 className="text-5xl font-serif">Character Analysis</h1>
@@ -48,8 +49,8 @@ const CharacterAnalysisLanding = () => {
                             {(!data.last_name) ? "" : null}
                                 <CharacterCard 
                                     key={id} 
-                                    name={data.first_name ? `${humanize(data.first_name)} ${humanize(String(data.last_name))}` : humanize(id)}
-                                    description={characterDescriptions?.[id.toLowerCase()]?.description ?? "No description available."}
+                                    name={humanize(data.name)}
+                                    description={characterDescriptions?.[humanize(data.name)]?.description ?? "No description available."}
                                     size={"large"}
                                 />
                             </>

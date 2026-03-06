@@ -127,6 +127,12 @@ class EntityExtractor:
                         ]
                     )
         return gen_persons
+    
+    def persons_to_id(self):
+        mapping = {defaultdict(int)}
+        for i, person in enumerate(self.persons):
+            mapping[person] = i
+        return mapping
 
     def build_persons_dict(self) -> dict:
         """

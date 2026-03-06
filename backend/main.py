@@ -6,22 +6,23 @@ from app.parsers.epub import Epub
 from app.nlp.ner import EntityExtractor
 from app.nlp.plot_sentiment import PlotSentiment
 from app.llm.gemini import Gemini
-from app.services.book_processor import get_character_summaries
+from app.services.book_processor import process_text
 
 if __name__ == "__main__":
     book_path = Path("./app/temp/aaiw.epub")
-    book: Epub = Epub(book_path)
-    text = book.get_full_text()
-    ps: PlotSentiment = PlotSentiment()
-    er: EntityExtractor = EntityExtractor("en_core_web_trf", text)
-    g: Gemini = Gemini()
-    quotes = book.get_full_text_quotes(text)
-    associated_quotes = er.associate_text_quotes(quotes)
-    nw_dict = er.build_conversational_network(associated_quotes)
-    associated_quotes_obj_list = {}
-    characters = er.get_persons_from_text()
-    characters = [{"id": i, "name": name} for i, name in enumerate(characters)]
-    character_summaries = get_character_summaries(er, characters, nw_dict, g, book.title)
+    process_text(book_path)
+    # text = book.get_full_text()
+    # ps: PlotSentiment = PlotSentiment()
+    # er: EntityExtractor = EntityExtractor("en_core_web_trf", text)
+    # g: Gemini = Gemini()
+    # quotes = book.get_full_text_quotes(text)
+    # associated_quotes = er.associate_text_quotes(quotes)
+    # nw_dict = er.build_conversational_network(associated_quotes)
+    # associated_quotes_obj_list = {}
+    # characters = er.get_persons_from_text()
+    # characters = [{"id": i, "name": name} for i, name in enumerate(characters)]
+    # character_summaries = get_character_summaries(er, characters, nw_dict, g, book.title)
+    
 
 # just putting this here so i can remove from main
 def get_character_summaries_from_gemini():
