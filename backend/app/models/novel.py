@@ -1,5 +1,6 @@
+import uuid
 from typing import List
-from sqlalchemy import String, select
+from sqlalchemy import String, select, types
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import TYPE_CHECKING
@@ -9,7 +10,11 @@ from .base import Base
 class Novel(Base):
     __tablename__ = "novel"
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[uuid.UUID] = mapped_column(
+        types.Uuid,
+        primary_key=True,
+        default=uuid.uuid4
+    )
     title: Mapped[str] = mapped_column(String(100))
     author: Mapped[str] = mapped_column(String(50))
 
