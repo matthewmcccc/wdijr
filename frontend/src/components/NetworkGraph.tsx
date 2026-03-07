@@ -261,7 +261,7 @@ const NetworkGraph = ({ id = "network-graph", filterCharacter, height = 400, wid
         return () => {
             d3.select(`#${id}`).selectAll("*").remove();
         };
-    }, [id, filterCharacter, height, width]);
+    }, [id, filterCharacter, height, width, networkData]);
 
     return (
         <div>

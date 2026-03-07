@@ -21,15 +21,14 @@ const CharacterAnalysisLanding = () => {
 
     useEffect(() => {
         const fetchCharacterData = async () => {
-            if (characterData?.length == 0 && novelId) {
+            if (!characterData || Object.keys(characterData).length === 0) {
                 try {
                     const result = await axios(`${import.meta.env.VITE_API_URL}/novel/${novelId}/data`);
                     const data = result.data;
-                    console.log(data)
                     if (data) {
                         setCharacterData?.(data.characters);
                         setNetworkData?.(data.analysis.network);
-                        setTitle?.(title);
+                        setTitle?.(data.novel.title);
                     } else {
                         console.error("No characters field in response:", data);
                     }

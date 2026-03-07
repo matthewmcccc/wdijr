@@ -17,14 +17,15 @@ const AnalysisLanding = () => {
     const { novelId } = useParams<{ novelId: string }>();
     const bookContext = useContext(BookContext);
     const setCharacterData = bookContext?.setCharacterData;
+    const setNetworkData = bookContext?.setNetworkData;
 
     useEffect(() => {
         const fetchData = async () => {
             if (novelId) {
                 const data = await getAllNovelData(novelId);
-                console.log(data)
                 setCharacterData?.(data.characters);
                 setTitle?.(data.novel.title);
+                setNetworkData?.(data.analysis.network);
             }
         };
 
