@@ -4,16 +4,10 @@ from .novel import NovelSchema
 from .character import CharacterSchema
 from .analysis import AnalysisSchema
 
-class SummarySchemaBase(BaseModel):
+class SummarySchema(BaseModel):
     novel: NovelSchema
     characters: List[CharacterSchema]
     analysis: AnalysisSchema
-
-class SummarySchemaCreate(SummarySchemaBase):
-    pass
-
-class SummarySchema(SummarySchemaBase):
-    id: int
 
     class Config:
         from_attributes = True

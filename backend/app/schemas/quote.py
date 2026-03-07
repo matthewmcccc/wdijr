@@ -3,7 +3,7 @@ from pydantic import BaseModel
 class QuoteSchemaBase(BaseModel):
     id: str
     content: str
-    novel_id: int | None = None
+    novel_id: str | None = None
 
 class QuoteSchemaCreate(QuoteSchemaBase):
     pass

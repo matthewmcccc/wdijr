@@ -41,5 +41,5 @@ async def get_novel_data(novel_id: uuid.UUID, db: AsyncSession = Depends(get_db)
     return {
         "novel": novel,
         "characters": characters,
-        "analysis": anal
+        "analysis": analysis
     }
