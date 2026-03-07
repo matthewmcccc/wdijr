@@ -29,7 +29,7 @@ async def create_novel(novel: NovelSchemaCreate, db: AsyncSession = Depends(get_
     return novel
 
 @router.get("/{novel_id}/characters", response_model=List[CharacterSchema])
-async def get_characters(novel_id: int, db: AsyncSession = Depends(get_db)):
+async def get_characters(novel_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
     characters = await CharacterModel.get_from_novel_id(db=db, id=novel_id)
     return characters
 

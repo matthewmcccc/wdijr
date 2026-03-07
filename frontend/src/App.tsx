@@ -25,7 +25,7 @@ const attributedQuotes = (quotesData as any).default ?? quotesData
 
 
 const App = () => {
-  const [characterData, setCharacterData] = useState<Array<{ id: Number, first_name: string, last_name: string, description: string, novel_id: number }>>([])
+  const [characterData, setCharacterData] = useState<Array<{ id: Number, name: string, summary: string, description: string, novel_id: number }>>([])
   const [networkData, setNetworkData] = useState<{ nodes: any[], edges: any[] }>({ nodes: [], edges: [] })
 
   return (
@@ -44,12 +44,12 @@ const App = () => {
         <Routes>
           <Route path="/network-graph" element={<NetworkGraph />} />
           <Route path="/processing/:taskid" element={<Processing />} />
-          <Route path="/analysis/:novelid" element={<AnalysisLanding />} />
-          <Route path="/character-analysis" element={<CharacterAnalysisLanding />} />
+          <Route path="/analysis/:novelId" element={<AnalysisLanding />} />
+          <Route path="/character-analysis/:novelId" element={<CharacterAnalysisLanding />} />
           <Route path="/character/:name" element={<CharacterAnalysisProfile />} />
           <Route path="/" element={<Home />} />
           <Route path="/graph-test" element={<GraphTest />} />
-          <Route path="/plot-analysis" element={<PlotAnalysisLanding />} />
+          <Route path="/plot-analysis/:novelId" element={<PlotAnalysisLanding />} />
         </Routes>
       </BookContext.Provider>
     </BrowserRouter>

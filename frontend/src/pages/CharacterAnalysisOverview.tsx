@@ -1,4 +1,4 @@
-import { useContext, createContext } from "react";
+import { useContext, useEffect } from "react";
 import NetworkGraph from "../components/NetworkGraph";
 import Navbar from "../components/Navbar";
 import Breadcrumbs from "../components/Breadcrumbs";
@@ -6,19 +6,42 @@ import Dropdown from "../components/Dropdown";
 import CharacterCard from "../components/CharacterCard";
 import { BookContext } from "../contexts/bookContext";
 import humanize from "../utils/humanize";
+import { useParams } from "react-router-dom";
+import axios from "axios";
 
 const CharacterAnalysisLanding = () => {
     const characterData = useContext(BookContext)?.characterData;
     const characterDescriptions = useContext(BookContext)?.summaries;
+    const novelId = useParams<{ novelId: string }>().novelId;
+    const bookContext = useContext(BookContext);
+    const setCharacterData = bookContext?.setCharacterData;
 
-    console.log("Character data in CharacterAnalysisLanding:", characterData);
+    useEffect(() => {
+        const fetchCharacterData = async () => {
+            if (characterData?.length == 0 && novelId) {
+                try {
+                    console.log("Fetching character data for novel ID:", novelId);
+                    const result = await axios(`/api/novel/${novelId}/characters`);
+                    const data = result.data;
+                    console.log(data);
+                    if (data.characters) {
+                        setCharacterData?.(data.characters);
+                    } else {
+                        console.error("No characters field in response:", data);
+                    }
+                } catch (err) {
+                    console.error(err);
+                }
+            }
+        };
+        fetchCharacterData();
+    }, [characterData, novelId, setCharacterData]);
 
     return (
         <div className="container mx-auto px-4 py-8">
             <Navbar />
-            {console.log(characterDescriptions)}
             <div>
-                <Breadcrumbs items={[{ label: "Analysis", url: "/analysis" }, { label: "Character Analysis" }]} />
+                <Breadcrumbs items={[{ label: "Analysis", url: `/analysis/${novelId}` }, { label: "Character Analysis" }]} />
                 <h1 className="text-5xl font-serif">Character Analysis</h1>
                 <p className="font-dewi mt-4 text-gray-600 text-sm max-w-3xl">
                     Browse the analyis of Wuthering Heights characters. Click on a character to see a summary, their closely related
@@ -46,7 +69,7 @@ const CharacterAnalysisLanding = () => {
                     {
                         characterData && Object.entries(characterData).map(([id, data]) => (
                             <>
-                            {(!data.last_name) ? "" : null}
+                            {(!data.name) ? "" : null}
                                 <CharacterCard 
                                     key={id} 
                                     name={humanize(data.name)}

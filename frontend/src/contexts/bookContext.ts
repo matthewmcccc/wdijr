@@ -10,8 +10,7 @@ type AttributedQuote = {
 interface BookContextType {
     characterData: Array<{
         id: Number,
-        first_name: string;
-        last_name: string;
+        name: string;
         description: string,
         novel_id: number,
     }> | null,
@@ -23,7 +22,7 @@ interface BookContextType {
     topCharacterQuotes: Record<string, { quote: string, sentiment: number }[]>,
     attributedQuotes: AttributedQuote[],
     summaries: Record<string, { summary: string, description: string }>,
-    setCharacterData: (data: Array<{ id: Number, first_name: string, last_name: string, description: string, novel_id: number }>) => void,
+    setCharacterData: (data: Array<{ id: Number, name: string, summary: string, description: string, novel_id: number }>) => void,
     networkData: { nodes: any[], edges: any[] },
     setNetworkData: (data: { nodes: any[], edges: any[] }) => void,
 }
