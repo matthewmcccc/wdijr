@@ -11,6 +11,7 @@ const Processing = () => {
     const [novelId, setNovelId] = useState<number | null>(null);
     const setNetworkData = useContext(BookContext)?.setNetworkData;
     const setCharacterData = useContext(BookContext)?.setCharacterData;
+    const setTitle = useContext(BookContext)?.setTitle;
     const characterData = useContext(BookContext)?.characterData;
     const networkData = useContext(BookContext)?.networkData;
     const navigate = useNavigate();

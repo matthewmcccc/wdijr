@@ -47,18 +47,19 @@ def process_text(self, book_path):
     text = book.get_full_text()
     quotes = book.get_full_text_quotes(text)
 
-    self.update_state(state="PROCESSING", meta={"status": "Identifying entities..."})
+    self.update_state(state="PROCESSING", meta={"status": "Identifying characters..."})
 
     er: EntityExtractor = EntityExtractor("en_core_web_trf", text)
     g: Gemini = Gemini()
 
-    self.update_state(state="PROCESSING", meta={"status": "Associating quotes with entities..."})
+    self.update_state(state="PROCESSING", meta={"status": "Associating quotes with characters..."})
     
     associated_quotes = er.associate_text_quotes(quotes)
 
     self.update_state(state="PROCESSING", meta={"status": "Building social network..."})
 
     nw = er.build_conversational_network(associated_quotes)
+    nw = er.get_nodes_from_network_dict(nw)
 
     characters = er.get_persons_from_text()
     characters = [{"id": i, "name": name} for i, name in enumerate(characters)]

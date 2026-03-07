@@ -331,7 +331,6 @@ class EntityExtractor:
         nodes = []
         links = []
         seen_nodes = set()
-        seen_links = set()
 
         for character, network in nw_dict.items():
             if character not in seen_nodes:

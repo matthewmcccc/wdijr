@@ -19,12 +19,14 @@ interface BookContextType {
         right: string | null,
     }> | null,
     topCharacterRelationships: Record<string, [string, number][]>,
+    title: string,
+    setTitle: (title: string) => void,
     topCharacterQuotes: Record<string, { quote: string, sentiment: number }[]>,
     attributedQuotes: AttributedQuote[],
     summaries: Record<string, { summary: string, description: string }>,
     setCharacterData: (data: Array<{ id: Number, name: string, summary: string, description: string, novel_id: number }>) => void,
-    networkData: { nodes: any[], edges: any[] },
-    setNetworkData: (data: { nodes: any[], edges: any[] }) => void,
+    networkData: { links: any[], nodes: any[] },
+    setNetworkData: (data: { links: any[], nodes: any[] }) => void,
 }
 
 export const BookContext = createContext<BookContextType | null>(null);

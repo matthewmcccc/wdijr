@@ -11,7 +11,8 @@ interface AnalysisProps {
 }
 
 const AnalysisLanding = () => {
-    const [title, setTitle] = useState("");
+    const title = useContext(BookContext)?.title || "";
+    const setTitle = useContext(BookContext)?.setTitle;
     const navigate = useNavigate();
     const { novelId } = useParams<{ novelId: string }>();
     const bookContext = useContext(BookContext);
@@ -23,12 +24,12 @@ const AnalysisLanding = () => {
                 const data = await getAllNovelData(novelId);
                 console.log(data)
                 setCharacterData?.(data.characters);
-                setTitle(data.novel.title);
+                setTitle?.(data.novel.title);
             }
         };
 
         fetchData();
-    }, [novelId, setCharacterData]);
+    }, [novelId, setCharacterData, setTitle]);
 
     return (
         <div className="">

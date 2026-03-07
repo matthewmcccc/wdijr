@@ -26,7 +26,8 @@ const attributedQuotes = (quotesData as any).default ?? quotesData
 
 const App = () => {
   const [characterData, setCharacterData] = useState<Array<{ id: Number, name: string, summary: string, description: string, novel_id: number }>>([])
-  const [networkData, setNetworkData] = useState<{ nodes: any[], edges: any[] }>({ nodes: [], edges: [] })
+  const [networkData, setNetworkData] = useState<{ links: any[], nodes: any[] }>({ links: [], nodes: [] })
+  const [title, setTitle] = useState("");
 
   return (
     <BrowserRouter>
@@ -35,6 +36,8 @@ const App = () => {
           setCharacterData: setCharacterData,
           networkData: networkData,
           setNetworkData: setNetworkData,
+          title: title,
+          setTitle: setTitle,
           characterNavigationDict: buildNavigationDictionary(Object.keys(topCharacterRelationships)),
           topCharacterRelationships: topCharacterRelationships,
           topCharacterQuotes: topCharacterQuotes,

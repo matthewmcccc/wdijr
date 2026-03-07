@@ -1,4 +1,4 @@
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import NetworkGraph from "../components/NetworkGraph";
 import Navbar from "../components/Navbar";
 import Breadcrumbs from "../components/Breadcrumbs";
@@ -12,20 +12,24 @@ import axios from "axios";
 const CharacterAnalysisLanding = () => {
     const characterData = useContext(BookContext)?.characterData;
     const characterDescriptions = useContext(BookContext)?.summaries;
+    const title = useContext(BookContext)?.title || "";
+    const setTitle = useContext(BookContext)?.setTitle;
     const novelId = useParams<{ novelId: string }>().novelId;
     const bookContext = useContext(BookContext);
     const setCharacterData = bookContext?.setCharacterData;
+    const setNetworkData = bookContext?.setNetworkData;
 
     useEffect(() => {
         const fetchCharacterData = async () => {
             if (characterData?.length == 0 && novelId) {
                 try {
-                    console.log("Fetching character data for novel ID:", novelId);
-                    const result = await axios(`/api/novel/${novelId}/characters`);
+                    const result = await axios(`${import.meta.env.VITE_API_URL}/novel/${novelId}/data`);
                     const data = result.data;
-                    console.log(data);
-                    if (data.characters) {
+                    console.log(data)
+                    if (data) {
                         setCharacterData?.(data.characters);
+                        setNetworkData?.(data.analysis.network);
+                        setTitle?.(title);
                     } else {
                         console.error("No characters field in response:", data);
                     }
@@ -35,7 +39,7 @@ const CharacterAnalysisLanding = () => {
             }
         };
         fetchCharacterData();
-    }, [characterData, novelId, setCharacterData]);
+    }, [characterData, novelId, setCharacterData, setNetworkData]);
 
     return (
         <div className="container mx-auto px-4 py-8">
@@ -44,7 +48,7 @@ const CharacterAnalysisLanding = () => {
                 <Breadcrumbs items={[{ label: "Analysis", url: `/analysis/${novelId}` }, { label: "Character Analysis" }]} />
                 <h1 className="text-5xl font-serif">Character Analysis</h1>
                 <p className="font-dewi mt-4 text-gray-600 text-sm max-w-3xl">
-                    Browse the analyis of Wuthering Heights characters. Click on a character to see a summary, their closely related
+                    Browse the analyis of {title} characters. Click on a character to see a summary, their closely related
                     characters, and their sentiment arc throughout the novel. The social network graph below shows the relationships between the characters of the novel.
                 </p>
             </div>
@@ -54,6 +58,7 @@ const CharacterAnalysisLanding = () => {
                     <div className="flex flex-col gap-2">
                         <h1 className="font-dewi">Social Network Graph</h1>
                         <NetworkGraph 
+                            key={novelId}
                             id="network-graph-1" 
                             height={400}
                             width={1500}
