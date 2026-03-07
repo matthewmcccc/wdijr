@@ -8,6 +8,7 @@ const Processing = () => {
     const taskId = useParams().taskid;
     const [done, setDone] = useState(false);
     const [status, setStatus] = useState<string>("Processing...");
+    const [novelId, setNovelId] = useState<number | null>(null);
     const setNetworkData = useContext(BookContext)?.setNetworkData;
     const setCharacterData = useContext(BookContext)?.setCharacterData;
     const characterData = useContext(BookContext)?.characterData;
@@ -23,6 +24,7 @@ const Processing = () => {
         if (data.data.status == "complete") {
                 setNetworkData?.(data.data.data.network);
                 setCharacterData?.(data.data.data.characters);
+                setNovelId(data.data.data.novel_id);
                 setDone(true);
             }
         }, 2000);
@@ -32,9 +34,9 @@ const Processing = () => {
 
     useEffect(() => {
         if (done) {
-            navigate("/analysis");
+            navigate(`/analysis/${novelId}`);
         }
-    }, [done, networkData, characterData, navigate]);
+    }, [done, novelId, navigate]);
 
     return (
         <>

@@ -21,3 +21,7 @@ class Novel(Base):
     quotes: Mapped[List["Quote"]] = relationship(back_populates="novel")
     characters: Mapped[List["Character"]] = relationship(back_populates="novel")
     analysis: Mapped["Analysis"] = relationship(back_populates="novel")
+
+    @classmethod
+    async def get_from_id(cls, id: uuid.UUID, db: AsyncSession):
+        return (await db.execute(select(cls).where(cls.id == id))).scalar_one()

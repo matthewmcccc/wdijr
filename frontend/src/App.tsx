@@ -44,7 +44,7 @@ const App = () => {
         <Routes>
           <Route path="/network-graph" element={<NetworkGraph />} />
           <Route path="/processing/:taskid" element={<Processing />} />
-          <Route path="/analysis" element={<AnalysisLanding />} />
+          <Route path="/analysis/:novelid" element={<AnalysisLanding />} />
           <Route path="/character-analysis" element={<CharacterAnalysisLanding />} />
           <Route path="/character/:name" element={<CharacterAnalysisProfile />} />
           <Route path="/" element={<Home />} />

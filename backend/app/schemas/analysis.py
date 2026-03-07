@@ -2,7 +2,6 @@ from pydantic import BaseModel
 from typing import List
 from schemas.quote import QuoteSchema
 
-
 class AnalysisSchemaBase(BaseModel):
     novel_id: int
     network: dict

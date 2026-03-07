@@ -1,3 +1,4 @@
+import uuid
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -6,6 +7,8 @@ from schemas.novel import NovelSchema, NovelSchemaCreate
 from schemas.character import CharacterSchema
 from models.novel import Novel as NovelModel
 from models.character import Character as CharacterModel
+from models.analysis import Analysis as AnalysisModel
+from schemas.summary import SummarySchema
 from db import get_db
 
 router = APIRouter(prefix="/novel", tags=["novel"])
@@ -29,3 +32,14 @@ async def create_novel(novel: NovelSchemaCreate, db: AsyncSession = Depends(get_
 async def get_characters(novel_id: int, db: AsyncSession = Depends(get_db)):
     characters = await CharacterModel.get_from_novel_id(db=db, id=novel_id)
     return characters
+
+@router.get("/{novel_id}/data", response_model=SummarySchema)
+async def get_novel_data(novel_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
+    novel = await NovelModel.get_from_id(novel_id, db)
+    characters = await CharacterModel.get_from_novel_id(db=db, id=novel_id)
+    analysis = await AnalysisModel.get_from_novel_id(db, novel_id)
+    return {
+        "novel": novel,
+        "characters": characters,
+        "analysis": anal
+    }

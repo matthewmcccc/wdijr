@@ -1,3 +1,4 @@
+import uuid
 from pydantic import BaseModel
 
 class NovelSchemaBase(BaseModel):
@@ -8,7 +9,7 @@ class NovelSchemaCreate(NovelSchemaBase):
     pass
 
 class NovelSchema(NovelSchemaBase):
-    id: int
+    id: uuid.UUID
 
     class Config:
         from_attributes = True
