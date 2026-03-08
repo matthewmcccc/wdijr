@@ -1,4 +1,5 @@
 import uuid
+from models.quote import Quote as QuoteModel
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -38,8 +39,10 @@ async def get_novel_data(novel_id: uuid.UUID, db: AsyncSession = Depends(get_db)
     novel = await NovelModel.get_from_id(novel_id, db)
     characters = await CharacterModel.get_from_novel_id(db=db, id=novel_id)
     analysis = await AnalysisModel.get_from_novel_id(db, novel_id)
+    quotes = await QuoteModel.get_from_novel_id(db, novel_id)
     return {
         "novel": novel,
         "characters": characters,
-        "analysis": analysis
+        "analysis": analysis,
+        "quotes": quotes
     }

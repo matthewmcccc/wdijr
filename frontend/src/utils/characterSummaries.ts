@@ -1,5 +1,3 @@
-// characterSummaries.ts
-
 export interface CharacterSummary {
   summary: string;
   description: string;

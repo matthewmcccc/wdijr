@@ -13,7 +13,6 @@ import * as summaryData from "../data/summaries.json"
 import { text } from "d3";
 import PlotAnalysisLanding from "./pages/PlotAnalysisOverview";
 import Processing from "./pages/Processing";
-import { CHARACTER_SUMMARIES } from "./utils/characterSummaries";
 
 const topCharacterRelationships: Record<string, [string, number][]> = 
   {'heathcliff': [['joseph', 19], ['isabella linton', 17], ['catherine earnshaw', 14]], 'joseph': [['heathcliff', 19], ['catherine earnshaw', 13], ['nelly', 11]], 'hareton': [['joseph', 5], ['nelly', 3], ['heathcliff', 3]], 'jabez': [['zillah', 1], ['lockwood', 1]], 'ellen dean': [['catherine', 18], ['linton', 7], ['cathy', 6]], 'catherine earnshaw': [['linton', 18], ['catherine', 15], ['isabella linton', 14]], 'miss': [['catherine', 6], ['joseph', 3], ['nelly', 2]], 'hindley': [['catherine earnshaw', 3], ['joseph', 2], ['isabella linton', 1]], 'nelly': [['joseph', 11], ['heathcliff', 5], ['catherine', 4]], 'isabella': [['isabella linton', 6], ['catherine earnshaw', 3], ['linton', 2]], 'isabella linton': [['heathcliff', 17], ['catherine earnshaw', 14], ['linton', 14]], 'catherine': [['ellen dean', 18], ['catherine earnshaw', 15], ['heathcliff', 10]], 'linton': [['catherine earnshaw', 18], ['isabella linton', 14], ['heathcliff', 10]], 'dean': [['cathy', 2], ['frances', 1]], 'cathy': [['catherine earnshaw', 9], ['isabella linton', 9], ['linton', 6]], 'edgar': [['isabella linton', 9], ['heathcliff', 8], ['catherine', 7]], 'ellen': [['isabella linton', 5], ['catherine earnshaw', 5], ['joseph', 2]], 'kenneth': [['catherine earnshaw', 2], ['isabella linton', 1], ['heathcliff', 1]], 'papa': [['catherine', 2], ['cathy', 2], ['isabella linton', 1]], 'zillah': [['linton', 2], ['edgar', 2], ['heathcliff', 1]], 'green': [['linton', 1], ['joseph', 1]], 'lockwood': [['nelly', 2], ['joseph', 1], ['jabez', 1]]}
@@ -27,6 +26,7 @@ const attributedQuotes = (quotesData as any).default ?? quotesData
 const App = () => {
   const [characterData, setCharacterData] = useState<Array<{ id: Number, name: string, summary: string, description: string, novel_id: number }>>([])
   const [networkData, setNetworkData] = useState<{ links: any[], nodes: any[] }>({ links: [], nodes: [] })
+  const [novelData, setNovelData] = useState<{ author: string; id: string; title: string } | null>(null);
   const [title, setTitle] = useState("");
 
   return (
@@ -38,18 +38,19 @@ const App = () => {
           setNetworkData: setNetworkData,
           title: title,
           setTitle: setTitle,
+          novelData: novelData ?? { author: "", id: "", title: "" },
+          setNovelData: setNovelData,
           characterNavigationDict: buildNavigationDictionary(Object.keys(topCharacterRelationships)),
           topCharacterRelationships: topCharacterRelationships,
           topCharacterQuotes: topCharacterQuotes,
           attributedQuotes: attributedQuotes,
-          summaries: CHARACTER_SUMMARIES,
         }}>
         <Routes>
           <Route path="/network-graph" element={<NetworkGraph />} />
           <Route path="/processing/:taskid" element={<Processing />} />
           <Route path="/analysis/:novelId" element={<AnalysisLanding />} />
           <Route path="/character-analysis/:novelId" element={<CharacterAnalysisLanding />} />
-          <Route path="/character/:name" element={<CharacterAnalysisProfile />} />
+          <Route path="/character/:novelId/:name" element={<CharacterAnalysisProfile />} />
           <Route path="/" element={<Home />} />
           <Route path="/graph-test" element={<GraphTest />} />
           <Route path="/plot-analysis/:novelId" element={<PlotAnalysisLanding />} />

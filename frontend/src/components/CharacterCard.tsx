@@ -1,8 +1,13 @@
 import { text } from "d3";
+import { use, useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import { BookContext } from "../contexts/bookContext";
 
 const CharacterCard = ({ name, description, traits, size }: { name: string, description: string, traits?: string[], size: string }) => {
     const navigate = useNavigate();
+    const novelData = useContext(BookContext)?.novelData;
+    const novelId = novelData?.id;
+
     let padding;
     let textSize;
 
@@ -15,7 +20,7 @@ const CharacterCard = ({ name, description, traits, size }: { name: string, desc
     }
 
     return (
-        <div onClick={() => navigate(`/character/${name.toLowerCase().replace(/\s+/g, '-')}`)} className={`mb-8 ${padding} border border-gray-300 rounded-lg cursor-pointer hover:shadow-sm transition-shadow duration-300`}>
+        <div onClick={() => navigate(`/character/${novelId}/${name.toLowerCase().replace(/\s+/g, '-')}`)} className={`mb-8 ${padding} border border-gray-300 rounded-lg cursor-pointer hover:shadow-sm transition-shadow duration-300`}>
             <h2 className={`text-${textSize} font-serif mb-4`}>{name}</h2>
             <p className="mb-4">{description}</p>
             <div>

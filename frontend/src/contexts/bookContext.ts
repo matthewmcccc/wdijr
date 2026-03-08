@@ -20,10 +20,15 @@ interface BookContextType {
     }> | null,
     topCharacterRelationships: Record<string, [string, number][]>,
     title: string,
+    novelData: {
+        author: string;
+        id: string;
+        title: string;
+    }
+    setNovelData: (data: { author: string; id: string; title: string }) => void,
     setTitle: (title: string) => void,
     topCharacterQuotes: Record<string, { quote: string, sentiment: number }[]>,
     attributedQuotes: AttributedQuote[],
-    summaries: Record<string, { summary: string, description: string }>,
     setCharacterData: (data: Array<{ id: Number, name: string, summary: string, description: string, novel_id: number }>) => void,
     networkData: { links: any[], nodes: any[] },
     setNetworkData: (data: { links: any[], nodes: any[] }) => void,

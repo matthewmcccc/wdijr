@@ -1,6 +1,8 @@
+import uuid
 from .base import Base
-from sqlalchemy import String, ForeignKey
+from sqlalchemy import String, ForeignKey, select
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.ext.asyncio import AsyncSession
 from typing import TYPE_CHECKING
 
 class Quote(Base):
@@ -14,3 +16,7 @@ class Quote(Base):
 
     novel: Mapped["Novel"] = relationship(back_populates="quotes")
     character: Mapped["Character"] = relationship(back_populates="quotes")
+
+    @classmethod
+    async def get_from_novel_id(cls, db: AsyncSession, novel_id: uuid.UUID):
+        return (await db.execute(select(cls).where(cls.novel_id == novel_id))).scalars().all()

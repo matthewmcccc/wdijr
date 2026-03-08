@@ -1,4 +1,5 @@
 import uuid
+from .quote import QuoteSchema
 from pydantic import BaseModel
 
 class NovelSchemaBase(BaseModel):

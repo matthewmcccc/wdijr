@@ -11,21 +11,23 @@ import axios from "axios";
 
 const CharacterAnalysisLanding = () => {
     const characterData = useContext(BookContext)?.characterData;
-    const characterDescriptions = useContext(BookContext)?.summaries;
     const title = useContext(BookContext)?.title || "";
     const setTitle = useContext(BookContext)?.setTitle;
     const novelId = useParams<{ novelId: string }>().novelId;
     const bookContext = useContext(BookContext);
     const setCharacterData = bookContext?.setCharacterData;
     const setNetworkData = bookContext?.setNetworkData;
+    const setNovelData = bookContext?.setNovelData;
 
     useEffect(() => {
         const fetchCharacterData = async () => {
-            if (!characterData || Object.keys(characterData).length === 0) {
+            if (!characterData || Object.keys(characterData).length === 0 || !bookContext?.novelData) {
                 try {
                     const result = await axios(`${import.meta.env.VITE_API_URL}/novel/${novelId}/data`);
                     const data = result.data;
                     if (data) {
+                        console.log(data);
+                        setNovelData?.(data.novel);
                         setCharacterData?.(data.characters);
                         setNetworkData?.(data.analysis.network);
                         setTitle?.(data.novel.title);
@@ -38,13 +40,13 @@ const CharacterAnalysisLanding = () => {
             }
         };
         fetchCharacterData();
-    }, [characterData, novelId, setCharacterData, setNetworkData]);
+    }, [characterData, novelId, setCharacterData, setNetworkData, bookContext?.novelData, setNovelData, setTitle]);
 
     return (
         <div className="container mx-auto px-4 py-8">
             <Navbar />
             <div>
-                <Breadcrumbs items={[{ label: "Analysis", url: `/analysis/${novelId}` }, { label: "Character Analysis" }]} />
+                <Breadcrumbs items={[{ label: "Analysis", url: `/analysis/${novelId}` }, { label: "Character Analysis", url: `/character-analysis/${novelId}` }]} />
                 <h1 className="text-5xl font-serif">Character Analysis</h1>
                 <p className="font-dewi mt-4 text-gray-600 text-sm max-w-3xl">
                     Browse the analyis of {title} characters. Click on a character to see a summary, their closely related
@@ -77,7 +79,7 @@ const CharacterAnalysisLanding = () => {
                                 <CharacterCard 
                                     key={id} 
                                     name={humanize(data.name)}
-                                    description={characterDescriptions?.[humanize(data.name)]?.description ?? "No description available."}
+                                    description={data.description ?? "No description available."}
                                     size={"large"}
                                 />
                             </>

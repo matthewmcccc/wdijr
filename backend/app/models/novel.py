@@ -25,3 +25,4 @@ class Novel(Base):
     @classmethod
     async def get_from_id(cls, id: uuid.UUID, db: AsyncSession):
         return (await db.execute(select(cls).where(cls.id == id))).scalar_one()
+    

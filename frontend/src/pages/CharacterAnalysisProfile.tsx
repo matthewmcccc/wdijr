@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import humanize from "../utils/humanize";
 import Breadcrumbs from "../components/Breadcrumbs";
 import CharacterNavigation from "../components/CharacterNavigation";
-import { use, useContext } from "react";
+import { use, useContext, useEffect } from "react";
 import { BookContext } from "../contexts/bookContext";
 import CharacterCard from "../components/CharacterCard";
 import SentimentAreaChart from "../components/SentimentAreaChart";
@@ -21,17 +21,22 @@ const smooth = (data: number[], windowSize: number = 10): number[] => {
 const CharacterAnalysisProfile = () => {
     const characterName = useParams<{ name: string }>().name;
     const characterNavigationDict = useContext(BookContext)?.characterNavigationDict;
-    const characterData = useContext(BookContext)?.characterData?.[humanize(characterName ?? "").toLowerCase() || ""];
+    const characterData = useContext(BookContext)?.characterData?.[humanize(characterName ?? "").toLowerCase()] || "";
     const topCharacterRelationships = useContext(BookContext)?.topCharacterRelationships?.[humanize(characterName ?? "").toLowerCase() || ""] || [];
     const topCharacterQuote = useContext(BookContext)?.topCharacterQuotes?.[humanize(characterName ?? "").toLowerCase() || ""] || [];
     const attributedQuotes = useContext(BookContext)?.attributedQuotes?.filter(q => q.speaker.toLowerCase() === humanize(characterName ?? "").toLowerCase()) || [];
-    const attributedSummary = useContext(BookContext)?.summaries?.[humanize(characterName ?? "").toLowerCase()] || "No summary available.";
+    const setNetworkData = useContext(BookContext)?.setNetworkData;
+    const novelId = useParams<{ novelId: string }>().novelId;
+
+    useEffect(() => {
+        
+    }, []);
 
     return (
         <div className="container mx-auto px-4 py-8"> 
             <Navbar />
             <div className="">
-                <Breadcrumbs items={[{ label: "Analysis", url: "/analysis" }, { label: "Character Analysis", url: "/character-analysis" }, { label: characterName ? humanize(characterName) : "Character Details" }]} />
+                <Breadcrumbs items={[{ label: "Analysis", url: `/analysis/${novelId}` }, { label: "Character Analysis", url: `/character-analysis/${novelId}` }, { label: characterName ? humanize(characterName) : "Character Details" }]} />
                 <div className="font-serif text-center justify-between flex flex-row items-center">
                     <div className="flex-1 flex justify-left">
                         <CharacterNavigation 
@@ -62,7 +67,7 @@ const CharacterAnalysisProfile = () => {
                     <div className="flex-1 flex flex-row mt-8">
                         <div className="flex flex-1">
                             <p className="font-serif text-gray-900">
-                                {typeof attributedSummary === 'string' ? attributedSummary : attributedSummary.summary}
+                                {characterData?.summary || "No summary available."}
                             </p>
                         </div>
                         <div className="justify-end flex flex-1">
