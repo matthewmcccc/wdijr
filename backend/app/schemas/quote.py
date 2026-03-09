@@ -4,6 +4,8 @@ from pydantic import BaseModel
 class QuoteSchemaBase(BaseModel):
     id: str
     content: str
+    speaker: str
+    sentiment: float
     novel_id: uuid.UUID | None = None
 
 class QuoteSchemaCreate(QuoteSchemaBase):

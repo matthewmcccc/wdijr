@@ -18,8 +18,8 @@ const AnalysisLanding = () => {
     const bookContext = useContext(BookContext);
     const setCharacterData = bookContext?.setCharacterData;
     const setNetworkData = bookContext?.setNetworkData;
-    const associatedQuotes = bookContext?.associatedQuotes;
-    const setAssociatedQuotes = bookContext?.setAssociatedQuotes;
+    const setQuoteData = bookContext?.setQuoteData;  
+    const quoteData = bookContext?.quoteData;  
 
     useEffect(() => {
         const fetchData = async () => {
@@ -28,12 +28,12 @@ const AnalysisLanding = () => {
                 setCharacterData?.(data.characters);
                 setTitle?.(data.novel.title);
                 setNetworkData?.(data.analysis.network);
-                setAssociatedQuotes?.(data.associated_quotes);
+                setQuoteData?.(data.quotes);
             }
         };
 
         fetchData();
-    }, [novelId, setCharacterData, setTitle, setNetworkData, setAssociatedQuotes]);
+    }, [novelId, setCharacterData, setTitle, setNetworkData, setQuoteData]);
 
     return (
         <div className="">

@@ -56,14 +56,17 @@ def save_analysis_to_db(title: str, author: str, characters: list, quotes: list,
         for quote in quotes:
             content = quote["quote"]
             speaker = quote["speaker"]
-            if speaker is None:
+            sentiment = quote["sentiment"]
+            if not speaker:
                 continue
             char_id = char_mapping[speaker]
             session.add(Quote(
                 content=content,
                 novel_id=novel.id,
+                speaker=speaker,
                 character_id=char_id,
-                analysis_id=analysis.id
+                analysis_id=analysis.id,
+                sentiment=sentiment
             ))
 
         session.commit()

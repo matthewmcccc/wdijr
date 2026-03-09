@@ -22,6 +22,7 @@ const App = () => {
   const [title, setTitle] = useState("");
   const [topCharacterQuotes, setTopCharacterQuotes] = useState<Record<string, any>>();
   const [attributedQuotes, setAttributedQuotes] = useState<any[]>([]);
+  const [quoteData, setQuoteData] = useState<any>(quotesData);
 
   return (
     <BrowserRouter>
@@ -41,6 +42,8 @@ const App = () => {
           topCharacterQuotes: topCharacterQuotes ?? {},
           attributedQuotes: attributedQuotes ?? [],
           setTopCharacterRelationships: setTopCharacterRelationships,
+          quoteData: quoteData,
+          setQuoteData: setQuoteData,
         }}>
         <Routes>
           <Route path="/network-graph" element={<NetworkGraph />} />

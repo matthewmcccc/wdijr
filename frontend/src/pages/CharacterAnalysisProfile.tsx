@@ -41,6 +41,7 @@ const CharacterAnalysisProfile = () => {
     const setAssociatedQuotes = useContext(BookContext)?.setAssociatedQuotes;
     const topRelationships = (characterData as any)?.["top_relationships"] || [];
     const topQuote = characterData ? (characterData as any).top_quote : null;
+    const quoteData = useContext(BookContext)?.quoteData;
 
     const sortedCharacters = Object.values(allCharacterData ?? {})
     .map(c => c.name)
@@ -53,9 +54,6 @@ const CharacterAnalysisProfile = () => {
     const leftCharacter = currentIndex > 0 ? sortedCharacters[currentIndex - 1] : "";
     const rightCharacter = currentIndex < sortedCharacters.length - 1 ? sortedCharacters[currentIndex + 1] : "";
 
-
-    console.log(`navigation dict: ${characterNavigationDict ? JSON.stringify(characterNavigationDict[humanize(characterName ?? "").toLowerCase()]) : "null"}`);
-
     useEffect(() => {
         const fetchCharacterData = async () => {
             if (!novelData || novelData.id !== novelId) {
@@ -67,6 +65,7 @@ const CharacterAnalysisProfile = () => {
         fetchCharacterData();
     }, [novelId]);
 
+    const characterQuotes = quoteData ? Object.values(quoteData).filter((q: any) => q.speaker.toLowerCase() === humanize(characterName ?? "").toLowerCase()) : [];
 
     return (
         <div className="container mx-auto px-4 py-8"> 
@@ -132,7 +131,7 @@ const CharacterAnalysisProfile = () => {
                                 {characterName ? `${humanize(characterName)}'s Sentiment Over Time` : "Sentiment Over Time"}
                             </h1>
                             <SentimentAreaChart 
-                                data={smooth(attributedQuotes.map(q => q.sentiment))}
+                                data={smooth(characterQuotes.map(q => q.sentiment))}
                                 width={550}
                                 height={350}
                             />
