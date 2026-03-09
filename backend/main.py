@@ -19,13 +19,19 @@ if __name__ == "__main__":
     associated_quotes = er.associate_text_quotes(quotes)
     nw_dict = er.build_conversational_network(associated_quotes)
     characters = er.get_all_characters(nw_dict)
-    characters = [{"id": i, "name": name} for i, name in enumerate(characters)]
-    top_relationships_dict = {}
+    top_quotes = {}
     for character in characters:
-        name = character["name"]
-        top_relationships = er.get_top_relationships(nw_dict, name)
-        top_relationships_dict[name] = top_relationships
-    print(top_relationships_dict)
+        top_quotes[character] = er.get_character_quotes(
+            nw_dict, character
+        )
+    print(top_quotes["alice"][0]["quote"])
+    # characters = [{"id": i, "name": name} for i, name in enumerate(characters)]
+    # top_relationships_dict = {}
+    # for character in characters:
+    #     name = character["name"]
+    #     top_relationships = er.get_top_relationships(nw_dict, name)
+    #     top_relationships_dict[name] = top_relationships
+    # print(top_relationships_dict)
 
 # just putting this here so i can remove from main
 def get_character_summaries_from_gemini():

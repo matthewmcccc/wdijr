@@ -22,27 +22,33 @@ const smooth = (data: number[], windowSize: number = 10): number[] => {
 const CharacterAnalysisProfile = () => {
     const characterName = useParams<{ name: string }>().name;
     const characterNavigationDict = useContext(BookContext)?.characterNavigationDict;
-    const characterData = useContext(BookContext)?.characterData?.[humanize(characterName ?? "").toLowerCase()] || "";
+    const characterData = Object.values(useContext(BookContext)?.characterData ?? {})
+    .find(c => c.name.toLowerCase() === humanize(characterName ?? "").toLowerCase());
     const topCharacterQuote = useContext(BookContext)?.topCharacterQuotes?.[humanize(characterName ?? "").toLowerCase() || ""] || [];
     const attributedQuotes = useContext(BookContext)?.attributedQuotes?.filter(q => q.speaker.toLowerCase() === humanize(characterName ?? "").toLowerCase()) || [];
     const networkData = useContext(BookContext)?.networkData;
     const setNetworkData = useContext(BookContext)?.setNetworkData;
     const novelId = useParams<{ novelId: string }>().novelId;
+    const novelData = useContext(BookContext)?.novelData;
     const setNovelData = useContext(BookContext)?.setNovelData;
     const setCharacterData = useContext(BookContext)?.setCharacterData;
     const setTitle = useContext(BookContext)?.setTitle;
-    const topRelationships = useContext(BookContext)?.topCharacterRelationships?.[humanize(characterName ?? "").toLowerCase()] || [];
     const associatedQuotes = useContext(BookContext)?.associatedQuotes;
-
-    console.log(associatedQuotes);
+    const setAssociatedQuotes = useContext(BookContext)?.setAssociatedQuotes;
+    const topRelationships = (characterData as any)?.["top_relationships"] || [];
+    const topQuote = characterData ? (characterData as any).top_quote : null;
 
     useEffect(() => {
-        if (!networkData || networkData.links.length === 0 || !characterData || Object.keys(characterData).length === 0 || !bookContext?.novelData) {
-            if (setNovelData && setCharacterData && setNetworkData && setTitle) {
-                fetchNovelData(novelId ?? "", setNovelData, setCharacterData, setNetworkData, setTitle);
+        const fetchCharacterData = async () => {
+            if (!novelData || novelData.id !== novelId) {
+                if (setNovelData && setCharacterData && setNetworkData && setTitle && setAssociatedQuotes) {
+                    await fetchNovelData(novelId ?? "", setNovelData, setCharacterData, setNetworkData, setTitle, setAssociatedQuotes);
+                }
             }
-        }
-    }, []);
+        };
+        fetchCharacterData();
+    }, [novelId]);
+    console.log(`character data: ${JSON.stringify(characterData)}`);
 
     return (
         <div className="container mx-auto px-4 py-8"> 
@@ -67,9 +73,9 @@ const CharacterAnalysisProfile = () => {
                         />
                     </div>
                 </div>
-                {topCharacterQuote.length > 0 && (
+                {topQuote && (
                     <div className="text-sm mt-2 italic text-gray-600 max-w-4xl font-serif mx-auto text-center">
-                        "...{topCharacterQuote[0].quote}..."
+                        "...{topQuote}..."
                     </div>
                 )}
                 <div className="flex flex-col justify-between mt-8">
@@ -93,7 +99,7 @@ const CharacterAnalysisProfile = () => {
                                         <CharacterCard 
                                             key={index}
                                             name={humanize(relatedCharacter)}
-                                            description={characterData?.description || ""}
+                                            description={""}
                                             traits={characterData?.traits || []}
                                             size={"small"}
                                         />

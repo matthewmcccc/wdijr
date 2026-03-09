@@ -1,4 +1,10 @@
 import os
+# from app.parsers.epub import Epub
+# from app.services.celery_worker import celery_app
+# from app.nlp.ner import EntityExtractor
+# from app.nlp.plot_sentiment import PlotSentiment
+# from app.services.task_states import TaskState
+# from app.llm.gemini import Gemini
 from parsers.epub import Epub
 from services.celery_worker import celery_app
 from nlp.ner import EntityExtractor
@@ -61,19 +67,22 @@ def process_text(self, book_path):
     nw = er.build_conversational_network(associated_quotes)
     nw_nodes = er.get_nodes_from_network_dict(nw)
 
-
     characters = er.get_persons_from_text()
     characters = [{"id": i, "name": name} for i, name in enumerate(characters)]
 
     self.update_state(state="PROCESSING", meta={"status": "Generating character summaries..."})
 
     top_relationships_dict = {}
+    top_quotes = {}
     for character in characters:
         name = character["name"]
         top_relationships_dict[name] = er.get_top_relationships(nw, name) 
+        top_quotes[name] = er.get_character_quotes(
+            nw, name
+        )
 
     # summaries = get_character_summaries(er, characters, nw, g, book.title)
-    
+
     mapping = er.persons_to_id()
 
     novel_id = save_analysis_to_db(
@@ -82,7 +91,10 @@ def process_text(self, book_path):
         characters=characters,
         quotes=associated_quotes,
         network=nw_nodes,
-        char_mapping=mapping
+        summaries={},
+        char_mapping=mapping,
+        top_relationships=top_relationships_dict,
+        top_quotes=top_quotes
     )
 
     return {

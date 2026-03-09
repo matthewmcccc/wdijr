@@ -1,6 +1,6 @@
 import uuid
 from .base import Base
-from sqlalchemy import String, ForeignKey, select
+from sqlalchemy import String, ForeignKey, select, JSON
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import TYPE_CHECKING, List
@@ -15,6 +15,8 @@ class Character(Base):
     name: Mapped[str] = mapped_column(String(50))
     summary: Mapped[str] = mapped_column(String(5000))
     description: Mapped[str] = mapped_column(String(1000))
+    top_relationships = mapped_column(JSON, nullable=True)
+    top_quote: Mapped[str] = mapped_column(String(200))
     novel_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("novel.id"))
 
     novel: Mapped["Novel"] = relationship(back_populates="characters")

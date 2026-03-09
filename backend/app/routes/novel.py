@@ -40,6 +40,7 @@ async def get_novel_data(novel_id: uuid.UUID, db: AsyncSession = Depends(get_db)
     characters = await CharacterModel.get_from_novel_id(db=db, id=novel_id)
     analysis = await AnalysisModel.get_from_novel_id(db, novel_id)
     quotes = await QuoteModel.get_from_novel_id(db, novel_id)
+    
     return {
         "novel": novel,
         "characters": characters,
