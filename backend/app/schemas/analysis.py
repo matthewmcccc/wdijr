@@ -6,6 +6,8 @@ import uuid
 class AnalysisSchemaBase(BaseModel):
     novel_id: uuid.UUID
     network: dict
+    sentiment_values: list
+    inflection_points: list
 
 class AnalysisSchemaCreate(AnalysisSchemaBase):
     pass

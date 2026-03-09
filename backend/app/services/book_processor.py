@@ -51,6 +51,7 @@ def process_text(self, book_path):
     self.update_state(state="PROCESSING", meta={"status": "Extracting quotes..."})
 
     text = book.get_full_text()
+    full_text_words = book.get_full_text_word_list()
     quotes = book.get_full_text_quotes(text)
 
     self.update_state(state="PROCESSING", meta={"status": "Identifying characters..."})
@@ -69,6 +70,11 @@ def process_text(self, book_path):
 
     characters = er.get_persons_from_text()
     characters = [{"id": i, "name": name} for i, name in enumerate(characters)]
+
+    self.update_state(state="PROCESSING", meta={"status": "Analysing plot data..."})
+
+    sentiment_values = ps.get_section_valence(full_text_words)
+    inflection_points = ps.first_difference(sentiment_values)
 
     self.update_state(state="PROCESSING", meta={"status": "Generating character summaries..."})
 
@@ -94,7 +100,9 @@ def process_text(self, book_path):
         summaries={},
         char_mapping=mapping,
         top_relationships=top_relationships_dict,
-        top_quotes=top_quotes
+        top_quotes=top_quotes,
+        sentiment_values=sentiment_values,
+        inflection_points=inflection_points
     )
 
     return {
@@ -103,6 +111,8 @@ def process_text(self, book_path):
         "characters": characters,
         "associated_quotes": associated_quotes,
         "top_relationships": top_relationships_dict,
+        "sentiment_values": sentiment_values,
+        "inflection_points": inflection_points,
     }
         
 

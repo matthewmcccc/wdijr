@@ -42,6 +42,7 @@ const CharacterAnalysisProfile = () => {
     const topRelationships = (characterData as any)?.["top_relationships"] || [];
     const topQuote = characterData ? (characterData as any).top_quote : null;
     const quoteData = useContext(BookContext)?.quoteData;
+    const setQuoteData = useContext(BookContext)?.setQuoteData;
 
     const sortedCharacters = Object.values(allCharacterData ?? {})
     .map(c => c.name)
@@ -57,16 +58,18 @@ const CharacterAnalysisProfile = () => {
     useEffect(() => {
         const fetchCharacterData = async () => {
             if (!novelData || novelData.id !== novelId) {
-                if (setNovelData && setCharacterData && setNetworkData && setTitle && setAssociatedQuotes) {
-                    await fetchNovelData(novelId ?? "", setNovelData, setCharacterData, setNetworkData, setTitle, setAssociatedQuotes);
+                if (setNovelData && setCharacterData && setNetworkData && setTitle && setQuoteData) {
+                    await fetchNovelData(novelId ?? "", setNovelData, setCharacterData, setNetworkData, setTitle, setQuoteData);
                 }
             }
         };
         fetchCharacterData();
     }, [novelId]);
 
-    const characterQuotes = quoteData ? Object.values(quoteData).filter((q: any) => q.speaker.toLowerCase() === humanize(characterName ?? "").toLowerCase()) : [];
-
+    const characterQuotes = quoteData
+        ? Object.values(quoteData).filter((q: any) => q.speaker?.toLowerCase() === humanize(characterName ?? "").toLowerCase())
+        : [];
+        
     return (
         <div className="container mx-auto px-4 py-8"> 
             <Navbar />

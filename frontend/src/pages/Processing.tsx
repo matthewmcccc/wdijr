@@ -19,6 +19,8 @@ const Processing = () => {
     const associatedQuotes = useContext(BookContext)?.associatedQuotes;
     const characterData = useContext(BookContext)?.characterData;
     const networkData = useContext(BookContext)?.networkData;
+    const setSentimentValues = useContext(BookContext)?.setSentimentValues;
+    const setInflectionPoints = useContext(BookContext)?.setInflectionPoints;
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -29,6 +31,8 @@ const Processing = () => {
             setStatus(data.data.detail || "Processing...");
         if (data.data.status == "complete") {
                 setNetworkData?.(data.data.data.network);
+                setSentimentValues?.(data.data.data.sentiment_values);
+                setInflectionPoints?.(data.data.data.inflection_points);
                 setCharacterData?.(data.data.data.characters);
                 setNovelId(data.data.data.novel_id);
                 setAssociatedQuotes?.(data.data.data.associated_quotes);
@@ -50,7 +54,7 @@ const Processing = () => {
     return (
         <>
             <Navbar />
-            <div className="flex flex-col items-center justify-center h-screen">
+            <div className="flex flex-col items-center justify-center pb-48 h-screen">
                 <div className="text-2xl font-serif mb-4 text-black">{status}</div>
                 <div className="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-16 w-16"></div>
             </div>

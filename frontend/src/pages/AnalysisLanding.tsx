@@ -19,21 +19,30 @@ const AnalysisLanding = () => {
     const setCharacterData = bookContext?.setCharacterData;
     const setNetworkData = bookContext?.setNetworkData;
     const setQuoteData = bookContext?.setQuoteData;  
-    const quoteData = bookContext?.quoteData;  
+    const setSentimentValues = bookContext?.setSentimentValues;
+    const setInflectionPoints = bookContext?.setInflectionPoints;
+    const sentimentValues = bookContext?.sentimentValues;
+    const inflectionPoints = bookContext?.inflectionPoints;
 
-    useEffect(() => {
+    useEffect(() => {   
         const fetchData = async () => {
             if (novelId) {
                 const data = await getAllNovelData(novelId);
+                console.log(data)
                 setCharacterData?.(data.characters);
                 setTitle?.(data.novel.title);
                 setNetworkData?.(data.analysis.network);
                 setQuoteData?.(data.quotes);
+                setSentimentValues?.(data.analysis.sentiment_values);
+                setInflectionPoints?.(data.analysis.inflection_points);
             }
         };
 
         fetchData();
-    }, [novelId, setCharacterData, setTitle, setNetworkData, setQuoteData]);
+    }, [novelId, setCharacterData, setTitle, setNetworkData, setQuoteData, setSentimentValues, setInflectionPoints]);
+
+    console.log("Sentiment Values:", sentimentValues);
+    console.log("Inflection Points:", inflectionPoints);
 
     return (
         <div className="">

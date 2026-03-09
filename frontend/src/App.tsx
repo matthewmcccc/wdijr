@@ -23,6 +23,9 @@ const App = () => {
   const [topCharacterQuotes, setTopCharacterQuotes] = useState<Record<string, any>>();
   const [attributedQuotes, setAttributedQuotes] = useState<any[]>([]);
   const [quoteData, setQuoteData] = useState<any>(quotesData);
+  const [sentimentValues, setSentimentValues] = useState<any>(null);
+  const [inflectionPoints, setInflectionPoints] = useState<any>(null);
+
 
   return (
     <BrowserRouter>
@@ -31,6 +34,10 @@ const App = () => {
           setCharacterData: setCharacterData,
           networkData: networkData,
           setNetworkData: setNetworkData,
+          sentimentValues: sentimentValues,
+          setSentimentValues: setSentimentValues,
+          inflectionPoints: inflectionPoints,
+          setInflectionPoints: setInflectionPoints,
           title: title,
           setTitle: setTitle,
           novelData: novelData ?? { author: "", id: "", title: "" },

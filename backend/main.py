@@ -11,20 +11,18 @@ from app.services.book_processor import process_text
 if __name__ == "__main__":
     book_path = Path("./app/temp/aaiw.epub")
     book = Epub(book_path)
+    full_text_words = book.get_full_text_word_list()
     text = book.get_full_text()
-    # ps: PlotSentiment = PlotSentiment()
+    ps: PlotSentiment = PlotSentiment()
     er: EntityExtractor = EntityExtractor("en_core_web_trf", text)
     # g: Gemini = Gemini()
     quotes = book.get_full_text_quotes(text)
     associated_quotes = er.associate_text_quotes(quotes)
     nw_dict = er.build_conversational_network(associated_quotes)
-    characters = er.get_all_characters(nw_dict)
-    top_quotes = {}
-    for character in characters:
-        top_quotes[character] = er.get_character_quotes(
-            nw_dict, character
-        )
-    print(top_quotes["alice"][0]["quote"])
+    valence_vals = ps.get_section_valence(full_text_words)
+    peak_points = ps.first_difference(valence_vals)
+    print(valence_vals, peak_points)
+    # characters = er.get_all_characters(nw_dict)
     # characters = [{"id": i, "name": name} for i, name in enumerate(characters)]
     # top_relationships_dict = {}
     # for character in characters:

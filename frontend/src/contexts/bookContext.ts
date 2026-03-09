@@ -37,6 +37,10 @@ interface BookContextType {
     setTopCharacterRelationships: (data: Record<string, [string, number][]>) => void,
     quoteData: any,
     setQuoteData: (data: any) => void,
+    sentimentValues: number[] | null,
+    setSentimentValues: (data: number[]) => void,
+    inflectionPoints: number[] | null,
+    setInflectionPoints: (data: number[]) => void,
 }
 
 export const BookContext = createContext<BookContextType | null>(null);
