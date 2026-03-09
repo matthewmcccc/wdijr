@@ -23,7 +23,6 @@ const CharacterAnalysisProfile = () => {
     const characterName = useParams<{ name: string }>().name;
     const characterNavigationDict = useContext(BookContext)?.characterNavigationDict;
     const characterData = useContext(BookContext)?.characterData?.[humanize(characterName ?? "").toLowerCase()] || "";
-    const topCharacterRelationships = useContext(BookContext)?.topCharacterRelationships?.[humanize(characterName ?? "").toLowerCase() || ""] || [];
     const topCharacterQuote = useContext(BookContext)?.topCharacterQuotes?.[humanize(characterName ?? "").toLowerCase() || ""] || [];
     const attributedQuotes = useContext(BookContext)?.attributedQuotes?.filter(q => q.speaker.toLowerCase() === humanize(characterName ?? "").toLowerCase()) || [];
     const networkData = useContext(BookContext)?.networkData;
@@ -32,7 +31,10 @@ const CharacterAnalysisProfile = () => {
     const setNovelData = useContext(BookContext)?.setNovelData;
     const setCharacterData = useContext(BookContext)?.setCharacterData;
     const setTitle = useContext(BookContext)?.setTitle;
+    const topRelationships = useContext(BookContext)?.topCharacterRelationships?.[humanize(characterName ?? "").toLowerCase()] || [];
+    const associatedQuotes = useContext(BookContext)?.associatedQuotes;
 
+    console.log(associatedQuotes);
 
     useEffect(() => {
         if (!networkData || networkData.links.length === 0 || !characterData || Object.keys(characterData).length === 0 || !bookContext?.novelData) {
@@ -81,13 +83,13 @@ const CharacterAnalysisProfile = () => {
                             </p>
                         </div>
                         <div className="justify-end flex flex-1">
-                            {topCharacterRelationships.length > 0 && (
+                            {topRelationships.length > 0 && (
                                 <div className="md:w-1/2">
                                     <div className="font-serif text-lg">
                                         Closely Related Characters
                                     </div>
                                     <hr className="my-2 text-gray-300"/>
-                                    {topCharacterRelationships.map(([relatedCharacter, _strength], index) => (
+                                    {topRelationships.map(([relatedCharacter, _strength], index) => (
                                         <CharacterCard 
                                             key={index}
                                             name={humanize(relatedCharacter)}

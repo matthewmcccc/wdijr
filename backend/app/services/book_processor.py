@@ -59,12 +59,18 @@ def process_text(self, book_path):
     self.update_state(state="PROCESSING", meta={"status": "Building social network..."})
 
     nw = er.build_conversational_network(associated_quotes)
-    nw = er.get_nodes_from_network_dict(nw)
+    nw_nodes = er.get_nodes_from_network_dict(nw)
+
 
     characters = er.get_persons_from_text()
     characters = [{"id": i, "name": name} for i, name in enumerate(characters)]
 
     self.update_state(state="PROCESSING", meta={"status": "Generating character summaries..."})
+
+    top_relationships_dict = {}
+    for character in characters:
+        name = character["name"]
+        top_relationships_dict[name] = er.get_top_relationships(nw, name) 
 
     # summaries = get_character_summaries(er, characters, nw, g, book.title)
     
@@ -75,15 +81,16 @@ def process_text(self, book_path):
         author=author,
         characters=characters,
         quotes=associated_quotes,
-        network=nw,
+        network=nw_nodes,
         char_mapping=mapping
     )
 
     return {
         "novel_id": novel_id,
-        "network": nw,
+        "network": nw_nodes,
         "characters": characters,
         "associated_quotes": associated_quotes,
+        "top_relationships": top_relationships_dict,
     }
         
 

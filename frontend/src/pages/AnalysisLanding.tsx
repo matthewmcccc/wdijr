@@ -25,7 +25,6 @@ const AnalysisLanding = () => {
         const fetchData = async () => {
             if (novelId) {
                 const data = await getAllNovelData(novelId);
-                console.log(`data: ${JSON.stringify(data)}`);
                 setCharacterData?.(data.characters);
                 setTitle?.(data.novel.title);
                 setNetworkData?.(data.analysis.network);

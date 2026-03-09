@@ -13,6 +13,8 @@ const Processing = () => {
     const setCharacterData = useContext(BookContext)?.setCharacterData;
     const setTitle = useContext(BookContext)?.setTitle;
     const setAssociatedQuotes = useContext(BookContext)?.setAssociatedQuotes;
+    const topRelationships = useContext(BookContext)?.topCharacterRelationships;
+    const setTopRelationships = useContext(BookContext)?.setTopCharacterRelationships;
     const associatedQuotes = useContext(BookContext)?.associatedQuotes;
     const characterData = useContext(BookContext)?.characterData;
     const networkData = useContext(BookContext)?.networkData;
@@ -29,6 +31,7 @@ const Processing = () => {
                 setCharacterData?.(data.data.data.characters);
                 setNovelId(data.data.data.novel_id);
                 setAssociatedQuotes?.(data.data.data.associated_quotes);
+                setTopRelationships?.(data.data.data.top_relationships);
                 setDone(true);
             }
         }, 2000);

@@ -25,17 +25,14 @@ const CharacterAnalysisLanding = () => {
 
     useEffect(() => {
         const fetchCharacterData = async () => {
-            console.log("fetching character data...");
-            if (!characterData || Object.keys(characterData).length === 0 || !novelData || associatedQuotes === undefined) {
+            if (!novelData || novelData.id !== novelId) {
                 if (setNovelData && setCharacterData && setNetworkData && setTitle && setAssociatedQuotes) {
-                    fetchNovelData(novelId ?? "", setNovelData, setCharacterData, setNetworkData, setTitle, setAssociatedQuotes);
+                    await fetchNovelData(novelId ?? "", setNovelData, setCharacterData, setNetworkData, setTitle, setAssociatedQuotes);
                 }
             }
         };
         fetchCharacterData();
     }, [characterData, novelId, setCharacterData, setNetworkData, novelData, setNovelData, setTitle, setAssociatedQuotes, associatedQuotes]);
-
-    console.log("associated quotes: ", associatedQuotes);
 
     return (
         <div className="container mx-auto px-4 py-8">
