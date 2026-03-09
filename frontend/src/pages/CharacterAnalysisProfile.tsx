@@ -21,9 +21,13 @@ const smooth = (data: number[], windowSize: number = 10): number[] => {
 
 const CharacterAnalysisProfile = () => {
     const characterName = useParams<{ name: string }>().name;
-    const characterNavigationDict = useContext(BookContext)?.characterNavigationDict;
-    const characterData = Object.values(useContext(BookContext)?.characterData ?? {})
-    .find(c => c.name.toLowerCase() === humanize(characterName ?? "").toLowerCase());
+    const allCharacterData = useContext(BookContext)?.characterData;
+    const characterData = Object.values(allCharacterData ?? {})
+        .find(c => c.name.toLowerCase() === humanize(characterName ?? "").toLowerCase());
+    const characterNavigationDict = allCharacterData ? Object.fromEntries(Object.values(allCharacterData).map(c => [humanize(c.name).toLowerCase(), {
+        left: Object.values(allCharacterData).find(other => other.name !== c.name && other.name.toLowerCase() < c.name.toLowerCase())?.name || "",
+        right: Object.values(allCharacterData).find(other => other.name !== c.name && other.name.toLowerCase() > c.name.toLowerCase())?.name || "",
+    }])) : null;
     const topCharacterQuote = useContext(BookContext)?.topCharacterQuotes?.[humanize(characterName ?? "").toLowerCase() || ""] || [];
     const attributedQuotes = useContext(BookContext)?.attributedQuotes?.filter(q => q.speaker.toLowerCase() === humanize(characterName ?? "").toLowerCase()) || [];
     const networkData = useContext(BookContext)?.networkData;
@@ -38,6 +42,20 @@ const CharacterAnalysisProfile = () => {
     const topRelationships = (characterData as any)?.["top_relationships"] || [];
     const topQuote = characterData ? (characterData as any).top_quote : null;
 
+    const sortedCharacters = Object.values(allCharacterData ?? {})
+    .map(c => c.name)
+    .sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+
+    const currentIndex = sortedCharacters.findIndex(
+        n => n.toLowerCase() === humanize(characterName ?? "").toLowerCase()
+    );
+
+    const leftCharacter = currentIndex > 0 ? sortedCharacters[currentIndex - 1] : "";
+    const rightCharacter = currentIndex < sortedCharacters.length - 1 ? sortedCharacters[currentIndex + 1] : "";
+
+
+    console.log(`navigation dict: ${characterNavigationDict ? JSON.stringify(characterNavigationDict[humanize(characterName ?? "").toLowerCase()]) : "null"}`);
+
     useEffect(() => {
         const fetchCharacterData = async () => {
             if (!novelData || novelData.id !== novelId) {
@@ -48,7 +66,7 @@ const CharacterAnalysisProfile = () => {
         };
         fetchCharacterData();
     }, [novelId]);
-    console.log(`character data: ${JSON.stringify(characterData)}`);
+
 
     return (
         <div className="container mx-auto px-4 py-8"> 
@@ -58,8 +76,8 @@ const CharacterAnalysisProfile = () => {
                 <div className="font-serif text-center justify-between flex flex-row items-center">
                     <div className="flex-1 flex justify-left">
                         <CharacterNavigation 
-                            name={characterNavigationDict ? (characterNavigationDict[humanize(characterName ?? "")]?.left ?? "") : ""}
-                            position={characterNavigationDict && characterName && characterNavigationDict[humanize(characterName)]?.left ? "left" : "none"}
+                            name={humanize(leftCharacter)}
+                            position={leftCharacter ? "left" : "none"}
                         />
                     </div>
                     <h1 className="text-4xl flex-1 text-center">
@@ -68,8 +86,8 @@ const CharacterAnalysisProfile = () => {
                     </h1>
                     <div className="flex-1 flex justify-end">
                         <CharacterNavigation 
-                            name={characterNavigationDict ? (characterNavigationDict[humanize(characterName ?? "")]?.right ?? "") : ""}
-                            position={characterNavigationDict && characterName && characterNavigationDict[humanize(characterName)]?.right ? "right" : "none"}
+                            name={humanize(rightCharacter)}
+                            position={rightCharacter ? "right" : "none"}
                         />
                     </div>
                 </div>

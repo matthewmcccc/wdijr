@@ -223,8 +223,6 @@ const NetworkGraph = ({ id = "network-graph", filterCharacter, height = 400, wid
     const networkData = useContext(BookContext)?.networkData;
     const characterData = useContext(BookContext)?.characterData;
 
-    console.log("Rendering NetworkGraph with data:", networkData, characterData);
-
     const edgeMap = new Map();
     networkData?.links.forEach(l => {
         const key = [l.source, l.target].sort().join("--");
