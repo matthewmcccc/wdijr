@@ -10,7 +10,7 @@ class Quote(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     content: Mapped[str] = mapped_column(String(500))
-    novel_id: Mapped[int] = mapped_column(ForeignKey("novel.id"))
+    novel_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("novel.id"))
     character_id: Mapped[int] = mapped_column(ForeignKey("character.id"))
     analysis_id: Mapped[int] = mapped_column(ForeignKey("analysis.id"))
 

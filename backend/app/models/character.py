@@ -1,3 +1,4 @@
+import uuid
 from .base import Base
 from sqlalchemy import String, ForeignKey, select
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -14,7 +15,7 @@ class Character(Base):
     name: Mapped[str] = mapped_column(String(50))
     summary: Mapped[str] = mapped_column(String(5000))
     description: Mapped[str] = mapped_column(String(1000))
-    novel_id: Mapped[int] = mapped_column(ForeignKey("novel.id"))
+    novel_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("novel.id"))
 
     novel: Mapped["Novel"] = relationship(back_populates="characters")
     quotes: Mapped[List["Quote"]] = relationship(back_populates="character")

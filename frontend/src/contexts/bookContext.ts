@@ -12,7 +12,7 @@ interface BookContextType {
         id: Number,
         name: string;
         description: string,
-        novel_id: number,
+        novel_id: string,
     }> | null,
     characterNavigationDict: Record<string, {
         left: string | null,
@@ -29,9 +29,11 @@ interface BookContextType {
     setTitle: (title: string) => void,
     topCharacterQuotes: Record<string, { quote: string, sentiment: number }[]>,
     attributedQuotes: AttributedQuote[],
-    setCharacterData: (data: Array<{ id: Number, name: string, summary: string, description: string, novel_id: number }>) => void,
+    setCharacterData: (data: Array<{ id: Number, name: string, summary: string, description: string, novel_id: string }>) => void,
     networkData: { links: any[], nodes: any[] },
     setNetworkData: (data: { links: any[], nodes: any[] }) => void,
+    associatedQuotes: Record<string, { quote: string, sentiment: number }[]>,
+    setAssociatedQuotes: (data: Record<string, { quote: string, sentiment: number }[]>) => void,
 }
 
 export const BookContext = createContext<BookContextType | null>(null);

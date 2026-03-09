@@ -24,9 +24,10 @@ const attributedQuotes = (quotesData as any).default ?? quotesData
 
 
 const App = () => {
-  const [characterData, setCharacterData] = useState<Array<{ id: Number, name: string, summary: string, description: string, novel_id: number }>>([])
+  const [characterData, setCharacterData] = useState<Array<{ id: Number, name: string, summary: string, description: string, novel_id: string }>>([])
   const [networkData, setNetworkData] = useState<{ links: any[], nodes: any[] }>({ links: [], nodes: [] })
   const [novelData, setNovelData] = useState<{ author: string; id: string; title: string } | null>(null);
+  const [associatedQuotes, setAssociatedQuotes] = useState<Record<string, { quote: string, sentiment: number }[]> | undefined>(undefined);
   const [title, setTitle] = useState("");
 
   return (
@@ -41,6 +42,8 @@ const App = () => {
           novelData: novelData ?? { author: "", id: "", title: "" },
           setNovelData: setNovelData,
           characterNavigationDict: buildNavigationDictionary(Object.keys(topCharacterRelationships)),
+          associatedQuotes: associatedQuotes ?? {},
+          setAssociatedQuotes: setAssociatedQuotes,
           topCharacterRelationships: topCharacterRelationships,
           topCharacterQuotes: topCharacterQuotes,
           attributedQuotes: attributedQuotes,

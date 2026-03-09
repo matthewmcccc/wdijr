@@ -8,6 +8,7 @@ import { BookContext } from "../contexts/bookContext";
 import CharacterCard from "../components/CharacterCard";
 import SentimentAreaChart from "../components/SentimentAreaChart";
 import NetworkGraph from "../components/NetworkGraph";
+import fetchNovelData from "../utils/fetchNovelData";
 
 const smooth = (data: number[], windowSize: number = 10): number[] => {
     return data.map((_, i) => {
@@ -25,11 +26,20 @@ const CharacterAnalysisProfile = () => {
     const topCharacterRelationships = useContext(BookContext)?.topCharacterRelationships?.[humanize(characterName ?? "").toLowerCase() || ""] || [];
     const topCharacterQuote = useContext(BookContext)?.topCharacterQuotes?.[humanize(characterName ?? "").toLowerCase() || ""] || [];
     const attributedQuotes = useContext(BookContext)?.attributedQuotes?.filter(q => q.speaker.toLowerCase() === humanize(characterName ?? "").toLowerCase()) || [];
+    const networkData = useContext(BookContext)?.networkData;
     const setNetworkData = useContext(BookContext)?.setNetworkData;
     const novelId = useParams<{ novelId: string }>().novelId;
+    const setNovelData = useContext(BookContext)?.setNovelData;
+    const setCharacterData = useContext(BookContext)?.setCharacterData;
+    const setTitle = useContext(BookContext)?.setTitle;
+
 
     useEffect(() => {
-        
+        if (!networkData || networkData.links.length === 0 || !characterData || Object.keys(characterData).length === 0 || !bookContext?.novelData) {
+            if (setNovelData && setCharacterData && setNetworkData && setTitle) {
+                fetchNovelData(novelId ?? "", setNovelData, setCharacterData, setNetworkData, setTitle);
+            }
+        }
     }, []);
 
     return (

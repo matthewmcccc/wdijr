@@ -12,6 +12,8 @@ const Processing = () => {
     const setNetworkData = useContext(BookContext)?.setNetworkData;
     const setCharacterData = useContext(BookContext)?.setCharacterData;
     const setTitle = useContext(BookContext)?.setTitle;
+    const setAssociatedQuotes = useContext(BookContext)?.setAssociatedQuotes;
+    const associatedQuotes = useContext(BookContext)?.associatedQuotes;
     const characterData = useContext(BookContext)?.characterData;
     const networkData = useContext(BookContext)?.networkData;
     const navigate = useNavigate();
@@ -26,6 +28,7 @@ const Processing = () => {
                 setNetworkData?.(data.data.data.network);
                 setCharacterData?.(data.data.data.characters);
                 setNovelId(data.data.data.novel_id);
+                setAssociatedQuotes?.(data.data.data.associated_quotes);
                 setDone(true);
             }
         }, 2000);
@@ -37,7 +40,8 @@ const Processing = () => {
         if (done) {
             navigate(`/analysis/${novelId}`);
         }
-    }, [done, novelId, navigate]);
+    }, [done, novelId, navigate, associatedQuotes]);
+
 
     return (
         <>

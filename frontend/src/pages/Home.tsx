@@ -92,8 +92,6 @@ const Home = () => {
                 </div>
                 
             )}
-            {appState == "processing" && <p className="mt-4 font-dewi">Processing file: {file?.name}</p>}
-            {appState == "done" && <p className="mt-4 font-dewi">Done processing file: {file?.name}</p>}
         </>
     )
 }

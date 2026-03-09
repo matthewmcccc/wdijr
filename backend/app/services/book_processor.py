@@ -79,7 +79,12 @@ def process_text(self, book_path):
         char_mapping=mapping
     )
 
-    return {"novel_id": novel_id, "network": nw, "characters": characters, "quotes": quotes}
+    return {
+        "novel_id": novel_id,
+        "network": nw,
+        "characters": characters,
+        "associated_quotes": associated_quotes,
+    }
         
 
 def get_character_summaries(er: EntityExtractor, characters: list[dict], nw_dict, g: Gemini, title):

@@ -6,7 +6,10 @@ import { BookContext } from "../contexts/bookContext";
 const CharacterCard = ({ name, description, traits, size }: { name: string, description: string, traits?: string[], size: string }) => {
     const navigate = useNavigate();
     const novelData = useContext(BookContext)?.novelData;
+    console.log(novelData);
     const novelId = novelData?.id;
+
+    console.log("novel id in character card: ", novelId);
 
     let padding;
     let textSize;

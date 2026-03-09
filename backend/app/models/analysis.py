@@ -1,3 +1,4 @@
+import uuid
 from sqlalchemy import String, ForeignKey, JSON, select
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -9,7 +10,7 @@ class Analysis(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     network: Mapped[dict] = mapped_column(JSON)
-    novel_id: Mapped[int] = mapped_column(ForeignKey("novel.id"))
+    novel_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("novel.id"))
     
     novel: Mapped["Novel"] = relationship(back_populates="analysis")
     

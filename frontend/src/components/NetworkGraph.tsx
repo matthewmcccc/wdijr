@@ -139,7 +139,7 @@ const createNetworkGraph = (data: any, containerId: string, height: number = 400
 
     const legend = svg.append("g")
         .attr("class", "legend")
-        .attr("transform", `translate(100), 20`);
+        .attr("transform", `translate(20, 20)`);
     
     legend.append("rect")
         .attr("width", 160)
@@ -222,6 +222,8 @@ interface NetworkGraphProps {
 const NetworkGraph = ({ id = "network-graph", filterCharacter, height = 400, width = 400 }: NetworkGraphProps) => {
     const networkData = useContext(BookContext)?.networkData;
     const characterData = useContext(BookContext)?.characterData;
+
+    console.log("Rendering NetworkGraph with data:", networkData, characterData);
 
     const edgeMap = new Map();
     networkData?.links.forEach(l => {

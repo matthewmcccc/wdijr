@@ -18,19 +18,23 @@ const AnalysisLanding = () => {
     const bookContext = useContext(BookContext);
     const setCharacterData = bookContext?.setCharacterData;
     const setNetworkData = bookContext?.setNetworkData;
+    const associatedQuotes = bookContext?.associatedQuotes;
+    const setAssociatedQuotes = bookContext?.setAssociatedQuotes;
 
     useEffect(() => {
         const fetchData = async () => {
             if (novelId) {
                 const data = await getAllNovelData(novelId);
+                console.log(`data: ${JSON.stringify(data)}`);
                 setCharacterData?.(data.characters);
                 setTitle?.(data.novel.title);
                 setNetworkData?.(data.analysis.network);
+                setAssociatedQuotes?.(data.associated_quotes);
             }
         };
 
         fetchData();
-    }, [novelId, setCharacterData, setTitle]);
+    }, [novelId, setCharacterData, setTitle, setNetworkData, setAssociatedQuotes]);
 
     return (
         <div className="">

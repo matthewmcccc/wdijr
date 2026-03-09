@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { Fragment, useContext, useEffect, useState } from "react";
 import NetworkGraph from "../components/NetworkGraph";
 import Navbar from "../components/Navbar";
 import Breadcrumbs from "../components/Breadcrumbs";
@@ -8,6 +8,7 @@ import { BookContext } from "../contexts/bookContext";
 import humanize from "../utils/humanize";
 import { useParams } from "react-router-dom";
 import axios from "axios";
+import fetchNovelData from "../utils/fetchNovelData";
 
 const CharacterAnalysisLanding = () => {
     const characterData = useContext(BookContext)?.characterData;
@@ -15,32 +16,26 @@ const CharacterAnalysisLanding = () => {
     const setTitle = useContext(BookContext)?.setTitle;
     const novelId = useParams<{ novelId: string }>().novelId;
     const bookContext = useContext(BookContext);
+    const novelData = bookContext?.novelData;
     const setCharacterData = bookContext?.setCharacterData;
     const setNetworkData = bookContext?.setNetworkData;
     const setNovelData = bookContext?.setNovelData;
+    const setAssociatedQuotes = bookContext?.setAssociatedQuotes;
+    const associatedQuotes = bookContext?.associatedQuotes;
 
     useEffect(() => {
         const fetchCharacterData = async () => {
-            if (!characterData || Object.keys(characterData).length === 0 || !bookContext?.novelData) {
-                try {
-                    const result = await axios(`${import.meta.env.VITE_API_URL}/novel/${novelId}/data`);
-                    const data = result.data;
-                    if (data) {
-                        console.log(data);
-                        setNovelData?.(data.novel);
-                        setCharacterData?.(data.characters);
-                        setNetworkData?.(data.analysis.network);
-                        setTitle?.(data.novel.title);
-                    } else {
-                        console.error("No characters field in response:", data);
-                    }
-                } catch (err) {
-                    console.error(err);
+            console.log("fetching character data...");
+            if (!characterData || Object.keys(characterData).length === 0 || !novelData || associatedQuotes === undefined) {
+                if (setNovelData && setCharacterData && setNetworkData && setTitle && setAssociatedQuotes) {
+                    fetchNovelData(novelId ?? "", setNovelData, setCharacterData, setNetworkData, setTitle, setAssociatedQuotes);
                 }
             }
         };
         fetchCharacterData();
-    }, [characterData, novelId, setCharacterData, setNetworkData, bookContext?.novelData, setNovelData, setTitle]);
+    }, [characterData, novelId, setCharacterData, setNetworkData, novelData, setNovelData, setTitle, setAssociatedQuotes, associatedQuotes]);
+
+    console.log("associated quotes: ", associatedQuotes);
 
     return (
         <div className="container mx-auto px-4 py-8">
@@ -49,7 +44,7 @@ const CharacterAnalysisLanding = () => {
                 <Breadcrumbs items={[{ label: "Analysis", url: `/analysis/${novelId}` }, { label: "Character Analysis", url: `/character-analysis/${novelId}` }]} />
                 <h1 className="text-5xl font-serif">Character Analysis</h1>
                 <p className="font-dewi mt-4 text-gray-600 text-sm max-w-3xl">
-                    Browse the analyis of {title} characters. Click on a character to see a summary, their closely related
+                    Browse the analysis of {title} characters. Click on a character to see a summary, their closely related
                     characters, and their sentiment arc throughout the novel. The social network graph below shows the relationships between the characters of the novel.
                 </p>
             </div>
@@ -74,15 +69,14 @@ const CharacterAnalysisLanding = () => {
                     <hr className="border-gray-300 my-4" />
                     {
                         characterData && Object.entries(characterData).map(([id, data]) => (
-                            <>
+                            <Fragment key={id}>
                             {(!data.name) ? "" : null}
                                 <CharacterCard 
-                                    key={id} 
                                     name={humanize(data.name)}
                                     description={data.description ?? "No description available."}
                                     size={"large"}
                                 />
-                            </>
+                            </Fragment>
                         ))
                     }   
                 </div>
