@@ -41,6 +41,8 @@ interface BookContextType {
     setSentimentValues: (data: number[]) => void,
     inflectionPoints: number[] | null,
     setInflectionPoints: (data: number[]) => void,
+    plotSummaries: Record<string, string> | null,
+    setPlotSummaries: (data: Record<string, string>) => void,
 }
 
 export const BookContext = createContext<BookContextType | null>(null);

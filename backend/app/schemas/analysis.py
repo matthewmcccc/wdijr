@@ -8,6 +8,7 @@ class AnalysisSchemaBase(BaseModel):
     network: dict
     sentiment_values: list
     inflection_points: list
+    plot_summaries: list
 
 class AnalysisSchemaCreate(AnalysisSchemaBase):
     pass

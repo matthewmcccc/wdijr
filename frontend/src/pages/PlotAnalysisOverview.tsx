@@ -4,11 +4,34 @@ import Navbar from "../components/Navbar"
 import NetworkGraph from "../components/NetworkGraph"
 import PlotAreaChart from "../components/PlotAreaChart"
 import { useParams } from "react-router-dom"
-import { useContext } from "react"
+import { useContext, useEffect } from "react"
 import { BookContext } from "../contexts/bookContext"
+import fetchNovelData from "../utils/fetchNovelData"
 
 const PlotAnalysisLanding = () => {
     const novelId = useParams<{ novelId: string }>().novelId;
+    const bookContext = useContext(BookContext);
+    const novelData = bookContext?.novelData;
+    const setNovelData = bookContext?.setNovelData;
+    const setCharacterData = bookContext?.setCharacterData;
+    const setNetworkData = bookContext?.setNetworkData;
+    const setTitle = bookContext?.setTitle;
+    const setQuoteData = bookContext?.setQuoteData;
+    const setPlotSummaries = bookContext?.setPlotSummaries;
+    const setSentimentValues = bookContext?.setSentimentValues;
+    const setInflectionPoints = bookContext?.setInflectionPoints;
+
+    useEffect(() => {
+        const fetchData = async () => {
+            if (!novelData || novelData.id !== novelId) {
+                if (setNovelData && setCharacterData && setNetworkData && setTitle && setQuoteData && setPlotSummaries && setSentimentValues && setInflectionPoints) {
+                    await fetchNovelData(novelId ?? "", setNovelData, setCharacterData, setNetworkData, setTitle, setQuoteData, setPlotSummaries, setSentimentValues, setInflectionPoints);
+                }
+            }
+        };
+        fetchData();
+    }, [novelId, setNovelData, setCharacterData, setNetworkData, setTitle, setQuoteData, setPlotSummaries, setSentimentValues, setInflectionPoints]);
+
 
     return (
         <div className="container mx-auto px-4 py-8">

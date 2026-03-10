@@ -14,7 +14,7 @@ from models.analysis import Analysis
 db_path = os.path.join(os.path.dirname(__file__), "..", "data", "app.db")
 sync_engine = create_engine(f"sqlite:///{db_path}")
 
-def save_analysis_to_db(title: str, author: str, characters: list, quotes: list, network: dict, summaries, char_mapping: dict, top_relationships, top_quotes, sentiment_values, inflection_points):
+def save_analysis_to_db(title: str, author: str, characters: list, quotes: list, network: dict, summaries, char_mapping: dict, top_relationships, top_quotes, sentiment_values, inflection_points, plot_summaries):
     with Session(sync_engine) as session:
         novel = Novel(title=title, author=author)
         session.add(novel)
@@ -50,6 +50,7 @@ def save_analysis_to_db(title: str, author: str, characters: list, quotes: list,
             network=network,
             sentiment_values=sentiment_values,
             inflection_points=inflection_points,
+            plot_summaries=plot_summaries
         )
 
         session.add(analysis)

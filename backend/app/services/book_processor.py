@@ -76,6 +76,8 @@ def process_text(self, book_path):
     sentiment_values = ps.get_section_valence(full_text_words)
     inflection_points = ps.first_difference(sentiment_values)
 
+    summarisation_texts = ps.get_text_for_summarization(text, inflection_points, len(sentiment_values))
+
     self.update_state(state="PROCESSING", meta={"status": "Generating character summaries..."})
 
     top_relationships_dict = {}
@@ -87,7 +89,8 @@ def process_text(self, book_path):
             nw, name
         )
 
-    # summaries = get_character_summaries(er, characters, nw, g, book.title)
+    character_summaries = get_character_summaries(er, characters, nw, g, book.title)
+    plot_summaries = get_plot_summaries(g, summarisation_texts)
 
     mapping = er.persons_to_id()
 
@@ -97,12 +100,13 @@ def process_text(self, book_path):
         characters=characters,
         quotes=associated_quotes,
         network=nw_nodes,
-        summaries={},
+        summaries=character_summaries,
         char_mapping=mapping,
         top_relationships=top_relationships_dict,
         top_quotes=top_quotes,
         sentiment_values=sentiment_values,
-        inflection_points=inflection_points
+        inflection_points=inflection_points,
+        plot_summaries=plot_summaries
     )
 
     return {
@@ -113,6 +117,7 @@ def process_text(self, book_path):
         "top_relationships": top_relationships_dict,
         "sentiment_values": sentiment_values,
         "inflection_points": inflection_points,
+        "plot_summaries": plot_summaries
     }
         
 
@@ -137,3 +142,11 @@ def get_character_summaries(er: EntityExtractor, characters: list[dict], nw_dict
         title
     )
     return character_summaries
+
+def get_plot_summaries(g: Gemini, summarisation_texts: list[str]):
+    plot_summaries = g.text_span_summary_mass_prompt(
+        "gemini-2.5-flash",
+        summarisation_texts,
+        "excerpt_summary"
+    )
+    return plot_summaries

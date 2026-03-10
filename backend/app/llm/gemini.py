@@ -40,11 +40,24 @@ class Gemini:
             summaries = list(executor.map(send_request, zip(character_ids, [character["name"] for character in characters])))
 
         return dict(zip(character_ids, summaries))
+    
+    def text_span_summary_mass_prompt(self, model, texts: list[str], instruction: str) -> list[str]:
+        def send_request(text):
+            additional_instruction = self.get_additional_instruction(instruction)
+            prompt = f"{additional_instruction}\n{text}"
+            return self.client.models.generate_content(
+                model=model, contents=prompt
+            ).candidates[0].content.parts[0].text
+        
+        with ThreadPoolExecutor(max_workers=len(texts)) as executor:
+            summaries = list(executor.map(send_request, texts))
+
+        return summaries
 
     def get_models(self):
         return self.client.models.list()
 
-    def get_additional_instruction(self, instruction: str, character_name: str, novel_title: str) -> str:
+    def get_additional_instruction(self, instruction: str, character_name: str = "", novel_title: str = "") -> str:
         additional_instruction = ""
         if instruction == "excerpt_summary":
             additional_instruction = self.excerpt_summary_prompt()

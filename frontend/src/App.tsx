@@ -25,6 +25,7 @@ const App = () => {
   const [quoteData, setQuoteData] = useState<any>(quotesData);
   const [sentimentValues, setSentimentValues] = useState<any>(null);
   const [inflectionPoints, setInflectionPoints] = useState<any>(null);
+  const [plotSummaries, setPlotSummaries] = useState<any>(null);
 
 
   return (
@@ -51,6 +52,8 @@ const App = () => {
           setTopCharacterRelationships: setTopCharacterRelationships,
           quoteData: quoteData,
           setQuoteData: setQuoteData,
+          plotSummaries: plotSummaries,
+          setPlotSummaries: setPlotSummaries,
         }}>
         <Routes>
           <Route path="/network-graph" element={<NetworkGraph />} />

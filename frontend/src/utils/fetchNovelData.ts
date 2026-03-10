@@ -1,17 +1,19 @@
 import axios from "axios";
 
-const fetchNovelData = async (novelId: string, setNovelData: (data: any) => void, setCharacterData: (data: any) => void, setNetworkData: (data: any) => void, setTitle: (title: string) => void, setQuoteData: (data: any) => void) => {
+const fetchNovelData = async (novelId: string, setNovelData: (data: any) => void, setCharacterData: (data: any) => void, setNetworkData: (data: any) => void, setTitle: (title: string) => void, setQuoteData: (data: any) => void, setPlotSummaries: (data: any) => void, setSentimentValues: (data: any) => void, setInflectionPoints: (data: any) => void) => {
     try {
-        console.log(`fetching novel data for novelId: ${novelId}...`);
         const result = await axios(`${import.meta.env.VITE_API_URL}/novel/${novelId}/data`);
         const data = result.data;
         if (data) {
-            console.log(`data from fetchNovelData: ${JSON.stringify(data)}`);
             setNovelData?.(data.novel);
             setCharacterData?.(data.characters);
             setNetworkData?.(data.analysis.network);
             setTitle?.(data.novel.title);
             setQuoteData?.(data.quotes);
+            setPlotSummaries?.(data.analysis.plot_summaries);
+            setSentimentValues?.(data.analysis.sentiment_values);
+            setInflectionPoints?.(data.analysis.inflection_points);
+
         } else {
             console.error("No characters field in response:", data);
         }

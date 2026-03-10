@@ -2,9 +2,7 @@ import * as d3 from 'd3'
 import { use, useContext, useEffect } from 'react'
 import { BookContext } from '../contexts/bookContext'
 
-const peakPointsTooltips = ['Catherine Linton weeps with disgust and scorn upon discovering that Hareton Earnshaw, whom she took for a servant, is her crude cousin.', 'Ellen Dean burns Catherine Linton’s letters to Linton, despite her desperate pleas and injury, leaving her distraught and subdued.', 'Heathcliff, consumed by grief and rage for Catherine Earnshaw, secretly visits her corpse.', "Heathcliff overhears Catherine Earnshaw declare marrying him would degrade her, despite her profound love and soul's connection.", "Newly married, Isabella Linton writes Ellen Dean, lamenting her misery at Wuthering Heights and questioning Heathcliff's humanity.", 'Catherine Heathcliff erupts in disgust when Hareton Earnshaw touches her hair, then scornfully rejects his presence.', 'Catherine Linton is arrested by Mr. Heathcliff for poaching on his land.', 'Mr. Lockwood flees the returning couple, later contemplating the graves of Catherine, Edgar Linton, and Heathcliff.', 'Mr. Heathcliff exhibits unsettling joy, declaring himself "within sight of my heaven," deeply terrifying Nelly Dean.', "Mr. Lockwood's violent nightmare of Catherine Linton's ghost leaves Heathcliff profoundly disturbed.", "Enraged by Catherine Linton's defiance and threats, Heathcliff violently attacks her, with Hareton Earnshaw attempting to intervene.", 'Catherine Linton joyfully reunited with Edgar Linton, then saw a sickly Linton Heathcliff for the first time.', "Dismayed by Joseph's rudeness and Hareton's wildness, the narrator struggles to secure an acceptable sleeping room.", 'Heathcliff detains Catherine and Ellen, forcing Catherine to agree to marry Linton by holding her captive.', 'Mr. Earnshaw returns from Liverpool with a mysterious, ragged child, startling the Earnshaw family.', 'Edgar Linton finds his delirious wife, Catherine Linton, yearning for death and Heathcliff.']
-
-const createAreaChart = (containerId: string, width: number, height: number, sentimentValues, peakPoints) => {
+const createAreaChart = (containerId: string, width: number, height: number, sentimentValues, peakPoints, peakPointsTooltips) => {
     const margin = { top: 20, right: 5, bottom: 30, left: 5 }
     const innerWidth = width - margin.left - margin.right
     const innerHeight = height - margin.top - margin.bottom
@@ -79,18 +77,19 @@ const createAreaChart = (containerId: string, width: number, height: number, sen
 const PlotAreaChart = ({ width, height }: { width: number, height: number }) => {
     const sentimentValues = useContext(BookContext)?.sentimentValues || []
     const peakPoints = useContext(BookContext)?.inflectionPoints || []
+    const peakPointsTooltips = useContext(BookContext)?.plotSummaries || []
 
     useEffect(() => {
-        console.log(sentimentValues, peakPoints);
+        console.log(sentimentValues, peakPoints, peakPointsTooltips);
 
         if (sentimentValues.length > 0) {
-            createAreaChart('areaChartContainer', width, height, sentimentValues, peakPoints)
+            createAreaChart('areaChartContainer', width, height, sentimentValues, peakPoints, peakPointsTooltips)
         }
 
         return () => {
             d3.select(`#areaChartContainer`).selectAll("*").remove()
         }
-    }, [sentimentValues, peakPoints])
+    }, [sentimentValues, peakPoints, peakPointsTooltips])
 
     return (
         <div>

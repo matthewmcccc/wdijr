@@ -21,6 +21,7 @@ const Processing = () => {
     const networkData = useContext(BookContext)?.networkData;
     const setSentimentValues = useContext(BookContext)?.setSentimentValues;
     const setInflectionPoints = useContext(BookContext)?.setInflectionPoints;
+    const setPlotSummaries = useContext(BookContext)?.setPlotSummaries;
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -37,6 +38,7 @@ const Processing = () => {
                 setNovelId(data.data.data.novel_id);
                 setAssociatedQuotes?.(data.data.data.associated_quotes);
                 setTopRelationships?.(data.data.data.top_relationships);
+                setPlotSummaries?.(data.data.data.plot_summaries); 
                 setDone(true);
             }
         }, 2000);

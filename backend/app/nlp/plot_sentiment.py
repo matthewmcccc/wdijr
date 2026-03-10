@@ -96,16 +96,16 @@ class PlotSentiment:
     def get_text_for_summarization(
         text: str, delta: list[(int, float)], valence_vals_len: int
     ) -> list[str]:
+        words = text.split()
         texts = []
-        for i, _ in delta:
+        for position, _ in delta:
+            i = int(round(position * (valence_vals_len - 1)))
             base_start = SLIDE * i
             base_end = base_start + CTX_WINDOW
-            # get the previous segments content also
-            # if the index of the segments allow for it
             if i != 0 and i != valence_vals_len - 1:
-                base_start -= SLIDE
-                base_end += SLIDE
-            texts.append(" ".join(text[base_start:base_end]))
+                base_start = max(0, base_start - SLIDE)
+                base_end = min(len(words), base_end + SLIDE)
+            texts.append(" ".join(words[base_start:base_end]))
         return texts
 
     def visualise_sentiment(self, valence_vals: list[float]) -> None:
