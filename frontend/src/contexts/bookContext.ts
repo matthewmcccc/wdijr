@@ -43,6 +43,8 @@ interface BookContextType {
     setInflectionPoints: (data: number[]) => void,
     plotSummaries: Record<string, string> | null,
     setPlotSummaries: (data: Record<string, string>) => void,
+    coverUrl: string | null,
+    setCoverUrl: (url: string) => void,
 }
 
 export const BookContext = createContext<BookContextType | null>(null);

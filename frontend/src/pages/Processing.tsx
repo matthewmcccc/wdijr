@@ -22,6 +22,7 @@ const Processing = () => {
     const setSentimentValues = useContext(BookContext)?.setSentimentValues;
     const setInflectionPoints = useContext(BookContext)?.setInflectionPoints;
     const setPlotSummaries = useContext(BookContext)?.setPlotSummaries;
+    const setCoverUrl = useContext(BookContext)?.setCoverUrl;
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -39,6 +40,7 @@ const Processing = () => {
                 setAssociatedQuotes?.(data.data.data.associated_quotes);
                 setTopRelationships?.(data.data.data.top_relationships);
                 setPlotSummaries?.(data.data.data.plot_summaries); 
+                setCoverUrl?.(data.data.data.cover_url);
                 setDone(true);
             }
         }, 2000);

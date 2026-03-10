@@ -216,11 +216,13 @@ class Epub(Book):
             
         return None
     
-    def write_cover(self, cover, novelId):
+    def write_cover(self, cover, novelId) -> str:
         os.makedirs(f"../../data/{novelId}/covers", exist_ok=True)
         content = cover.get_content()
-        with open(f"../../data/{novelId}/covers/cover.jpg", "wb") as f:
+        cover_url = f"../../data/{novelId}/covers/cover.jpg"
+        with open(cover_url, "wb") as f:
             f.write(content)
+        return cover_url
 
     def get_full_word_count(self):
         words = self.get_full_text_word_list()

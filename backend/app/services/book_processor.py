@@ -107,14 +107,11 @@ def process_text(self, book_path):
         top_quotes=top_quotes,
         sentiment_values=sentiment_values,
         inflection_points=inflection_points,
-        plot_summaries={},
+        plot_summaries=[],
         has_cover=cover is not None
     )
 
-    if cover:
-        os.makedirs("../data/covers", exist_ok=True)
-        with open(f"../data/covers/{novel_id}.jpg", "wb") as f:
-            f.write(cover.get_content())
+    cover_url = book.write_cover(cover, novel_id)
 
     return {
         "novel_id": novel_id,
@@ -124,7 +121,8 @@ def process_text(self, book_path):
         "top_relationships": top_relationships_dict,
         "sentiment_values": sentiment_values,
         "inflection_points": inflection_points,
-        "plot_summaries": {}
+        "plot_summaries": {},
+        "cover_url": cover_url
     }
         
 

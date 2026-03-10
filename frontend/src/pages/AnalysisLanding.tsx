@@ -22,6 +22,7 @@ const AnalysisLanding = () => {
     const setSentimentValues = bookContext?.setSentimentValues;
     const setInflectionPoints = bookContext?.setInflectionPoints;
     const setPlotSummaries = bookContext?.setPlotSummaries;
+    const setCoverUrl = bookContext?.setCoverUrl;
     const sentimentValues = bookContext?.sentimentValues;
     const inflectionPoints = bookContext?.inflectionPoints;
     const plotSummaries = bookContext?.plotSummaries;
@@ -37,11 +38,12 @@ const AnalysisLanding = () => {
                 setSentimentValues?.(data.analysis.sentiment_values);
                 setInflectionPoints?.(data.analysis.inflection_points);
                 setPlotSummaries?.(data.analysis.plot_summaries);
+                setCoverUrl?.(data.novel.cover_url);
             }
         };
 
         fetchData();
-    }, [novelId, setCharacterData, setTitle, setNetworkData, setQuoteData, setSentimentValues, setInflectionPoints, setPlotSummaries]);
+    }, [novelId, setCharacterData, setTitle, setNetworkData, setQuoteData, setSentimentValues, setInflectionPoints, setPlotSummaries, setCoverUrl]);
 
     console.log(plotSummaries)
 
