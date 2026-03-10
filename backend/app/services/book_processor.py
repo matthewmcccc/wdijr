@@ -47,6 +47,7 @@ def process_text(self, book_path):
     book = Epub(book_path)
     title = book.title
     author = book.author
+    cover = book.cover
 
     self.update_state(state="PROCESSING", meta={"status": "Extracting quotes..."})
 
@@ -89,8 +90,8 @@ def process_text(self, book_path):
             nw, name
         )
 
-    character_summaries = get_character_summaries(er, characters, nw, g, book.title)
-    plot_summaries = get_plot_summaries(g, summarisation_texts)
+    # character_summaries = get_character_summaries(er, characters, nw, g, book.title)
+    # plot_summaries = get_plot_summaries(g, summarisation_texts)
 
     mapping = er.persons_to_id()
 
@@ -100,14 +101,20 @@ def process_text(self, book_path):
         characters=characters,
         quotes=associated_quotes,
         network=nw_nodes,
-        summaries=character_summaries,
+        summaries={},
         char_mapping=mapping,
         top_relationships=top_relationships_dict,
         top_quotes=top_quotes,
         sentiment_values=sentiment_values,
         inflection_points=inflection_points,
-        plot_summaries=plot_summaries
+        plot_summaries={},
+        has_cover=cover is not None
     )
+
+    if cover:
+        os.makedirs("../data/covers", exist_ok=True)
+        with open(f"../data/covers/{novel_id}.jpg", "wb") as f:
+            f.write(cover.get_content())
 
     return {
         "novel_id": novel_id,
@@ -117,7 +124,7 @@ def process_text(self, book_path):
         "top_relationships": top_relationships_dict,
         "sentiment_values": sentiment_values,
         "inflection_points": inflection_points,
-        "plot_summaries": plot_summaries
+        "plot_summaries": {}
     }
         
 

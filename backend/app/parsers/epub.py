@@ -5,7 +5,7 @@ import json
 import math
 from unidecode import unidecode
 from .book import Book, Chapter
-from ebooklib import epub
+from ebooklib import epub, ITEM_COVER
 from bs4 import BeautifulSoup
 from typing import TypedDict
 
@@ -18,6 +18,7 @@ QUOTE_SPAN_WINDOW = 400
 class Epub(Book):
     def __init__(self, book_path):
         self.book: epub.EpubBook = epub.read_epub(book_path)
+        self.cover: list = self.get_cover()
         self.title: str = self.set_title()
         self.chapters: dict = self.set_chapters()
         self.author: str = self.set_author()
@@ -197,6 +198,29 @@ class Epub(Book):
 
                 quotes.append(quote_dict)
         return quotes
+    
+    def get_cover(self):
+        def is_image(item):
+            return item is not None and item.media_type.startswith('image/')
+
+        for meta in self.book.get_metadata('OPF', 'cover'):
+            if is_image(item := self.book.get_item_with_id(meta[1]['content'])):
+                return item
+            
+        if is_image(item := self.book.get_item_with_id('cover')):
+            return item
+        
+        for item in self.book.get_items_of_type(ITEM_COVER):
+            if 'cover' in item.get_name().lower() and is_image(item):
+                return item
+            
+        return None
+    
+    def write_cover(self, cover, novelId):
+        os.makedirs(f"../../data/{novelId}/covers", exist_ok=True)
+        content = cover.get_content()
+        with open(f"../../data/{novelId}/covers/cover.jpg", "wb") as f:
+            f.write(content)
 
     def get_full_word_count(self):
         words = self.get_full_text_word_list()

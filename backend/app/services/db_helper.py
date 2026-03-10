@@ -14,11 +14,14 @@ from models.analysis import Analysis
 db_path = os.path.join(os.path.dirname(__file__), "..", "data", "app.db")
 sync_engine = create_engine(f"sqlite:///{db_path}")
 
-def save_analysis_to_db(title: str, author: str, characters: list, quotes: list, network: dict, summaries, char_mapping: dict, top_relationships, top_quotes, sentiment_values, inflection_points, plot_summaries):
+def save_analysis_to_db(title: str, author: str, characters: list, quotes: list, network: dict, summaries, char_mapping: dict, top_relationships, top_quotes, sentiment_values, inflection_points, plot_summaries, has_cover=False):
     with Session(sync_engine) as session:
         novel = Novel(title=title, author=author)
         session.add(novel)
         session.flush()
+        if has_cover:
+            print(f"we are here has cover = {has_cover}")
+            novel.cover_url = f"../data/covers/{novel.id}.jpg"
 
         for i, char in enumerate(characters):
             name = char["name"]
