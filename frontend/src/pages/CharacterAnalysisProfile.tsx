@@ -46,7 +46,6 @@ const CharacterAnalysisProfile = () => {
 
     const sortedCharacters = Object.values(allCharacterData ?? {})
     .map(c => c.name)
-    .sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
 
     const currentIndex = sortedCharacters.findIndex(
         n => n.toLowerCase() === humanize(characterName ?? "").toLowerCase()
