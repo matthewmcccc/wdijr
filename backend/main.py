@@ -17,10 +17,10 @@ if __name__ == "__main__":
     text = book.get_full_text()
     ps: PlotSentiment = PlotSentiment()
     er: EntityExtractor = EntityExtractor("en_core_web_trf", text)
-    # g: Gemini = Gemini()
     quotes = book.get_full_text_quotes(text)
     associated_quotes = er.associate_text_quotes(quotes)
-    cover = book.cover
+    nw_dict = er.build_conversational_network(associated_quotes)
+    er.build_sentiment_dict_from_network(nw_dict)
 
 # just putting this here so i can remove from main
 def get_character_summaries_from_gemini():

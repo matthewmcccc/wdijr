@@ -11,7 +11,7 @@ export default function AnalysisItem({ analysis_type, img, description, url }: A
     const navigate = useNavigate();
 
     return (
-        <div className="w-sm rounded-md border border-gray-200 overflow-hidden cursor-pointer hover:shadow-lg transition-shadow duration-300" onClick={() => navigate(url || "/")}>
+        <div className="w-md rounded-md border border-gray-200 overflow-hidden cursor-pointer hover:shadow-lg transition-shadow duration-300" onClick={() => navigate(url || "/")}>
             <div className="font-serif text-2xl mb-2 px-6 mt-4">{analysis_type}</div>
             <div className="px-6 font-dewi text-sm text-gray-400">
                 {description || "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."}

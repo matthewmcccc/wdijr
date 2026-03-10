@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from db import sessionmanager
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.staticfiles import StaticFiles
 import os
 import models
 
@@ -27,6 +28,8 @@ def init_app(init_db=True):
                 await sessionmanager.close()
 
     server = FastAPI(title="FastAPI server", lifespan=lifespan)
+    covers_dir = os.path.join(os.path.dirname(__file__), "..", "..", "data")
+    server.mount("/covers", StaticFiles(directory=covers_dir), name="covers")
     server.add_middleware(
         CORSMiddleware,
         allow_origins=["http://localhost:5173"],

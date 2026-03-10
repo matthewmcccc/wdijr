@@ -13,7 +13,7 @@ const fetchNovelData = async (novelId: string, setNovelData: (data: any) => void
             setPlotSummaries?.(data.analysis.plot_summaries);
             setSentimentValues?.(data.analysis.sentiment_values);
             setInflectionPoints?.(data.analysis.inflection_points);
-            setCoverUrl?.(data.novel.cover_url);    
+            setCoverUrl?.(`${import.meta.env.VITE_API_URL.replace('/api', '')}${data.novel.cover_url}`);
         } else {
             console.error("No characters field in response:", data);
         }

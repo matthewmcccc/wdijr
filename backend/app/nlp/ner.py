@@ -245,6 +245,15 @@ class EntityExtractor:
                     {"quote": quotes[q_idx]["quote"], "sentiment": sentiment}
                 )
         return nw_dict
+    
+    @staticmethod
+    def build_sentiment_dict_from_network(nw_dict: dict) -> dict:
+        character_sentiment_dict = defaultdict(dict)
+        for speaker, quote_dict in nw_dict.items():
+            for target, quote_list in quote_dict.items():
+                character_sentiment_dict[speaker][target] = [q["sentiment"] for q in quote_list]
+        return character_sentiment_dict
+                
 
     def match_speech_verbs_regex(self, s: str) -> bool:
         verbs_regex = self.verbs_regex

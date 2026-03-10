@@ -5,6 +5,7 @@ import AnalysisItem from "../components/AnalysisItem";
 import GraphImage from "../assets/img/chart.png"
 import getAllNovelData from "../utils/getAllNovelData";
 import { BookContext } from "../contexts/bookContext";
+import fetchNovelData from "../utils/fetchNovelData";
 
 interface AnalysisProps {
     text_title: string
@@ -23,38 +24,32 @@ const AnalysisLanding = () => {
     const setInflectionPoints = bookContext?.setInflectionPoints;
     const setPlotSummaries = bookContext?.setPlotSummaries;
     const setCoverUrl = bookContext?.setCoverUrl;
+    const setNovelData = bookContext?.setNovelData;
+    const coverUrl = bookContext?.coverUrl;
     const sentimentValues = bookContext?.sentimentValues;
     const inflectionPoints = bookContext?.inflectionPoints;
     const plotSummaries = bookContext?.plotSummaries;
 
     useEffect(() => {   
         const fetchData = async () => {
-            if (novelId) {
-                const data = await getAllNovelData(novelId);
-                setCharacterData?.(data.characters);
-                setTitle?.(data.novel.title);
-                setNetworkData?.(data.analysis.network);
-                setQuoteData?.(data.quotes);
-                setSentimentValues?.(data.analysis.sentiment_values);
-                setInflectionPoints?.(data.analysis.inflection_points);
-                setPlotSummaries?.(data.analysis.plot_summaries);
-                setCoverUrl?.(data.novel.cover_url);
+            if (novelId && setNovelData && setCharacterData && setNetworkData && setTitle && setQuoteData && setPlotSummaries && setSentimentValues && setInflectionPoints && setCoverUrl) {
+                const data = await fetchNovelData(novelId, setNovelData, setCharacterData, setNetworkData, setTitle, setQuoteData, setPlotSummaries, setSentimentValues, setInflectionPoints, setCoverUrl);
             }
         };
 
         fetchData();
-    }, [novelId, setCharacterData, setTitle, setNetworkData, setQuoteData, setSentimentValues, setInflectionPoints, setPlotSummaries, setCoverUrl]);
+    }, [novelId, setCharacterData, setTitle, setNetworkData, setQuoteData, setSentimentValues, setInflectionPoints, setPlotSummaries, setCoverUrl, setNovelData]);
 
-    console.log(plotSummaries)
+    console.log(`cover url: ${coverUrl}`);
 
     return (
         <div className="">
             <Navbar />
-                <div className="mt-20">
-                    <div className="font-serif text-5xl text-center underline">
+                <div className="mt-20 flex flex-col gap-12 justify-center">
+                    <div className="font-serif text-3xl text-center underline flex items-center flex-col">
                         {title}
                     </div>
-                    <div className="flex flex-row gap-12 mt-20 ml-80">
+                    <div className="flex flex-row gap-12 justify-center">
                         <AnalysisItem 
                             analysis_type="Character Analysis" 
                             img={GraphImage} 
