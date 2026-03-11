@@ -51,7 +51,7 @@ class Epub(Book):
             chapters[idx] = ch
             idx += 1
         return chapters
-
+    
     def check_valid_ch_title(self, ch_title: str) -> bool:
         valid = True
 

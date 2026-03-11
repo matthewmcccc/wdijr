@@ -25,22 +25,20 @@ const AnalysisLanding = () => {
     const setPlotSummaries = bookContext?.setPlotSummaries;
     const setCoverUrl = bookContext?.setCoverUrl;
     const setNovelData = bookContext?.setNovelData;
-    const coverUrl = bookContext?.coverUrl;
-    const sentimentValues = bookContext?.sentimentValues;
-    const inflectionPoints = bookContext?.inflectionPoints;
-    const plotSummaries = bookContext?.plotSummaries;
+    const setCharacterSentimentValues = bookContext?.setCharacterSentimentValues;
+    const characterSentimentValues = bookContext?.characterSentimentValues;
 
     useEffect(() => {   
         const fetchData = async () => {
-            if (novelId && setNovelData && setCharacterData && setNetworkData && setTitle && setQuoteData && setPlotSummaries && setSentimentValues && setInflectionPoints && setCoverUrl) {
-                const data = await fetchNovelData(novelId, setNovelData, setCharacterData, setNetworkData, setTitle, setQuoteData, setPlotSummaries, setSentimentValues, setInflectionPoints, setCoverUrl);
+            if (novelId && setNovelData && setCharacterData && setNetworkData && setTitle && setQuoteData && setPlotSummaries && setSentimentValues && setInflectionPoints && setCoverUrl && setCharacterSentimentValues) {
+                await fetchNovelData(novelId, setNovelData, setCharacterData, setNetworkData, setTitle, setQuoteData, setPlotSummaries, setSentimentValues, setInflectionPoints, setCoverUrl, setCharacterSentimentValues);
             }
         };
 
         fetchData();
-    }, [novelId, setCharacterData, setTitle, setNetworkData, setQuoteData, setSentimentValues, setInflectionPoints, setPlotSummaries, setCoverUrl, setNovelData]);
+    }, [novelId, setCharacterData, setTitle, setNetworkData, setQuoteData, setSentimentValues, setInflectionPoints, setPlotSummaries, setCoverUrl, setNovelData, setCharacterSentimentValues]);
 
-    console.log(`cover url: ${coverUrl}`);
+    console.log("character sentiment Values:", characterSentimentValues);
 
     return (
         <div className="">

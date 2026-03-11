@@ -13,7 +13,7 @@ class Gemini:
         self.client = genai.Client(api_key=self.api_key)
 
     def prompt(
-        self, model, prompt: str, instruction: str, character_name="", novel_title=""
+        self, model, prompt: str, instruction: str, character_name="", novel_title="", chapter_title: str = ""
     ) -> str:
         additional_instruction = self.get_additional_instruction(instruction, character_name, novel_title)
 
@@ -57,12 +57,14 @@ class Gemini:
     def get_models(self):
         return self.client.models.list()
 
-    def get_additional_instruction(self, instruction: str, character_name: str = "", novel_title: str = "") -> str:
+    def get_additional_instruction(self, instruction: str, character_name: str = "", novel_title: str = "", chapter_title: str = "") -> str:
         additional_instruction = ""
         if instruction == "excerpt_summary":
             additional_instruction = self.excerpt_summary_prompt()
         if instruction == "character_summary":
             additional_instruction = self.character_summary_prompt(character_name, novel_title)
+        if instruction == "chapter_summary":
+            additional_instruction = self.chapter_summary_prompt(novel_title, chapter_title)
         return additional_instruction
 
     @staticmethod
@@ -115,3 +117,33 @@ class Gemini:
                 Character name: {character_name}
                 Novel title: {novel_title}
         """
+
+    @staticmethod
+    def chapter_summary_prompt(chapter_title: str, novel_title: str = ""):
+        return f"""You are an expert in literary analysis and summarisation.
+        You will be given a full chapter from a novel, and its title.
+        It is your job to generate a summary that spans 2-3 paragraphs
+        for this chapter. You will also generate a short overview of the 
+        chapter that spans 1-2 sentences.
+        You may make use of pre-existing knowledge of the novel if you possess it.
+
+        Rules:
+        - Do NOT acknowledgement the prompt. Just generate the summary
+        and short description and return it in the format described below.
+        - You may make use of pre-existing knowledge of the novel if you have it,
+        though try and make the most use of the given chapter as possible.
+        - Write in an accessible but informed tone suitable for casual readers.
+        - Make no use whatsoever of markdown formatting, heading, or bullet points.
+        - The response must be in the following JSON format: {{"summary": *LONG SUMMARY IN DOUBLE QUOTES*,
+        "overview": *SHORT OVERVIEW IN DOUBLE QUOTES*}}
+        - Do NOT take on the tone of the novel in your summary. Keep your summary factual,
+        and keep your tone seperate from the source. 
+        - Summarise the narrative / plot points. Do NOT allude to literary devices.
+        - Do NOT allude to any future happenings. Ground your summary in what occured
+        in the current chapter and optionally how it may relate to prior chapters when
+        it fits.
+
+        Novel title: {novel_title}
+        Chapter title: {chapter_title}
+        """
+        

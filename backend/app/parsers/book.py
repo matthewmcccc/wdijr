@@ -26,3 +26,6 @@ class Chapter:
 
     def get_content(self) -> str:
         return self.content
+
+    def __str__(self) -> str:
+        return f"Index: {self.index} -- Title: {self.title} -- Item: {self.item}"

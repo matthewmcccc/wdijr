@@ -2,6 +2,7 @@ import os
 import io
 import json
 from pathlib import Path
+from app.parsers.book import Chapter
 from app.parsers.epub import Epub
 from app.nlp.ner import EntityExtractor
 from app.nlp.plot_sentiment import PlotSentiment
@@ -13,14 +14,26 @@ from collections import defaultdict
 if __name__ == "__main__":
     book_path = Path("./app/temp/aaiw.epub")
     book = Epub(book_path)
-    full_text_words = book.get_full_text_word_list()
-    text = book.get_full_text()
-    ps: PlotSentiment = PlotSentiment()
-    er: EntityExtractor = EntityExtractor("en_core_web_trf", text)
-    quotes = book.get_full_text_quotes(text)
-    associated_quotes = er.associate_text_quotes(quotes)
-    nw_dict = er.build_conversational_network(associated_quotes)
-    er.build_sentiment_dict_from_network(nw_dict)
+    chapters = book.chapters
+    chapter_for_summary = chapters[0]
+    ch_text = book.get_chapter_text(0)
+    g: Gemini = Gemini()
+    response = g.prompt(
+        model="gemini-2.5-flash", 
+        prompt=ch_text,
+        instruction="chapter_summary",
+        novel_title=book.title,
+        chapter_title=chapter_for_summary.title
+    )
+    print(response)
+    # full_text_words = book.get_full_text_word_list()
+    # text = book.get_full_text()
+    # ps: PlotSentiment = PlotSentiment()
+    # er: EntityExtractor = EntityExtractor("en_core_web_trf", text)
+    # quotes = book.get_full_text_quotes(text)
+    # associated_quotes = er.associate_text_quotes(quotes)
+    # nw_dict = er.build_conversational_network(associated_quotes)
+    # er.build_sentiment_dict_from_network(nw_dict)
 
 # just putting this here so i can remove from main
 def get_character_summaries_from_gemini():

@@ -45,6 +45,8 @@ interface BookContextType {
     setPlotSummaries: (data: Record<string, string>) => void,
     coverUrl: string | null,
     setCoverUrl: (url: string) => void,
+    characterSentimentValues?: Record<string, number[]>,
+    setCharacterSentimentValues?: (data: Record<string, number[]>) => void,
 }
 
 export const BookContext = createContext<BookContextType | null>(null);

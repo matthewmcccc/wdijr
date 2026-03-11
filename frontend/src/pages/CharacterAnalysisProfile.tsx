@@ -3,12 +3,14 @@ import { useParams } from "react-router-dom";
 import humanize from "../utils/humanize";
 import Breadcrumbs from "../components/Breadcrumbs";
 import CharacterNavigation from "../components/CharacterNavigation";
-import { use, useContext, useEffect } from "react";
+import { useState, useContext, useEffect } from "react";
 import { BookContext } from "../contexts/bookContext";
 import CharacterCard from "../components/CharacterCard";
 import SentimentAreaChart from "../components/SentimentAreaChart";
 import NetworkGraph from "../components/NetworkGraph";
 import fetchNovelData from "../utils/fetchNovelData";
+import cumulativeSentiment from "../utils/cumulativeSentiment";
+import CharacterSentimentChart from "../components/CharacterSentimentChart";
 
 const smooth = (data: number[], windowSize: number = 10): number[] => {
     return data.map((_, i) => {
@@ -18,6 +20,7 @@ const smooth = (data: number[], windowSize: number = 10): number[] => {
         return window.reduce((sum, v) => sum + v, 0) / window.length;
     });
 };
+
 
 const CharacterAnalysisProfile = () => {
     const characterName = useParams<{ name: string }>().name;
@@ -42,13 +45,26 @@ const CharacterAnalysisProfile = () => {
     const topRelationships = (characterData as any)?.["top_relationships"] || [];
     const topQuote = characterData ? (characterData as any).top_quote : null;
     const quoteData = useContext(BookContext)?.quoteData;
+    const setCharacterSentimentValues = useContext(BookContext)?.setCharacterSentimentValues;
+    const characterSentimentValues = useContext(BookContext)?.characterSentimentValues;
     const setQuoteData = useContext(BookContext)?.setQuoteData;
+    const setPlotSummaries = useContext(BookContext)?.setPlotSummaries;
+    const setSentimentValues = useContext(BookContext)?.setSentimentValues;
+    const setInflectionPoints = useContext(BookContext)?.setInflectionPoints;
+    const setCoverUrl = useContext(BookContext)?.setCoverUrl;
+    const currentChar = humanize(characterName ?? "").toLowerCase();
+    const targetOptions = Object.keys(characterSentimentValues?.[currentChar] || {})
+    .filter(t => (characterSentimentValues?.[currentChar]?.[t]?.length ?? 0) > 2);
+    const [selectedTarget, setSelectedTarget] = useState<string>("");
+
+    const cum_sen = cumulativeSentiment(currentChar, characterSentimentValues || {});
+    console.log(cum_sen);
 
     const sortedCharacters = Object.values(allCharacterData ?? {})
     .map(c => c.name)
 
     const currentIndex = sortedCharacters.findIndex(
-        n => n.toLowerCase() === humanize(characterName ?? "").toLowerCase()
+        n => n.toLowerCase() === currentChar
     );
 
     const leftCharacter = currentIndex > 0 ? sortedCharacters[currentIndex - 1] : "";
@@ -57,13 +73,19 @@ const CharacterAnalysisProfile = () => {
     useEffect(() => {
         const fetchCharacterData = async () => {
             if (!novelData || novelData.id !== novelId) {
-                if (setNovelData && setCharacterData && setNetworkData && setTitle && setQuoteData) {
-                    await fetchNovelData(novelId ?? "", setNovelData, setCharacterData, setNetworkData, setTitle, setQuoteData);
+                if (setNovelData && setCharacterData && setNetworkData && setTitle && setQuoteData && setCharacterSentimentValues) {
+                    await fetchNovelData(novelId, setNovelData, setCharacterData, setNetworkData, setTitle, setQuoteData, setPlotSummaries, setSentimentValues, setInflectionPoints, setCoverUrl, setCharacterSentimentValues);
                 }
             }
         };
         fetchCharacterData();
     }, [novelId]);
+
+    useEffect(() => {
+        if (targetOptions.length > 0 && !selectedTarget) {
+            setSelectedTarget(targetOptions[0]);
+        }
+    }, [targetOptions]);
 
     const characterQuotes = quoteData
         ? Object.values(quoteData).filter((q: any) => q.speaker?.toLowerCase() === humanize(characterName ?? "").toLowerCase())
@@ -150,6 +172,30 @@ const CharacterAnalysisProfile = () => {
                                     width={550}
                                 />
                         </div>
+                        <div>
+                            <h1 className="font-dewi text-md mb-4">
+                                Character-to-Character Sentiment
+                            </h1>
+                            <select 
+                                value={selectedTarget}
+                                onChange={(e) => setSelectedTarget(e.target.value)}
+                                className="mb-4 border border-gray-300 rounded px-2 py-1 font-serif text-sm"
+                            >
+                                {targetOptions.map(t => (
+                                    <option key={t} value={t}>{humanize(t)}</option>
+                                ))}
+                                        </select>
+                                        {selectedTarget && (
+                                            <CharacterSentimentChart
+                                                speakerName={humanize(currentChar)}
+                                                targetName={humanize(selectedTarget)}
+                                                speakerToTarget={characterSentimentValues?.[currentChar]?.[selectedTarget] || []}
+                                                targetToSpeaker={characterSentimentValues?.[selectedTarget]?.[currentChar] || []}
+                                                width={550}
+                                                height={350}
+                                            />
+                                        )}
+            </div>
                     </div>
                 </div>
             </div>

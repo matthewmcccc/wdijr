@@ -74,6 +74,10 @@ def process_text(self, book_path):
 
     self.update_state(state="PROCESSING", meta={"status": "Analysing plot data..."})
 
+    character_to_character_sentiment_dict = er.build_sentiment_dict_from_network(
+        nw_dict=nw
+    )
+
     sentiment_values = ps.get_section_valence(full_text_words)
     inflection_points = ps.first_difference(sentiment_values)
 
@@ -90,8 +94,8 @@ def process_text(self, book_path):
             nw, name
         )
 
-    # character_summaries = get_character_summaries(er, characters, nw, g, book.title)
-    # plot_summaries = get_plot_summaries(g, summarisation_texts)
+    character_summaries = get_character_summaries(er, characters, nw, g, book.title)
+    plot_summaries = get_plot_summaries(g, summarisation_texts)
 
     mapping = er.persons_to_id()
 
@@ -108,7 +112,8 @@ def process_text(self, book_path):
         sentiment_values=sentiment_values,
         inflection_points=inflection_points,
         plot_summaries=[],
-        has_cover=cover is not None
+        has_cover=cover is not None,
+        character_to_character_sentiment=character_to_character_sentiment_dict
     )
 
     cover_url = book.write_cover(cover, novel_id)
@@ -122,7 +127,8 @@ def process_text(self, book_path):
         "sentiment_values": sentiment_values,
         "inflection_points": inflection_points,
         "plot_summaries": {},
-        "cover_url": cover_url
+        "cover_url": cover_url,
+        "character_sentiment": character_to_character_sentiment_dict
     }
         
 

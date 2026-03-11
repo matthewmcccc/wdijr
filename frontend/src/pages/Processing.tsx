@@ -23,6 +23,7 @@ const Processing = () => {
     const setInflectionPoints = useContext(BookContext)?.setInflectionPoints;
     const setPlotSummaries = useContext(BookContext)?.setPlotSummaries;
     const setCoverUrl = useContext(BookContext)?.setCoverUrl;
+    const setCharacterSentimentValues = useContext(BookContext)?.setCharacterSentimentValues;
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -41,6 +42,7 @@ const Processing = () => {
                 setTopRelationships?.(data.data.data.top_relationships);
                 setPlotSummaries?.(data.data.data.plot_summaries); 
                 setCoverUrl?.(data.data.data.cover_url);
+                setCharacterSentimentValues?.(data.data.data.character_sentiment);
                 setDone(true);
             }
         }, 2000);
@@ -53,7 +55,6 @@ const Processing = () => {
             navigate(`/analysis/${novelId}`);
         }
     }, [done, novelId, navigate, associatedQuotes]);
-
 
     return (
         <>

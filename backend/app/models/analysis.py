@@ -14,6 +14,7 @@ class Analysis(Base):
     inflection_points: Mapped[list | None] = mapped_column(JSON, nullable=True)
     plot_summaries: Mapped[list | None] = mapped_column(JSON, nullable=True)
     novel_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("novel.id"))
+    character_sentiment: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     
     novel: Mapped["Novel"] = relationship(back_populates="analysis")
     

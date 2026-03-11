@@ -27,6 +27,7 @@ const App = () => {
   const [inflectionPoints, setInflectionPoints] = useState<any>(null);
   const [plotSummaries, setPlotSummaries] = useState<any>(null);
   const [coverUrl, setCoverUrl] = useState<string | null>(null);
+  const [characterSentimentValues, setCharacterSentimentValues] = useState<any>(null);
 
 
   return (
@@ -57,6 +58,8 @@ const App = () => {
           setPlotSummaries: setPlotSummaries,
           coverUrl: coverUrl,
           setCoverUrl: setCoverUrl,
+          characterSentimentValues: characterSentimentValues,
+          setCharacterSentimentValues: setCharacterSentimentValues,
         }}>
         <Routes>
           <Route path="/network-graph" element={<NetworkGraph />} />

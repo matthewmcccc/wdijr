@@ -15,8 +15,7 @@ class Quote(Base):
     novel_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("novel.id"))
     character_id: Mapped[int] = mapped_column(ForeignKey("character.id"))
     analysis_id: Mapped[int] = mapped_column(ForeignKey("analysis.id"))
-    target_id: Mapped[str] = mapped_column(ForeignKey("character.name"))
-
+    
     novel: Mapped["Novel"] = relationship(back_populates="quotes")
     character: Mapped["Character"] = relationship(back_populates="quotes")
 
