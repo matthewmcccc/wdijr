@@ -95,8 +95,9 @@ def process_text(self, book_path):
             nw, name
         )
 
-    # character_summaries = get_character_summaries(er, characters, nw, g, book.title)
-    # plot_summaries = get_plot_summaries(g, summarisation_texts)
+    character_summaries = get_character_summaries(er, characters, nw, g, book.title)
+    plot_summaries = get_plot_summaries(g, summarisation_texts)
+    chapter_summaries = get_chapter_summaries(g, chapters, title, book)
 
     mapping = er.persons_to_id()
 
@@ -106,22 +107,24 @@ def process_text(self, book_path):
         characters=characters,
         quotes=associated_quotes,
         network=nw_nodes,
-        summaries={},
+        summaries=character_summaries,
         char_mapping=mapping,
         top_relationships=top_relationships_dict,
         top_quotes=top_quotes,
         sentiment_values=sentiment_values,
         inflection_points=inflection_points,
-        plot_summaries=[],
+        plot_summaries=plot_summaries,
         has_cover=cover is not None,
         character_to_character_sentiment=character_to_character_sentiment_dict,
-        chapters=chapters
+        chapters=chapters,
+        chapter_summaries=chapter_summaries
     )
 
     cover_url = book.write_cover(cover, novel_id)
 
     return {
         "novel_id": novel_id,
+        "title": title,
         "network": nw_nodes,
         "characters": characters,
         "associated_quotes": associated_quotes,
@@ -130,7 +133,7 @@ def process_text(self, book_path):
         "inflection_points": inflection_points,
         "plot_summaries": {},
         "cover_url": cover_url,
-        "character_sentiment": character_to_character_sentiment_dict
+        "character_sentiment": character_to_character_sentiment_dict,
     }
         
 
@@ -155,6 +158,18 @@ def get_character_summaries(er: EntityExtractor, characters: list[dict], nw_dict
         title
     )
     return character_summaries
+
+def get_chapter_summaries(g: Gemini, chapters, book_title: str, book: Epub):
+    chapter_items = []
+    for idx, chapter in chapters.items():
+        chapter_items.append((book.get_chapter_text(idx), idx, chapter.title))
+    chapter_summaries = g.chapter_summary_mass_prompt(
+        "gemini-2.5-flash",
+        chapter_items,
+        "chapter_summary",
+        book_title
+    )
+    return chapter_summaries
 
 def get_plot_summaries(g: Gemini, summarisation_texts: list[str]):
     plot_summaries = g.text_span_summary_mass_prompt(

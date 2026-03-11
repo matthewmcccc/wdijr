@@ -47,6 +47,14 @@ interface BookContextType {
     setCoverUrl: (url: string) => void,
     characterSentimentValues?: Record<string, number[]>,
     setCharacterSentimentValues?: (data: Record<string, number[]>) => void,
+    chapterData: Array<{
+        chapter_number: number;
+        title: string;
+        summary: string;
+        overview: string;
+        novel_id: string;
+    }> | null,
+    setChapterData: (data: Array<{ chapter_number: number; title: string; summary: string; overview: string; novel_id: string }>) => void,
 }
 
 export const BookContext = createContext<BookContextType | null>(null);

@@ -6,11 +6,13 @@ import GraphTest from "./components/GraphTest"
 import AnalysisLanding from "./pages/AnalysisLanding"
 import CharacterAnalysisLanding from "./pages/CharacterAnalysisOverview"
 import CharacterAnalysisProfile from "./pages/CharacterAnalysisProfile";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { BookContext } from "./contexts/bookContext";
 import * as quotesData from "../data/quotes.json"
 import PlotAnalysisLanding from "./pages/PlotAnalysisOverview";
 import Processing from "./pages/Processing";
+import ChapterAnalysis from "./pages/ChapterAnalysis";
+import CharacterNavigation from "./components/CharacterNavigation";
 
 
 const App = () => {
@@ -28,39 +30,43 @@ const App = () => {
   const [plotSummaries, setPlotSummaries] = useState<any>(null);
   const [coverUrl, setCoverUrl] = useState<string | null>(null);
   const [characterSentimentValues, setCharacterSentimentValues] = useState<any>(null);
+  const [chapterData, setChapterData] = useState<Array<{ chapter_number: number; title: string; summary: string; overview: string; novel_id: string }> | null>(null);
 
+  const contextValue = useMemo(() => ({
+      characterData,
+      setCharacterData,
+      networkData,
+      setNetworkData,
+      sentimentValues,
+      setSentimentValues,
+      inflectionPoints,
+      setInflectionPoints,
+      title,
+      setTitle,
+      novelData: novelData ?? { author: "", id: "", title: "" },
+      setNovelData,
+      characterNavigationDict: buildNavigationDictionary(Object.keys(topCharacterRelationships ?? {})),
+      associatedQuotes: associatedQuotes ?? {},
+      setAssociatedQuotes,
+      topCharacterRelationships: topCharacterRelationships ?? {},
+      topCharacterQuotes: topCharacterQuotes ?? {},
+      attributedQuotes: attributedQuotes ?? [],
+      setTopCharacterRelationships,
+      quoteData,
+      setQuoteData,
+      plotSummaries,
+      setPlotSummaries,
+      coverUrl,
+      setCoverUrl,
+      characterSentimentValues,
+      setCharacterSentimentValues,
+      chapterData,
+      setChapterData,
+  }), [characterData, networkData, novelData, associatedQuotes, topCharacterRelationships, title, topCharacterQuotes, attributedQuotes, quoteData, sentimentValues, inflectionPoints, plotSummaries, coverUrl, characterSentimentValues, chapterData]);
 
   return (
     <BrowserRouter>
-      <BookContext.Provider value={{
-          characterData: characterData,
-          setCharacterData: setCharacterData,
-          networkData: networkData,
-          setNetworkData: setNetworkData,
-          sentimentValues: sentimentValues,
-          setSentimentValues: setSentimentValues,
-          inflectionPoints: inflectionPoints,
-          setInflectionPoints: setInflectionPoints,
-          title: title,
-          setTitle: setTitle,
-          novelData: novelData ?? { author: "", id: "", title: "" },
-          setNovelData: setNovelData,
-          characterNavigationDict: buildNavigationDictionary(Object.keys(topCharacterRelationships ?? {})),
-          associatedQuotes: associatedQuotes ?? {},
-          setAssociatedQuotes: setAssociatedQuotes,
-          topCharacterRelationships: topCharacterRelationships ?? {},
-          topCharacterQuotes: topCharacterQuotes ?? {},
-          attributedQuotes: attributedQuotes ?? [],
-          setTopCharacterRelationships: setTopCharacterRelationships,
-          quoteData: quoteData,
-          setQuoteData: setQuoteData,
-          plotSummaries: plotSummaries,
-          setPlotSummaries: setPlotSummaries,
-          coverUrl: coverUrl,
-          setCoverUrl: setCoverUrl,
-          characterSentimentValues: characterSentimentValues,
-          setCharacterSentimentValues: setCharacterSentimentValues,
-        }}>
+      <BookContext.Provider value={contextValue}>
         <Routes>
           <Route path="/network-graph" element={<NetworkGraph />} />
           <Route path="/processing/:taskid" element={<Processing />} />
@@ -70,6 +76,7 @@ const App = () => {
           <Route path="/" element={<Home />} />
           <Route path="/graph-test" element={<GraphTest />} />
           <Route path="/plot-analysis/:novelId" element={<PlotAnalysisLanding />} />
+          <Route path="/:novelId/chapter/:chapterId" element={<ChapterAnalysis />} />
         </Routes>
       </BookContext.Provider>
     </BrowserRouter>

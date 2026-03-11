@@ -15,8 +15,9 @@ if __name__ == "__main__":
     book_path = Path("./app/temp/aaiw.epub")
     book = Epub(book_path)
     chapters = book.chapters
-    for x, y in chapters.items():
-        print(x, y)
+    chapter_items = []
+    for idx, chapter in chapters.items():
+        chapter_items.append()
     # g: Gemini = Gemini()
     # response = g.chapter_summary_mass_prompt(
     #     model="gemini-2.5-flash", 

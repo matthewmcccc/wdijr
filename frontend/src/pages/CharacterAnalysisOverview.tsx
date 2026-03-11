@@ -34,8 +34,6 @@ const CharacterAnalysisLanding = () => {
         fetchCharacterData();
     }, [characterData, novelId, setCharacterData, setNetworkData, novelData, setNovelData, setTitle, setAssociatedQuotes, associatedQuotes]);
 
-    console.log(`associated quotes: ${JSON.stringify(associatedQuotes)}`);
-
     return (
         <div className="container mx-auto px-4 py-8">
             <Navbar />

@@ -1,10 +1,9 @@
-import AreaChart from "../components/PlotAreaChart"
 import Breadcrumbs from "../components/Breadcrumbs"
 import Navbar from "../components/Navbar"
-import NetworkGraph from "../components/NetworkGraph"
+import ChapterCard from "../components/ChapterCard"
 import PlotAreaChart from "../components/PlotAreaChart"
 import { useParams } from "react-router-dom"
-import { useContext, useEffect } from "react"
+import { useContext, useEffect, useRef } from "react"
 import { BookContext } from "../contexts/bookContext"
 import fetchNovelData from "../utils/fetchNovelData"
 
@@ -20,18 +19,26 @@ const PlotAnalysisLanding = () => {
     const setPlotSummaries = bookContext?.setPlotSummaries;
     const setSentimentValues = bookContext?.setSentimentValues;
     const setInflectionPoints = bookContext?.setInflectionPoints;
+    const setCoverUrl = bookContext?.setCoverUrl;
+    const setCharacterSentimentValues = bookContext?.setCharacterSentimentValues;
+    const setChapterData = bookContext?.setChapterData;
+    const hasFetched = useRef<string | null>(null);
+
+    console.log("render", novelData?.id, novelId);
 
     useEffect(() => {
         const fetchData = async () => {
-            if (!novelData || novelData.id !== novelId) {
-                if (setNovelData && setCharacterData && setNetworkData && setTitle && setQuoteData && setPlotSummaries && setSentimentValues && setInflectionPoints) {
-                    await fetchNovelData(novelId ?? "", setNovelData, setCharacterData, setNetworkData, setTitle, setQuoteData, setPlotSummaries, setSentimentValues, setInflectionPoints);
-                }
+            if (hasFetched.current === novelId) return;
+            hasFetched.current = novelId ?? null;
+
+            if (setNovelData && setCharacterData && setNetworkData && setTitle && setQuoteData && setPlotSummaries && setSentimentValues && setInflectionPoints && setCoverUrl && setCharacterSentimentValues && setChapterData) {
+                await fetchNovelData(novelId ?? "", setNovelData, setCharacterData, setNetworkData, setTitle, setQuoteData, setPlotSummaries, setSentimentValues, setInflectionPoints, setCoverUrl, setCharacterSentimentValues, setChapterData);
             }
         };
         fetchData();
-    }, [novelId, setNovelData, setCharacterData, setNetworkData, setTitle, setQuoteData, setPlotSummaries, setSentimentValues, setInflectionPoints]);
+    }, [novelId]);
 
+    console.log(`chapterData: ${JSON.stringify(bookContext?.chapterData)}`);
 
     return (
         <div className="container mx-auto px-4 py-8">
@@ -44,17 +51,33 @@ const PlotAnalysisLanding = () => {
                 </p>
             </div>
             <hr className="border-gray-300 my-4"/>
-            <div className="flex flex-col gap-12 mt-4">
+            <div className="flex flex-col gap-12 mt-4 h-100">
                 <div className="flex flex-row justify-between ">
                     <div className="flex flex-col gap-2">
                         <h1 className="font-dewi">Plot Sentiment Over Time</h1>
                         <PlotAreaChart 
                             width={1250}
-                            height={400}
+                            height={300}
                         />
                     </div>   
                     <div className="flex flex-col gap-2">
                     </div>
+                </div>
+            </div>
+            <div className="flex flex-col gap-4 mt-4">
+                <h1 className="font-serif text-4xl">
+                    Chapters
+                </h1>
+                <hr className="border-gray-300 my-4"/>
+                <div className="flex flex-col gap-4">
+                    {bookContext?.chapterData?.map(chapter => (
+                        <ChapterCard
+                            id={chapter.chapter_number}
+                            number={chapter.chapter_number}
+                            title={chapter.title}
+                            overview={chapter.overview}
+                        />
+                    ))}
                 </div>
             </div>
         </div>

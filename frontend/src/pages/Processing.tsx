@@ -14,11 +14,8 @@ const Processing = () => {
     const setCharacterData = useContext(BookContext)?.setCharacterData;
     const setTitle = useContext(BookContext)?.setTitle;
     const setAssociatedQuotes = useContext(BookContext)?.setAssociatedQuotes;
-    const topRelationships = useContext(BookContext)?.topCharacterRelationships;
     const setTopRelationships = useContext(BookContext)?.setTopCharacterRelationships;
     const associatedQuotes = useContext(BookContext)?.associatedQuotes;
-    const characterData = useContext(BookContext)?.characterData;
-    const networkData = useContext(BookContext)?.networkData;
     const setSentimentValues = useContext(BookContext)?.setSentimentValues;
     const setInflectionPoints = useContext(BookContext)?.setInflectionPoints;
     const setPlotSummaries = useContext(BookContext)?.setPlotSummaries;
@@ -33,6 +30,7 @@ const Processing = () => {
             const data = await axios.get(`${import.meta.env.VITE_API_URL}/analysis/process/${taskId}`)
             setStatus(data.data.detail || "Processing...");
         if (data.data.status == "complete") {
+                setTitle?.(data.data.data.title);
                 setNetworkData?.(data.data.data.network);
                 setSentimentValues?.(data.data.data.sentiment_values);
                 setInflectionPoints?.(data.data.data.inflection_points);

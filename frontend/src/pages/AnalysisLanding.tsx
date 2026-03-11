@@ -14,7 +14,6 @@ interface AnalysisProps {
 const AnalysisLanding = () => {
     const title = useContext(BookContext)?.title || "";
     const setTitle = useContext(BookContext)?.setTitle;
-    const navigate = useNavigate();
     const { novelId } = useParams<{ novelId: string }>();
     const bookContext = useContext(BookContext);
     const setCharacterData = bookContext?.setCharacterData;
@@ -26,19 +25,17 @@ const AnalysisLanding = () => {
     const setCoverUrl = bookContext?.setCoverUrl;
     const setNovelData = bookContext?.setNovelData;
     const setCharacterSentimentValues = bookContext?.setCharacterSentimentValues;
-    const characterSentimentValues = bookContext?.characterSentimentValues;
+    const setChapterData = bookContext?.setChapterData;
 
     useEffect(() => {   
         const fetchData = async () => {
-            if (novelId && setNovelData && setCharacterData && setNetworkData && setTitle && setQuoteData && setPlotSummaries && setSentimentValues && setInflectionPoints && setCoverUrl && setCharacterSentimentValues) {
-                await fetchNovelData(novelId, setNovelData, setCharacterData, setNetworkData, setTitle, setQuoteData, setPlotSummaries, setSentimentValues, setInflectionPoints, setCoverUrl, setCharacterSentimentValues);
+            if (novelId && setNovelData && setCharacterData && setNetworkData && setTitle && setQuoteData && setPlotSummaries && setSentimentValues && setInflectionPoints && setCoverUrl && setCharacterSentimentValues && setChapterData) {
+                await fetchNovelData(novelId, setNovelData, setCharacterData, setNetworkData, setTitle, setQuoteData, setPlotSummaries, setSentimentValues, setInflectionPoints, setCoverUrl, setCharacterSentimentValues, setChapterData);
             }
         };
-
         fetchData();
-    }, [novelId, setCharacterData, setTitle, setNetworkData, setQuoteData, setSentimentValues, setInflectionPoints, setPlotSummaries, setCoverUrl, setNovelData, setCharacterSentimentValues]);
+    }, [novelId, setCharacterData, setTitle, setNetworkData, setQuoteData, setSentimentValues, setInflectionPoints, setPlotSummaries, setCoverUrl, setNovelData, setCharacterSentimentValues, setChapterData]);
 
-    console.log("character sentiment Values:", characterSentimentValues);
 
     return (
         <div className="">

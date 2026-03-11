@@ -52,7 +52,7 @@ class Gemini:
             prompt = f"{additional_instruction}\n{ch_text}"
             return self.client.models.generate_content(
                 model=model, contents=prompt
-            )
+            ).candidates[0].content.parts[0].text
         
         with ThreadPoolExecutor(max_workers=len(chapters)) as executor:
             responses = list(executor.map(send_request, chapters))

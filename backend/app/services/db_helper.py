@@ -16,7 +16,7 @@ from models.chapter import Chapter
 db_path = os.path.join(os.path.dirname(__file__), "..", "data", "app.db")
 sync_engine = create_engine(f"sqlite:///{db_path}")
 
-def save_analysis_to_db(title: str, author: str, characters: list, quotes: list, network: dict, summaries, char_mapping: dict, top_relationships, top_quotes, sentiment_values, inflection_points, plot_summaries, character_to_character_sentiment, chapters, has_cover=False):
+def save_analysis_to_db(title: str, author: str, characters: list, quotes: list, network: dict, summaries, char_mapping: dict, top_relationships, top_quotes, sentiment_values, inflection_points, plot_summaries, character_to_character_sentiment, chapters, chapter_summaries, has_cover=False):
     with Session(sync_engine) as session:
         novel = Novel(title=title, author=author)
         session.add(novel)
@@ -78,14 +78,25 @@ def save_analysis_to_db(title: str, author: str, characters: list, quotes: list,
             ))
 
         for idx, chapter in chapters.items():
-            chapter_number = idx
-            title = chapter.title
-            session.add(Chapter(
-                chapter_number=chapter_number,
-                title=title,
-                novel_id=novel.id,
-            ))
+            chapter_summary = chapter_summaries[idx]
+            try:
+                if isinstance(chapter_summary, str):
+                    if not chapter_summary.strip().startswith("{"):
+                        chapter_summary = "{" + chapter_summary
+                    if not chapter_summary.strip().endswith("}"):
+                        chapter_summary = chapter_summary + "}"
+                    chapter_summary = json.loads(chapter_summary)
+            except (json.JSONDecodeError, Exception):
+                chapter_summary = {"summary": "", "overview": ""}
 
+            session.add(Chapter(
+                chapter_number=idx,
+                title=chapter.title,
+                novel_id=novel.id,
+                summary=chapter_summary.get("summary", ""),
+                overview=chapter_summary.get("overview", ""),
+            ))
+            
         session.flush()
         session.commit()
         return novel.id
