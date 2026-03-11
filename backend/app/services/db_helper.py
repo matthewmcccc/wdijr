@@ -65,6 +65,7 @@ def save_analysis_to_db(title: str, author: str, characters: list, quotes: list,
             content = quote["quote"]
             speaker = quote["speaker"]
             sentiment = quote["sentiment"]
+            ch_number = quote["chapter_number"]
             if not speaker:
                 continue
             char_id = char_mapping[speaker]
@@ -74,7 +75,8 @@ def save_analysis_to_db(title: str, author: str, characters: list, quotes: list,
                 speaker=speaker,
                 character_id=char_id,
                 analysis_id=analysis.id,
-                sentiment=sentiment
+                sentiment=sentiment,
+                chapter_number=ch_number
             ))
 
         for idx, chapter in chapters.items():

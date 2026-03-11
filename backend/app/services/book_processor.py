@@ -49,6 +49,7 @@ def process_text(self, book_path):
     author = book.author
     cover = book.cover
     chapters = book.chapters
+    span_index = book.build_chapter_span_index()
 
     self.update_state(state="PROCESSING", meta={"status": "Extracting quotes..."})
 
@@ -117,7 +118,7 @@ def process_text(self, book_path):
         has_cover=cover is not None,
         character_to_character_sentiment=character_to_character_sentiment_dict,
         chapters=chapters,
-        chapter_summaries=chapter_summaries
+        chapter_summaries=chapter_summaries,
     )
 
     cover_url = book.write_cover(cover, novel_id)

@@ -169,6 +169,7 @@ class EntityExtractor:
                 "word_count": quote["word_count"],
                 "speaker": None,
                 "sentiment": None,
+                "chapter_number": quote["chapter_number"]
             }
             prior = quote["prior"]
             post = quote["post"]

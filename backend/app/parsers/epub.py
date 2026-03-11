@@ -24,6 +24,7 @@ class Epub(Book):
         self.author: str = self.set_author()
         self.full_word_list: list[str] = self.get_full_text_word_list()
         self.full_word_count: int = self.get_full_word_count()
+        self.span_index: list[tuple[int, int]] = self.build_chapter_span_index()
 
     def set_author(self) -> str:
         if self.book.get_metadata("DC", "creator"):
@@ -153,6 +154,18 @@ class Epub(Book):
             )
 
         return spans
+    
+    def build_chapter_span_index(self) -> list[tuple[int, int]]:
+        span_index = [(0, 0)] * len(self.chapters)
+        for ch_idx, _ in self.chapters.items():
+            text = self.get_chapter_text(ch_idx)
+            start_idx = span_index[max(0, ch_idx-1)][1]
+            end_idx = start_idx
+            for _ in text:
+                end_idx += 1
+            span_index[ch_idx] = ((start_idx, end_idx))
+        return span_index
+
 
     def get_full_text_quotes(self, text: str) -> list[dict]:
         """
@@ -190,11 +203,17 @@ class Epub(Book):
 
                 word_count = len(quote_str.split(" "))
 
+                chapter_number = None
+                for idx, item in enumerate(self.span_index):
+                    if start_idx > item[0] and start_idx < item[1]:
+                        chapter_number = idx
+
                 quote_dict["quote"] = quote_str
                 quote_dict["prior"] = prior
                 quote_dict["post"] = post
                 quote_dict["span"] = (start_idx, end_idx)
                 quote_dict["word_count"] = word_count
+                quote_dict["chapter_number"] = chapter_number
 
                 quotes.append(quote_dict)
         return quotes

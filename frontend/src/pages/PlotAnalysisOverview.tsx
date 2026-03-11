@@ -72,7 +72,7 @@ const PlotAnalysisLanding = () => {
                 <div className="flex flex-col gap-4">
                     {bookContext?.chapterData?.map(chapter => (
                         <ChapterCard
-                            id={chapter.chapter_number}
+                            id={chapter.id}
                             number={chapter.chapter_number}
                             title={chapter.title}
                             overview={chapter.overview}

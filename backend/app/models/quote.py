@@ -1,6 +1,6 @@
 import uuid
 from .base import Base
-from sqlalchemy import String, ForeignKey, select, Float
+from sqlalchemy import String, ForeignKey, select, Float, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import TYPE_CHECKING
@@ -11,7 +11,8 @@ class Quote(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     speaker: Mapped[str] = mapped_column(String(500))
     content: Mapped[str] = mapped_column(String(500))
-    sentiment: Mapped[Float] = mapped_column(Float)
+    sentiment: Mapped[float] = mapped_column(Float)
+    chapter_number: Mapped[int] = mapped_column(Integer)
     novel_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("novel.id"))
     character_id: Mapped[int] = mapped_column(ForeignKey("character.id"))
     analysis_id: Mapped[int] = mapped_column(ForeignKey("analysis.id"))

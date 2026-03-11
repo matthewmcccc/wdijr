@@ -6,6 +6,7 @@ class QuoteSchemaBase(BaseModel):
     content: str
     speaker: str
     sentiment: float
+    chapter_number: int
     novel_id: uuid.UUID | None = None
 
 class QuoteSchemaCreate(QuoteSchemaBase):

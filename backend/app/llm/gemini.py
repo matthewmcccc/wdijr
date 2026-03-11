@@ -160,6 +160,7 @@ class Gemini:
         - Do NOT allude to any future happenings. Ground your summary in what occured
         in the current chapter and optionally how it may relate to prior chapters when
         it fits.
+        - Seperate paragraphs or key beats in your summary by newlines where applicable.
 
         Novel title: {novel_title}
         Chapter title: {chapter_title}

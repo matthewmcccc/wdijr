@@ -76,7 +76,7 @@ const App = () => {
           <Route path="/" element={<Home />} />
           <Route path="/graph-test" element={<GraphTest />} />
           <Route path="/plot-analysis/:novelId" element={<PlotAnalysisLanding />} />
-          <Route path="/:novelId/chapter/:chapterId" element={<ChapterAnalysis />} />
+          <Route path="/:novelId/chapter/:chapterNumber" element={<ChapterAnalysis />} />
         </Routes>
       </BookContext.Provider>
     </BrowserRouter>

@@ -14,10 +14,11 @@ from collections import defaultdict
 if __name__ == "__main__":
     book_path = Path("./app/temp/aaiw.epub")
     book = Epub(book_path)
-    chapters = book.chapters
-    chapter_items = []
-    for idx, chapter in chapters.items():
-        chapter_items.append()
+    text = book.get_full_text()
+    quotes = book.get_full_text_quotes(text)
+    er: EntityExtractor = EntityExtractor("en_core_web_trf", text)
+    associated_quotes = er.associate_text_quotes(quotes)
+    print(associated_quotes)
     # g: Gemini = Gemini()
     # response = g.chapter_summary_mass_prompt(
     #     model="gemini-2.5-flash", 
