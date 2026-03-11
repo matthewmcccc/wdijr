@@ -41,6 +41,24 @@ class Gemini:
 
         return dict(zip(character_ids, summaries))
     
+    def chapter_summary_mass_prompt(self, model, chapters, instruction, book_title: str):
+        def send_request(item):
+            ch_text, ch_idx, ch_title = item
+            additional_instruction = self.get_additional_instruction(
+                instruction=instruction,
+                novel_title=book_title,
+                chapter_title=ch_title
+            )
+            prompt = f"{additional_instruction}\n{ch_text}"
+            return self.client.models.generate_content(
+                model=model, contents=prompt
+            )
+        
+        with ThreadPoolExecutor(max_workers=len(chapters)) as executor:
+            responses = list(executor.map(send_request, chapters))
+
+        return responses
+
     def text_span_summary_mass_prompt(self, model, texts: list[str], instruction: str) -> list[str]:
         def send_request(text):
             additional_instruction = self.get_additional_instruction(instruction)

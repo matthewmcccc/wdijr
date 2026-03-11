@@ -9,6 +9,7 @@ from schemas.character import CharacterSchema
 from models.novel import Novel as NovelModel
 from models.character import Character as CharacterModel
 from models.analysis import Analysis as AnalysisModel
+from models.chapter import Chapter as ChapterModel
 from schemas.summary import SummarySchema
 from db import get_db
 
@@ -40,6 +41,7 @@ async def get_novel_data(novel_id: uuid.UUID, db: AsyncSession = Depends(get_db)
     characters = await CharacterModel.get_from_novel_id(db=db, id=novel_id)
     analysis = await AnalysisModel.get_from_novel_id(db, novel_id)
     quotes = await QuoteModel.get_from_novel_id(db, novel_id)
+    chapters = await ChapterModel.get_from_novel_id(db, novel_id)
     return {
         "novel": novel,
         "characters": characters,

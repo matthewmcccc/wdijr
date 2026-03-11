@@ -172,7 +172,7 @@ const CharacterAnalysisProfile = () => {
                                     width={550}
                                 />
                         </div>
-                        <div>
+                        {/* <div>
                             <h1 className="font-dewi text-md mb-4">
                                 Character-to-Character Sentiment
                             </h1>
@@ -195,7 +195,7 @@ const CharacterAnalysisProfile = () => {
                                                 height={350}
                                             />
                                         )}
-            </div>
+                         </div> */}
                     </div>
                 </div>
             </div>

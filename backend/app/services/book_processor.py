@@ -1,16 +1,16 @@
 import os
-from app.parsers.epub import Epub
-from app.services.celery_worker import celery_app
-from app.nlp.ner import EntityExtractor
-from app.nlp.plot_sentiment import PlotSentiment
-from app.services.task_states import TaskState
-from app.llm.gemini import Gemini   
-# from parsers.epub import Epub
-# from services.celery_worker import celery_app
-# from nlp.ner import EntityExtractor
-# from nlp.plot_sentiment import PlotSentiment
-# from services.task_states import TaskState
-# from llm.gemini import Gemini
+# from app.parsers.epub import Epub
+# from app.services.celery_worker import celery_app
+# from app.nlp.ner import EntityExtractor
+# from app.nlp.plot_sentiment import PlotSentiment
+# from app.services.task_states import TaskState
+# from app.llm.gemini import Gemini   
+from parsers.epub import Epub
+from services.celery_worker import celery_app
+from nlp.ner import EntityExtractor
+from nlp.plot_sentiment import PlotSentiment
+from services.task_states import TaskState
+from llm.gemini import Gemini
 from .db_helper import save_analysis_to_db
 
 book_path = os.path.join(os.path.dirname(__file__), "..", "temp", "aaiw.epub")
@@ -37,7 +37,7 @@ def process_epub(self, book_path) -> Epub:
             except Exception as e:
                 print(f"Failed to delete {book_path}: {str(e)}")
 
-
+# TODO: split this up a bit
 @celery_app.task(bind=True)
 def process_text(self, book_path):
     ps: PlotSentiment = PlotSentiment()
@@ -48,6 +48,7 @@ def process_text(self, book_path):
     title = book.title
     author = book.author
     cover = book.cover
+    chapters = book.chapters
 
     self.update_state(state="PROCESSING", meta={"status": "Extracting quotes..."})
 
@@ -94,8 +95,8 @@ def process_text(self, book_path):
             nw, name
         )
 
-    character_summaries = get_character_summaries(er, characters, nw, g, book.title)
-    plot_summaries = get_plot_summaries(g, summarisation_texts)
+    # character_summaries = get_character_summaries(er, characters, nw, g, book.title)
+    # plot_summaries = get_plot_summaries(g, summarisation_texts)
 
     mapping = er.persons_to_id()
 
@@ -113,7 +114,8 @@ def process_text(self, book_path):
         inflection_points=inflection_points,
         plot_summaries=[],
         has_cover=cover is not None,
-        character_to_character_sentiment=character_to_character_sentiment_dict
+        character_to_character_sentiment=character_to_character_sentiment_dict,
+        chapters=chapters
     )
 
     cover_url = book.write_cover(cover, novel_id)

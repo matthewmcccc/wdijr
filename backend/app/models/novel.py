@@ -1,11 +1,9 @@
 import uuid
+from .base import Base
 from typing import List
 from sqlalchemy import String, select, types
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import TYPE_CHECKING
-from .character import Character
-from .base import Base
 
 class Novel(Base):
     __tablename__ = "novel"
@@ -21,6 +19,7 @@ class Novel(Base):
     quotes: Mapped[List["Quote"]] = relationship(back_populates="novel")
     characters: Mapped[List["Character"]] = relationship(back_populates="novel")
     analysis: Mapped["Analysis"] = relationship(back_populates="novel")
+    chapters: Mapped[List["Chapter"]] = relationship(back_populates="novel")
 
     @classmethod
     async def get_from_id(cls, id: uuid.UUID, db: AsyncSession):
