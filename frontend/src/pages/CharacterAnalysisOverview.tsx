@@ -54,7 +54,7 @@ const CharacterAnalysisLanding = () => {
                             key={novelId}
                             id="network-graph-1" 
                             height={400}
-                            width={1500}
+                            width={1250}
                         />
                     </div>   
                 </div>

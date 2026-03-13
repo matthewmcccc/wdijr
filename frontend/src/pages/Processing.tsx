@@ -59,7 +59,6 @@ const Processing = () => {
             <Navbar />
             <div className="flex flex-col items-center justify-center pb-48 h-screen">
                 <div className="text-2xl font-serif mb-4 text-black">{status}</div>
-                <div className="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-16 w-16"></div>
             </div>
         </>
     )

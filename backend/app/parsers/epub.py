@@ -203,7 +203,7 @@ class Epub(Book):
 
                 word_count = len(quote_str.split(" "))
 
-                chapter_number = None
+                chapter_number = 0
                 for idx, item in enumerate(self.span_index):
                     if start_idx > item[0] and start_idx < item[1]:
                         chapter_number = idx
