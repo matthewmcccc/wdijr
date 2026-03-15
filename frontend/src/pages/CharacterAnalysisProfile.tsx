@@ -57,6 +57,8 @@ const CharacterAnalysisProfile = () => {
     .filter(t => (characterSentimentValues?.[currentChar]?.[t]?.length ?? 0) > 2);
     const [selectedTarget, setSelectedTarget] = useState<string>("");
 
+    console.log(`topRelationships: ${JSON.stringify(topRelationships)}`);  
+
     const cum_sen = cumulativeSentiment(currentChar, characterSentimentValues || {});
     console.log(cum_sen);
 

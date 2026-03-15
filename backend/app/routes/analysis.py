@@ -4,11 +4,11 @@ from fastapi import APIRouter, Depends, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
 from celery.result import AsyncResult
-from schemas.quote import QuoteSchema, QuoteSchemaCreate
-from schemas.analysis import AnalysisSchema, AnalysisSchemaCreate
-from models.analysis import Analysis as AnalysisModel
-from services.book_processor import process_text
-from db import get_db
+from app.schemas.quote import QuoteSchema, QuoteSchemaCreate
+from app.schemas.analysis import AnalysisSchema, AnalysisSchemaCreate
+from app.models.analysis import Analysis as AnalysisModel
+from app.services.book_processor import process_text
+from app.db import get_db
 
 router = APIRouter(prefix="/analysis", tags=["analysis"])
 

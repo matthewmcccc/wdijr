@@ -3,9 +3,9 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
 from sqlalchemy import select
-from schemas.quote import QuoteSchema, QuoteSchemaCreate
-from models.quote import Quote as QuoteModel
-from db import get_db
+from app.schemas.quote import QuoteSchema, QuoteSchemaCreate
+from app.models.quote import Quote as QuoteModel
+from app.db import get_db
 
 router = APIRouter(prefix="/quote", tags=["quote"])
 

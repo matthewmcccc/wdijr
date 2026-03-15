@@ -1,17 +1,17 @@
 import uuid
-from models.quote import Quote as QuoteModel
+from app.models.quote import Quote as QuoteModel
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
-from schemas.novel import NovelSchema, NovelSchemaCreate
-from schemas.character import CharacterSchema
-from models.novel import Novel as NovelModel
-from models.character import Character as CharacterModel
-from models.analysis import Analysis as AnalysisModel
-from models.chapter import Chapter as ChapterModel
-from schemas.summary import SummarySchema
-from db import get_db
+from app.schemas.novel import NovelSchema, NovelSchemaCreate
+from app.schemas.character import CharacterSchema
+from app.schemas.summary import SummarySchema
+from app.models.novel import Novel as NovelModel
+from app.models.character import Character as CharacterModel
+from app.models.analysis import Analysis as AnalysisModel
+from app.models.chapter import Chapter as ChapterModel
+from app.db import get_db
 
 router = APIRouter(prefix="/novel", tags=["novel"])
 

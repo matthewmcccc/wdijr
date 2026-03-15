@@ -5,12 +5,6 @@ from app.nlp.ner import EntityExtractor
 from app.nlp.plot_sentiment import PlotSentiment
 from app.services.task_states import TaskState
 from app.llm.gemini import Gemini   
-# from parsers.epub import Epub
-# from services.celery_worker import celery_app
-# from nlp.ner import EntityExtractor
-# from nlp.plot_sentiment import PlotSentiment
-# from services.task_states import TaskState
-# from llm.gemini import Gemini
 from .db_helper import save_analysis_to_db
 
 book_path = os.path.join(os.path.dirname(__file__), "..", "temp", "aaiw.epub")

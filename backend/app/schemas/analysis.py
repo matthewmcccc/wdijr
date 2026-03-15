@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from typing import List
-from schemas.quote import QuoteSchema
+from app.schemas.quote import QuoteSchema
 import uuid
 
 class AnalysisSchemaBase(BaseModel):

@@ -407,7 +407,6 @@ class EntityExtractor:
         nw_dict: dict[str, dict[str, list[dict]]], character, n=3
     ) -> list[str]:
         counts = {}
-
         for target, quotes in nw_dict[character].items():
             counts[target] = len(quotes)
         for speaker, network in nw_dict.items():

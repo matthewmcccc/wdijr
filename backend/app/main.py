@@ -1,11 +1,10 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
-from db import sessionmanager
+from app.db import sessionmanager
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.staticfiles import StaticFiles
 import os
-import models
 
 load_dotenv()
 
@@ -36,10 +35,10 @@ def init_app(init_db=True):
         allow_methods=["*"],
         allow_headers=["*"],
     )
-    from routes.novel import router as novel_router
-    from routes.character import router as character_router
-    from routes.analysis import router as analysis_router
-    from routes.quote import router as quote_router
+    from app.routes.novel import router as novel_router
+    from app.routes.character import router as character_router
+    from app.routes.analysis import router as analysis_router
+    from app.routes.quote import router as quote_router
 
     server.include_router(novel_router, prefix="/api", tags=["novel"])
     server.include_router(character_router, prefix="/api", tags=["character"])

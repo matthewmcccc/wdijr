@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
-from schemas.character import CharacterSchema, CharacterSchemaCreate
-from models.character import Character as CharacterModel
-from db import get_db
+from app.schemas.character import CharacterSchema, CharacterSchemaCreate
+from app.models.character import Character as CharacterModel
+from app.db import get_db
 
 router = APIRouter(prefix="/character", tags=["character"])
 
