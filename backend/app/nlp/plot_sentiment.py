@@ -80,17 +80,21 @@ class PlotSentiment:
         float: valence of segment)]
         """
         delta: list[(float, float)] = []
+        points = []
 
         for i in range(1, len(valence_vals)):
-            d_val = valence_vals[i] - valence_vals[i - 1]
+            d_val = valence_vals[i-1] - valence_vals[i]
             delta.append((i / (len(valence_vals) - 1), d_val))
 
         # 0.15 is a bit arbitrary, but esentially
         # its for retrieving the top 15% (roughly)
         # delta values by absolute value.
-        group = math.ceil(0.15 * len(delta))
-        delta_sorted = sorted((delta), key=lambda x: abs(x[1]), reverse=True)
-        return delta_sorted[:group]
+        # group = math.ceil(0.15 * len(delta))
+        for i, d in enumerate(delta):
+            prev = delta[max(0, i-1)][1]
+            if (prev > 0 and d[1] < 0) or (prev < 0 and d[1] > 0):
+                points.append(delta[i-1])
+        return points            
 
     @staticmethod
     def get_text_for_summarization(

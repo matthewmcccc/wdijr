@@ -14,11 +14,14 @@ from collections import defaultdict
 if __name__ == "__main__":
     book_path = Path("./app/temp/aaiw.epub")
     book = Epub(book_path)
+    words = book.get_full_text_word_list()
+    ps: PlotSentiment = PlotSentiment()
     text = book.get_full_text()
     quotes = book.get_full_text_quotes(text)
     er: EntityExtractor = EntityExtractor("en_core_web_trf", text)
     associated_quotes = er.associate_text_quotes(quotes)
-    print(associated_quotes)
+    valence_vals = ps.get_section_valence(words)
+    first_difference = ps.first_difference(valence_vals)
     # g: Gemini = Gemini()
     # response = g.chapter_summary_mass_prompt(
     #     model="gemini-2.5-flash", 

@@ -2,16 +2,16 @@ import os
 import json
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
-# from app.models.novel import Novel
-# from app.models.character import Character
-# from app.models.quote import Quote
-# from app.models.analysis import Analysis
-# from app.models.chapter import Chapter
-from models.novel import Novel
-from models.character import Character
-from models.quote import Quote
-from models.analysis import Analysis
-from models.chapter import Chapter
+from app.models.novel import Novel
+from app.models.character import Character
+from app.models.quote import Quote
+from app.models.analysis import Analysis
+from app.models.chapter import Chapter
+# from models.novel import Novel
+# from models.character import Character
+# from models.quote import Quote
+# from models.analysis import Analysis
+# from models.chapter import Chapter
 
 db_path = os.path.join(os.path.dirname(__file__), "..", "data", "app.db")
 sync_engine = create_engine(f"sqlite:///{db_path}")
