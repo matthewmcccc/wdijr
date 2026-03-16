@@ -3,7 +3,7 @@ import { use, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { BookContext } from "../contexts/bookContext";
 
-const CharacterCard = ({ name, description, traits, size }: { name: string, description: string, traits?: string[], size: string }) => {
+const CharacterCard = ({ name, description, traits, size, sentiment }: { name: string, description: string, traits?: string[], size: string, sentiment?: number }) => {
     const navigate = useNavigate();
     const novelData = useContext(BookContext)?.novelData;
     const novelId = novelData?.id;
@@ -20,8 +20,8 @@ const CharacterCard = ({ name, description, traits, size }: { name: string, desc
     }
 
     return (
-        <div onClick={() => navigate(`/character/${novelId}/${name.toLowerCase().replace(/\s+/g, '-')}`)} className={`mb-8 ${padding} border border-gray-300 rounded-lg cursor-pointer hover:shadow-sm transition-shadow duration-300`}>
-            <h2 className={`text-${textSize} font-serif mb-4`}>{name}</h2>
+        <div onClick={() => navigate(`/character/${novelId}/${name.toLowerCase().replace(/\s+/g, '-')}`)} className={`mb-8 ${padding} border border-gray-300 rounded-lg cursor-pointer hover:shadow-sm transition-shadow duration-300 ${sentiment !== undefined ? (sentiment > 0 && size == "small" ? "ring-1 ring-green-500" : sentiment < 0 && size == "small" ? "ring-1 ring-red-500" : "ring-1 ring-gray-300") : "bg-white"}`}>
+            <h2 className={`text-${textSize} font-serif mb-4 text-black`}>{name}</h2>
             <p className="mb-4">{description}</p>
             <div>
                 <ul className="list-none list-inside flex flex-row gap-4">

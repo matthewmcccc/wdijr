@@ -31,17 +31,12 @@ const CharacterAnalysisProfile = () => {
         left: Object.values(allCharacterData).find(other => other.name !== c.name && other.name.toLowerCase() < c.name.toLowerCase())?.name || "",
         right: Object.values(allCharacterData).find(other => other.name !== c.name && other.name.toLowerCase() > c.name.toLowerCase())?.name || "",
     }])) : null;
-    const topCharacterQuote = useContext(BookContext)?.topCharacterQuotes?.[humanize(characterName ?? "").toLowerCase() || ""] || [];
-    const attributedQuotes = useContext(BookContext)?.attributedQuotes?.filter(q => q.speaker.toLowerCase() === humanize(characterName ?? "").toLowerCase()) || [];
-    const networkData = useContext(BookContext)?.networkData;
     const setNetworkData = useContext(BookContext)?.setNetworkData;
     const novelId = useParams<{ novelId: string }>().novelId;
     const novelData = useContext(BookContext)?.novelData;
     const setNovelData = useContext(BookContext)?.setNovelData;
     const setCharacterData = useContext(BookContext)?.setCharacterData;
     const setTitle = useContext(BookContext)?.setTitle;
-    const associatedQuotes = useContext(BookContext)?.associatedQuotes;
-    const setAssociatedQuotes = useContext(BookContext)?.setAssociatedQuotes;
     const topRelationships = (characterData as any)?.["top_relationships"] || [];
     const topQuote = characterData ? (characterData as any).top_quote : null;
     const quoteData = useContext(BookContext)?.quoteData;
@@ -138,13 +133,14 @@ const CharacterAnalysisProfile = () => {
                                         Closely Related Characters
                                     </div>
                                     <hr className="my-2 text-gray-300"/>
-                                    {topRelationships.map(([relatedCharacter, _strength], index) => (
+                                    {topRelationships.map(([relatedCharacter, _strength, sentiment], index) => (
                                         <CharacterCard 
                                             key={index}
                                             name={humanize(relatedCharacter)}
                                             description={""}
                                             traits={characterData?.traits || []}
                                             size={"small"}
+                                            sentiment={sentiment}
                                         />
                                     ))}
                                 </div>

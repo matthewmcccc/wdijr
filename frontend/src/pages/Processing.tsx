@@ -58,7 +58,7 @@ const Processing = () => {
         <>
             <Navbar />
             <div className="flex flex-col items-center justify-center pb-48 h-screen">
-                <div className="text-2xl font-serif mb-4 text-black">{status}</div>
+                <div className="text-3xl font-serif mb-4 text-black shimmer">{status}</div>
             </div>
         </>
     )

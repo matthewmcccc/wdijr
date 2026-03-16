@@ -236,9 +236,9 @@ class Epub(Book):
         return None
     
     def write_cover(self, cover, novelId) -> str:
-        os.makedirs(f"../../data/{novelId}/covers", exist_ok=True)
+        os.makedirs(f"../data/{novelId}/covers", exist_ok=True)
         content = cover.get_content()
-        cover_url = f"../../data/{novelId}/covers/cover.jpg"
+        cover_url = f"../data/{novelId}/covers/cover.jpg"
         with open(cover_url, "wb") as f:
             f.write(content)
         return cover_url

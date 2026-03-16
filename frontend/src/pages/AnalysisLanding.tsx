@@ -6,6 +6,7 @@ import GraphImage from "../assets/img/chart.png"
 import getAllNovelData from "../utils/getAllNovelData";
 import { BookContext } from "../contexts/bookContext";
 import fetchNovelData from "../utils/fetchNovelData";
+import BookCard from "../components/BookCard";
 
 interface AnalysisProps {
     text_title: string
@@ -26,6 +27,8 @@ const AnalysisLanding = () => {
     const setNovelData = bookContext?.setNovelData;
     const setCharacterSentimentValues = bookContext?.setCharacterSentimentValues;
     const setChapterData = bookContext?.setChapterData;
+    const coverUrl = bookContext?.coverUrl;
+    const novelData = bookContext?.novelData;
 
     useEffect(() => {   
         const fetchData = async () => {
@@ -36,27 +39,37 @@ const AnalysisLanding = () => {
         fetchData();
     }, [novelId, setCharacterData, setTitle, setNetworkData, setQuoteData, setSentimentValues, setInflectionPoints, setPlotSummaries, setCoverUrl, setNovelData, setCharacterSentimentValues, setChapterData]);
 
+    const author = novelData?.author || "Unknown Author";
 
     return (
         <div className="">
             <Navbar />
-                <div className="mt-20 flex flex-col gap-12 justify-center">
-                    <div className="font-serif text-3xl text-center underline flex items-center flex-col">
-                        {title}
-                    </div>
-                    <div className="flex flex-row gap-12 justify-center">
+                <div className="mt-20 flex flex-col gap-14 justify-center">
+                    <BookCard 
+                        title={title}
+                        author={author} 
+                        coverUrl={coverUrl || ""} 
+                        description="Alice's Adventures in Wonderland (1865) is a novel by Lewis Carroll, the pen name of Oxford mathematician Charles Lutwidge Dodgson. It follows young Alice as she falls down a rabbit hole into a fantastical underground world populated by eccentric characters — the Cheshire Cat, the Mad Hatter, the Queen of Hearts — and navigates a series of absurd encounters that play with logic, language, and the conventions of Victorian society. Originally written to entertain Alice Liddell, the daughter of a colleague, the book became one of the most influential works of literary nonsense and remains widely read across all ages."
+                    />
+                    <div className="flex flex-col gap-12 mb-20">
                         <AnalysisItem 
-                            analysis_type="Character Analysis" 
+                            analysis_type="Characters" 
                             img={GraphImage} 
                             url={`/character-analysis/${novelId}`} 
                             description="View a list of characters and their details, as well as interactive
                             visualisations."
                         />
                         <AnalysisItem 
-                            analysis_type="Plot Analysis" 
+                            analysis_type="Plot" 
                             img={GraphImage} 
                             url={`/plot-analysis/${novelId}`} 
                             description="View a detailed analysis of the plot, including key events and their impact on the story."
+                        />
+                        <AnalysisItem 
+                            analysis_type="Miscellany" 
+                            img={GraphImage} 
+                            url={`/miscellany-analysis/${novelId}`} 
+                            description="View a collection of miscellaneous analyses, including character interactions, thematic elements, and other insights."
                         />
                     </div>
                 </div>

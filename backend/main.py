@@ -12,41 +12,20 @@ from PIL import Image
 from collections import defaultdict
 
 if __name__ == "__main__":
-    book_path = Path("./app/temp/aaiw.epub")
+    book_path = Path("./app/temp/wh.epub")
     book = Epub(book_path)
-    words = book.get_full_text_word_list()
-    ps: PlotSentiment = PlotSentiment()
     text = book.get_full_text()
     quotes = book.get_full_text_quotes(text)
+
     er: EntityExtractor = EntityExtractor("en_core_web_trf", text)
     associated_quotes = er.associate_text_quotes(quotes)
-    valence_vals = ps.get_section_valence(words)
-    first_difference = ps.first_difference(valence_vals)
-    # g: Gemini = Gemini()
-    # response = g.chapter_summary_mass_prompt(
-    #     model="gemini-2.5-flash", 
-    #     chapters=chapter_items,
-    #     instruction="chapter_summary",
-    #     book_title=book.title,
-    # )
-    # print(response)
+    nw_dict = er.build_conversational_network(associated_quotes)
+    characters = er.get_persons_from_text()
 
-# just putting this here so i can remove from main
-def get_character_summaries_from_gemini():
-    associated_quotes_obj_list = {}
-    for character in ("heathcliff", "catherine", "edgar", "isabella linton", "hindley"):
-        character_quotes = er.get_character_quotes(
-            nw_dict=nw_dict,
-            character=str(character),
-            n=20,
-            sentiment_descending=True,
-            sentiment_boundary=0.0,
-            length_descending=True,
-            min_quote_len=10,
+    for character in characters:
+        top_relationships = er.get_top_relationships(
+            nw_dict,
+            str(character),
+            3
         )
-        associated_quotes_obj_list[character.items()] = character_quotes
-    character_summaries = {}
-    for character, quotes in associated_quotes_obj_list.items():
-        character_quotes = [q["quote"] for q in quotes]
-        res = g.prompt("gemini-2.5-flash", "\n".join(character_quotes), "character_summary", character, "Wuthering Heights")
-        character_summaries[character] = res
+        print(top_relationships)
