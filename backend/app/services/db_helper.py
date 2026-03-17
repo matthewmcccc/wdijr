@@ -74,16 +74,27 @@ def save_analysis_to_db(title: str, author: str, characters: list, quotes: list,
                 chapter_number=ch_number
             ))
 
+        print(f"DEBUG chapter_summaries type: {type(chapter_summaries)}")
+        print(f"DEBUG chapter_summaries keys: {list(chapter_summaries.keys()) if isinstance(chapter_summaries, dict) else 'NOT A DICT'}")
+        for k, v in chapter_summaries.items():
+            print(f"DEBUG ch[{k}]: type={type(v)}, empty={not bool(v.strip() if isinstance(v, str) else v)}, first50={repr(v[:50]) if isinstance(v, str) else repr(v)}")
         for idx, chapter in chapters.items():
-            chapter_summary = chapter_summaries[idx]
             try:
+                chapter_summary = chapter_summaries[idx]
                 if isinstance(chapter_summary, str):
-                    if not chapter_summary.strip().startswith("{"):
-                        chapter_summary = "{" + chapter_summary
-                    if not chapter_summary.strip().endswith("}"):
-                        chapter_summary = chapter_summary + "}"
-                    chapter_summary = json.loads(chapter_summary)
-            except (json.JSONDecodeError, Exception):
+                    chapter_summary = chapter_summary.strip()
+                    if chapter_summary.startswith("```"):
+                        chapter_summary = chapter_summary.split("\n", 1)[-1]
+                    if chapter_summary.endswith("```"):
+                        chapter_summary = chapter_summary.rsplit("```", 1)[0]
+                    chapter_summary = chapter_summary.strip()
+                    try:
+                        chapter_summary = json.loads(chapter_summary, strict=False)
+                    except json.JSONDecodeError as e:
+                        print(f"JSON PARSE FAILED ch[{idx}]: {e}")
+                        print(f"RAW (first 200): {repr(chapter_summary[:200])}")
+                        chapter_summary = {"summary": "", "overview": ""}
+            except json.JSONDecodeError:
                 chapter_summary = {"summary": "", "overview": ""}
 
             session.add(Chapter(

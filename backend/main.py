@@ -12,20 +12,15 @@ from PIL import Image
 from collections import defaultdict
 
 if __name__ == "__main__":
-    book_path = Path("./app/temp/wh.epub")
+    book_path = Path("./app/temp/aaiw.epub")
     book = Epub(book_path)
     text = book.get_full_text()
     quotes = book.get_full_text_quotes(text)
 
     er: EntityExtractor = EntityExtractor("en_core_web_trf", text)
     associated_quotes = er.associate_text_quotes(quotes)
-    nw_dict = er.build_conversational_network(associated_quotes)
-    characters = er.get_persons_from_text()
-
-    for character in characters:
-        top_relationships = er.get_top_relationships(
-            nw_dict,
-            str(character),
-            3
-        )
-        print(top_relationships)
+    chapter_associated_quotes = er.get_associated_quotes_by_chapter(associated_quotes)
+    chapters_conversational_network = defaultdict(dict)
+    for idx, chapter_quotes in chapter_associated_quotes.items():
+        chapters_conversational_network[idx] = er.build_conversational_network(chapter_quotes)
+    print(chapters_conversational_network)

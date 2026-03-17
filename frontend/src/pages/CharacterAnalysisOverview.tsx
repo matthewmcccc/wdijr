@@ -9,6 +9,7 @@ import humanize from "../utils/humanize";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import fetchNovelData from "../utils/fetchNovelData";
+import SideCharacterCard from "../components/SideCharacterCard";
 
 const CharacterAnalysisLanding = () => {
     const characterData = useContext(BookContext)?.characterData;
@@ -22,6 +23,7 @@ const CharacterAnalysisLanding = () => {
     const setNovelData = bookContext?.setNovelData;
     const setAssociatedQuotes = bookContext?.setAssociatedQuotes;
     const associatedQuotes = bookContext?.associatedQuotes;
+    const [showSideCard, setShowSideCard] = useState(false);
 
     useEffect(() => {
         const fetchCharacterData = async () => {
@@ -45,17 +47,33 @@ const CharacterAnalysisLanding = () => {
                     characters, and their sentiment arc throughout the novel. The social network graph below shows the relationships between the characters of the novel.
                 </p>
             </div>
-            <hr className="border-gray-300 my-4"/>
+            <hr className="border-gray-300 my-4 w-full"/>
             <div className="flex flex-col gap-12 mt-4">
                 <div className="flex flex-row">
                     <div className="flex flex-col gap-2">
                         <h1 className="font-dewi">Social Network Graph</h1>
-                        <NetworkGraph 
-                            key={novelId}
-                            id="network-graph-1" 
-                            height={400}
-                            width={1250}
-                        />
+                        <div className="flex flex-row gap-4 w-full">
+                            <NetworkGraph 
+                                key={novelId}
+                                id="network-graph-1" 
+                                height={400}
+                                width={1150}
+                                onNodeHover={(node) => {
+                                    const key = Object.keys(characterData).find(
+                                        k => characterData[k].name?.toLowerCase() === node.id
+                                    );
+                                    setShowSideCard(key || null);
+                                }}
+                            />
+                            {showSideCard && characterData?.[showSideCard] && (
+                                console.log(characterData[showSideCard]),
+                                <SideCharacterCard
+                                    name={characterData[showSideCard].name}
+                                    description={characterData[showSideCard].description}
+                                    top_relationships={characterData[showSideCard].top_relationships}
+                                />
+                            )}
+                        </div>
                     </div>   
                 </div>
                 <div className="flex flex-col gap-4">
@@ -67,7 +85,7 @@ const CharacterAnalysisLanding = () => {
                     {
                         characterData && Object.entries(characterData).map(([id, data]) => (
                             <Fragment key={id}>
-                            {(!data.name) ? "" : null}
+                                {(!data.name) ? "" : null}
                                 <CharacterCard 
                                     name={humanize(data.name)}
                                     description={data.description ?? "No description available."}

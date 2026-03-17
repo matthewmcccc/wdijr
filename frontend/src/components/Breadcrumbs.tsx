@@ -1,4 +1,9 @@
+import { useContext } from "react";
+import { BookContext } from "../contexts/bookContext";
+
 const Breadcrumbs = ({ items }: { items: { label: string; url?: string }[] }) => {
+    const novelData = useContext(BookContext)?.novelData;
+
     return (
         <div className="mb-8">
             <nav className="text-sm font-dewi text-gray-500 mb-4 rounded-md border-gray-400

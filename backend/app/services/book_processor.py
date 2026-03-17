@@ -154,17 +154,17 @@ def get_character_summaries(er: EntityExtractor, characters: list[dict], nw_dict
     )
     return character_summaries
 
-def get_chapter_summaries(g: Gemini, chapters, book_title: str, book: Epub):
+def get_chapter_summaries(g: Gemini, chapters, book_title, book):
     chapter_items = []
+    idx_order = []
     for idx, chapter in chapters.items():
         chapter_items.append((book.get_chapter_text(idx), idx, chapter.title))
-    chapter_summaries = g.chapter_summary_mass_prompt(
-        "gemini-2.5-flash",
-        chapter_items,
-        "chapter_summary",
-        book_title
+        idx_order.append(idx)
+    responses = g.chapter_summary_mass_prompt(
+        "gemini-2.5-flash", chapter_items, "chapter_summary", book_title
     )
-    return chapter_summaries
+    return dict(responses)
+
 
 def get_plot_summaries(g: Gemini, summarisation_texts: list[str]):
     plot_summaries = g.text_span_summary_mass_prompt(

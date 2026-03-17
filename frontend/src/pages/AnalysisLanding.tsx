@@ -7,6 +7,7 @@ import getAllNovelData from "../utils/getAllNovelData";
 import { BookContext } from "../contexts/bookContext";
 import fetchNovelData from "../utils/fetchNovelData";
 import BookCard from "../components/BookCard";
+import Breadcrumbs from "../components/Breadcrumbs";
 
 interface AnalysisProps {
     text_title: string
@@ -42,9 +43,10 @@ const AnalysisLanding = () => {
     const author = novelData?.author || "Unknown Author";
 
     return (
-        <div className="">
+        <div className="container mx-auto px-4 py-8">
             <Navbar />
-                <div className="mt-20 flex flex-col gap-14 justify-center">
+                {/* <Breadcrumbs items={[{ label: "Analysis", url: `/analysis/${novelId}` }]} /> */}
+                <div className="mt-12 flex flex-col gap-14 justify-center">
                     <BookCard 
                         title={title}
                         author={author} 

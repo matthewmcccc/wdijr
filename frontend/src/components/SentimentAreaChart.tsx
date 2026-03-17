@@ -47,13 +47,11 @@ const createAreaChart = (containerId: string, valenceData: number[], width: numb
         .y1(d => y(d))
         .curve(d3.curveMonotoneX);
 
-    // Positive (green) area
     svg.append('path')
         .datum(valenceData.map(d => d >= 0 ? d : 0))
         .attr('fill', 'rgba(34, 197, 94, 0.6)')
         .attr('d', area);
 
-    // Negative (red) area — use absolute value
     svg.append('path')
         .datum(valenceData.map(d => d < 0 ? Math.abs(d) : 0))
         .attr('fill', 'rgba(239, 68, 68, 0.6)')

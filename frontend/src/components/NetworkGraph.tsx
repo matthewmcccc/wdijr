@@ -10,10 +10,11 @@ const getColor = (group: number): string => {
     return colors[group] || "#999";
 };
 
-
-const createNetworkGraph = (data: any, containerId: string, height: number = 400, width: number = 600) => {
+const createNetworkGraph = (data: any, containerId: string, height: number = 400, width: number = 600, onNodeHover?: (node: any) => void, showSideCard?: boolean, setShowSideCard?: (node: any) => void) => {
     const links = data.links.map((d: any) => Object.create(d));
     const nodes = data.nodes.map((d: any) => Object.create(d));
+
+    console.log(showSideCard);
 
     const connectedNodes = new Set();
     links.forEach((d: any) => {
@@ -88,18 +89,28 @@ const createNetworkGraph = (data: any, containerId: string, height: number = 400
         .attr("opacity", (d: any) => connectedNodes.has(d.id) ? 1 : 0.4)
         .attr("fill", (d: any) => getColor(d.group))
 
-    node.on("click", (event: any, clickedNode: any) => {
-        const connectedNodeIds = new Set([clickedNode.id]);
+    node.on("mouseenter", (event: any, hoveredNode: any) => {
+        const connectedNodeIds = new Set([hoveredNode.id]);
         links.forEach((l: any) => {
-            if (l.source.id === clickedNode.id) connectedNodeIds.add(l.target.id);
-            if (l.target.id === clickedNode.id) connectedNodeIds.add(l.source.id);
+            if (l.source.id === hoveredNode.id) connectedNodeIds.add(l.target.id);
+            if (l.target.id === hoveredNode.id) connectedNodeIds.add(l.source.id);
         });
-
-        node.attr("opacity", (d: any) => connectedNodeIds.has(d.id) ? 1 : 0.1);
+        
+        node.attr("opacity", (d: any) => connectedNodeIds.has(d.id) ? 1 : 0.4);
         link.attr("opacity", (d: any) =>
-            d.source.id === clickedNode.id || d.target.id === clickedNode.id ? 1 : 0.1
+            d.source.id === hoveredNode.id || d.target.id === hoveredNode.id ? 0.9 : 0.4
         );
-        labels.attr("opacity", (d: any) => connectedNodeIds.has(d.id) ? 1 : 0.1);
+        labels.attr("opacity", (d: any) => connectedNodeIds.has(d.id) ? 1 : 0.4);
+    })
+    .on("mouseleave", () => {
+        node.attr("opacity", (d: any) => connectedNodes.has(d.id) ? 1 : 0.4);
+        link.attr("opacity", 0.7);
+        labels.attr("opacity", 1);
+    });
+
+    node.on("click", (event: any, d: any) => {
+        event.stopPropagation();
+        onNodeHover?.(d);
     });
 
     svg.on("click", (event: any) => {
@@ -123,19 +134,19 @@ const createNetworkGraph = (data: any, containerId: string, height: number = 400
         .text((d: any) => d.id.split(' ').map((w: string) => 
             w.charAt(0).toUpperCase() + w.slice(1)).join(' '));
 
-    simulation.stop();
-    for (let i = 0; i< 300; ++i) simulation.tick();
-    link
-        .attr("x1", (d: any) => d.source.x)
-        .attr("y1", (d: any) => d.source.y)
-        .attr("x2", (d: any) => d.target.x)
-        .attr("y2", (d: any) => d.target.y);
-    node
-        .attr("cx", (d: any) => d.x)
-        .attr("cy", (d: any) => d.y);
-    labels
-        .attr("x", (d: any) => d.x)
-        .attr("y", (d: any) => d.y);
+    simulation.on("tick", () => {
+        link
+            .attr("x1", (d: any) => d.source.x)
+            .attr("y1", (d: any) => d.source.y)
+            .attr("x2", (d: any) => d.target.x)
+            .attr("y2", (d: any) => d.target.y);
+        node
+            .attr("cx", (d: any) => d.x)
+            .attr("cy", (d: any) => d.y);
+        labels
+            .attr("x", (d: any) => d.x)
+            .attr("y", (d: any) => d.y);
+    });
 
     const legend = svg.append("g")
         .attr("class", "legend")
@@ -217,9 +228,12 @@ interface NetworkGraphProps {
     filterCharacter?: string;
     height?: number;
     width?: number;
+    onNodeHover?: (node: any) => void;
+    showSideCard?: boolean;
+    setShowSideCard?: (node: any) => void;
 }
 
-const NetworkGraph = ({ id = "network-graph", filterCharacter, height = 400, width = 400 }: NetworkGraphProps) => {
+const NetworkGraph = ({ id = "network-graph", filterCharacter, height = 400, width = 400, onNodeHover, showSideCard, setShowSideCard }: NetworkGraphProps) => {
     const networkData = useContext(BookContext)?.networkData;
     const characterData = useContext(BookContext)?.characterData;
 
@@ -255,7 +269,7 @@ const NetworkGraph = ({ id = "network-graph", filterCharacter, height = 400, wid
         : data;
 
     useEffect(() => {
-        createNetworkGraph(filteredData, id, height, width);
+        createNetworkGraph(filteredData, id, height, width, onNodeHover, showSideCard, setShowSideCard);
         return () => {
             d3.select(`#${id}`).selectAll("*").remove();
         };

@@ -84,6 +84,10 @@ const CharacterAnalysisProfile = () => {
         }
     }, [targetOptions]);
 
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, [])
+
     const characterQuotes = quoteData
         ? Object.values(quoteData).filter((q: any) => q.speaker?.toLowerCase() === humanize(characterName ?? "").toLowerCase())
         : [];

@@ -1,6 +1,7 @@
 import os
 import time
 from google import genai
+from google.genai import types
 from dotenv import load_dotenv
 from concurrent.futures import ThreadPoolExecutor
 
@@ -33,7 +34,19 @@ class Gemini:
             quotes_text = "\n".join(q["quote"] for q in associated_quotes[id])
             prompt = f"{additional_instruction}\n\nCharacter: {name}\nID: {id}\nBook: {book_title}\n\nQuotes:\n{quotes_text}"
             return self.client.models.generate_content(
-                model=model, contents=prompt
+                model=model,
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    response_mime_type="application/json",
+                    response_schema={
+                        "type": "OBJECT",
+                        "properties": {
+                            "summary": {"type": "string"},
+                            "description": {"type": "string"},
+                        },
+                        "required": ["summary", "description"]
+                    }
+                )
             ).candidates[0].content.parts[0].text
 
         with ThreadPoolExecutor(max_workers=len(characters)) as executor:
@@ -50,10 +63,29 @@ class Gemini:
                 chapter_title=ch_title
             )
             prompt = f"{additional_instruction}\n{ch_text}"
-            return self.client.models.generate_content(
-                model=model, contents=prompt
-            ).candidates[0].content.parts[0].text
-        
+            try:
+                response = self.client.models.generate_content(
+                    model=model,
+                    contents=prompt,
+                    config=types.GenerateContentConfig(
+                        response_mime_type="application/json",
+                        response_schema={
+                            "type": "OBJECT",
+                            "properties": {
+                                "summary": {"type": "STRING"},
+                                "overview": {"type": "STRING"},
+                            },
+                            "required": ["summary", "overview"]
+                        }
+                    )
+                ).candidates[0].content.parts[0].text
+                if not response.strip():
+                    print(f"WARNING: Empty response for chapter {ch_idx} ({ch_title})")
+                return (ch_idx, response)
+            except Exception as e:
+                print(f"ERROR: Chapter {ch_idx} ({ch_title}) failed: {e}")
+                return (ch_idx, "")
+            
         with ThreadPoolExecutor(max_workers=len(chapters)) as executor:
             responses = list(executor.map(send_request, chapters))
 

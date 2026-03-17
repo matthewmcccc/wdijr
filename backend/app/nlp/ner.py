@@ -17,11 +17,9 @@ ALLOWED_CHARACTER_DIFF = 1500
 POST_SPAN_WINDOW = 3
 PRIOR_SPAN_WINDOW = 10
 
-
 class QuoteInfo(TypedDict):
     quotes: list[str]
     quote_count: int
-
 
 class EntityExtractor:
     def __init__(self, model: str, text: str):
@@ -222,6 +220,21 @@ class EntityExtractor:
                 if re.search(r"\b" + re.escape(name_lower) + r"\b", context_str):
                     return True
         return False
+    
+    @staticmethod
+    def get_associated_quotes_by_chapter(associated_quotes: dict) -> dict:
+        """
+        Index associated quotes by chapter. For building chapter by chapter
+        conversational network.
+
+        :param associated_quotes: Associated quotes dictionary for entire text
+        :type associated_quotes: dict
+        """
+        chapter_associated_quotes = defaultdict(list)
+        for quote in associated_quotes:
+            chapter_number = int(quote["chapter_number"])
+            chapter_associated_quotes[chapter_number].append(quote)
+        return chapter_associated_quotes
 
     # TODO: write a TypedDict class for this return type...
     def build_conversational_network(

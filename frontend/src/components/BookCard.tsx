@@ -1,6 +1,6 @@
 const BookCard = ({ title, author, coverUrl, description }) => {
     return (
-        <div className="w-3/4 font-serif mx-auto flex items-top flex-row gap-4">
+        <div className="font-serif mx-auto flex items-top flex-row gap-4">
             <img src={coverUrl} alt="Cover Image" className="w-48 mb-2 border-2 border-gray-300 rounded-md p-2" />
             <div className="mt-2">
                 <h1 className="text-4xl">{title}</h1>
