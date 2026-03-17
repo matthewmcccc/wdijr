@@ -22,14 +22,33 @@ const CharacterAnalysisLanding = () => {
     const setNetworkData = bookContext?.setNetworkData;
     const setNovelData = bookContext?.setNovelData;
     const setAssociatedQuotes = bookContext?.setAssociatedQuotes;
+    const setPlotSummaries = bookContext?.setPlotSummaries;
+    const setSentimentValues = bookContext?.setSentimentValues;
+    const setInflectionPoints = bookContext?.setInflectionPoints;
+    const setCoverUrl = bookContext?.setCoverUrl;
+    const setCharacterSentimentValues = bookContext?.setCharacterSentimentValues;
+    const setChapterData = bookContext?.setChapterData;
+    const chapterData = bookContext?.chapterData || [];
     const associatedQuotes = bookContext?.associatedQuotes;
+    const setChapterNetworkData = bookContext?.setChapterNetworkData;
+    const chapterNetworkData = bookContext?.chapterNetworkData;
     const [showSideCard, setShowSideCard] = useState(false);
+
+    const maxChapter = chapterData.length > 0 ? chapterData.length - 1 : 0;
+    const allValue = maxChapter + 1;
+    const [sliderValue, setSliderValue] = useState<number>(allValue);
+
+    const selectedChapter = sliderValue === 0 ? null : sliderValue - 1;
+
+    useEffect(() => {
+        setSliderValue(0);
+    }, [chapterData.length]);
 
     useEffect(() => {
         const fetchCharacterData = async () => {
             if (!novelData || novelData.id !== novelId) {
-                if (setNovelData && setCharacterData && setNetworkData && setTitle && setAssociatedQuotes) {
-                    await fetchNovelData(novelId ?? "", setNovelData, setCharacterData, setNetworkData, setTitle, setAssociatedQuotes);
+                if (setNovelData && setCharacterData && setNetworkData && setTitle && setAssociatedQuotes && setChapterNetworkData) {
+                    await fetchNovelData(novelId ?? "", setNovelData, setCharacterData, setNetworkData, setTitle, setAssociatedQuotes, setPlotSummaries, setSentimentValues, setInflectionPoints, setCoverUrl, setCharacterSentimentValues, setChapterData, setChapterNetworkData);
                 }
             }
         };
@@ -54,10 +73,12 @@ const CharacterAnalysisLanding = () => {
                         <h1 className="font-dewi">Social Network Graph</h1>
                         <div className="flex flex-row gap-4 w-full">
                             <NetworkGraph 
-                                key={novelId}
+                                key={`${novelId}-${selectedChapter}`}
                                 id="network-graph-1" 
                                 height={400}
-                                width={1150}
+                                width={1250}
+                                selectedChapter={selectedChapter}
+                                chapterNetworkData={chapterNetworkData}
                                 onNodeHover={(node) => {
                                     const key = Object.keys(characterData).find(
                                         k => characterData[k].name?.toLowerCase() === node.id
@@ -73,6 +94,48 @@ const CharacterAnalysisLanding = () => {
                                     top_relationships={characterData[showSideCard].top_relationships}
                                 />
                             )}
+                        </div>
+                        <div className="flex flex-col items-center w-full mt-2">
+                            <span className="text-sm text-gray-500 font-dewi mb-2">
+                                {selectedChapter === null 
+                                    ? "Showing full network" 
+                                    : `${chapterData[selectedChapter]?.title || ""}`
+                                }
+                            </span>
+                            <input 
+                                type="range" 
+                                min={0} 
+                                max={allValue} 
+                                step={1} 
+                                value={sliderValue}
+                                onChange={(e) => setSliderValue(Number(e.target.value))}
+                                className="w-3/4" 
+                            />
+                            <div className="flex justify-between w-3/4 mt-1">
+                              <span 
+                                    className={`text-xs cursor-pointer ${
+                                        selectedChapter === null
+                                            ? "text-gray-700 font-medium" 
+                                            : "text-gray-400"
+                                    }`}
+                                    onClick={() => setSliderValue(0)}
+                                >
+                                    All
+                                </span>
+                                {chapterData.map((_chapter, index) => (
+                                    <span 
+                                        key={index} 
+                                        className={`text-xs cursor-pointer ${
+                                            selectedChapter !== null && index <= selectedChapter
+                                                ? "text-gray-700 font-medium" 
+                                                : "text-gray-400"
+                                        }`}
+                                        onClick={() => setSliderValue(index + 1)}
+                                    >
+                                        {index + 1}
+                                    </span>
+                                ))}
+                            </div>
                         </div>
                     </div>   
                 </div>

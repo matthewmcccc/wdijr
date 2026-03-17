@@ -22,6 +22,8 @@ const Processing = () => {
     const setCoverUrl = useContext(BookContext)?.setCoverUrl;
     const setCharacterSentimentValues = useContext(BookContext)?.setCharacterSentimentValues;
     const navigate = useNavigate();
+    const chapterNetworkData = useContext(BookContext)?.chapterNetworkData;
+    const setChapterNetworkData = useContext(BookContext)?.setChapterNetworkData;
 
     useEffect(() => {
         if (done) return;
@@ -41,6 +43,7 @@ const Processing = () => {
                 setPlotSummaries?.(data.data.data.plot_summaries); 
                 setCoverUrl?.(data.data.data.cover_url);
                 setCharacterSentimentValues?.(data.data.data.character_sentiment);
+                setChapterNetworkData?.(data.data.data.chapter_network);
                 setDone(true);
             }
         }, 2000);

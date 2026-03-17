@@ -25,4 +25,7 @@ if __name__ == "__main__":
         chapters_conversational_network[idx] = er.build_conversational_network(
             chapter_quotes
         )
-    print(chapters_conversational_network)
+    chapter_nw_nodes = defaultdict(dict)
+    for idx, nw in chapters_conversational_network.items():
+        chapter_nw_nodes[idx] = er.get_nodes_from_network_dict(nw)
+    print(chapter_nw_nodes)

@@ -28,6 +28,7 @@ def save_analysis_to_db(
     character_to_character_sentiment,
     chapters,
     chapter_summaries,
+    chapter_conversational_networks,
     has_cover=False,
 ):
     with Session(sync_engine) as session:
@@ -71,6 +72,7 @@ def save_analysis_to_db(
             inflection_points=inflection_points,
             plot_summaries=plot_summaries,
             character_sentiment=character_to_character_sentiment,
+            chapter_networks=chapter_conversational_networks
         )
 
         session.add(analysis)

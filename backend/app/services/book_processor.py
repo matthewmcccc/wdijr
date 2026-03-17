@@ -97,10 +97,11 @@ def process_text(self, book_path):
         top_relationships_dict[name] = er.get_top_relationships(nw, name)
         top_quotes[name] = er.get_character_quotes(nw, name)
 
-    chapter_conversational_networks = get_chapter_networks(er, associated_quotes)
     character_summaries = get_character_summaries(er, characters, nw, g, book.title)
     plot_summaries = get_plot_summaries(g, summarisation_texts)
     chapter_summaries = get_chapter_summaries(g, chapters, title, book)
+    chapter_conversational_networks = get_chapter_networks(er, associated_quotes)
+    chapter_nw_nodes = get_chapter_network_nodes(er, chapter_conversational_networks)
 
     mapping = er.persons_to_id()
 
@@ -120,6 +121,7 @@ def process_text(self, book_path):
         has_cover=cover is not None,
         character_to_character_sentiment=character_to_character_sentiment_dict,
         chapters=chapters,
+        chapter_conversational_networks=chapter_nw_nodes,
         chapter_summaries=chapter_summaries,
     )
 
@@ -137,6 +139,7 @@ def process_text(self, book_path):
         "plot_summaries": {},
         "cover_url": cover_url,
         "character_sentiment": character_to_character_sentiment_dict,
+        "chapter_network": chapter_nw_nodes,
     }
 
 
@@ -149,6 +152,12 @@ def get_chapter_networks(er: EntityExtractor, associated_quotes):
         )
     return chapter_conversational_networks
 
+
+def get_chapter_network_nodes(er: EntityExtractor, chapter_networks: dict) -> dict:
+    chapter_network_nodes = defaultdict(dict)
+    for idx, nw in chapter_networks.items():
+        chapter_network_nodes[idx] = er.get_nodes_from_network_dict(nw)
+    return chapter_network_nodes
 
 def get_character_summaries(
     er: EntityExtractor, characters: list[dict], nw_dict, g: Gemini, title

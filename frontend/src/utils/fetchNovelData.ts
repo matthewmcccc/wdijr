@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const fetchNovelData = async (novelId: string, setNovelData: (data: any) => void, setCharacterData: (data: any) => void, setNetworkData: (data: any) => void, setTitle: (title: string) => void, setQuoteData: (data: any) => void, setPlotSummaries: (data: any) => void, setSentimentValues: (data: any) => void, setInflectionPoints: (data: any) => void, setCoverUrl: (url: string) => void, setCharacterSentimentValues: (data: any) => void, setChapterData: (data: any) => void) => {
+const fetchNovelData = async (novelId: string, setNovelData: (data: any) => void, setCharacterData: (data: any) => void, setNetworkData: (data: any) => void, setTitle: (title: string) => void, setQuoteData: (data: any) => void, setPlotSummaries: (data: any) => void, setSentimentValues: (data: any) => void, setInflectionPoints: (data: any) => void, setCoverUrl: (url: string) => void, setCharacterSentimentValues: (data: any) => void, setChapterData: (data: any) => void, setChapterNetworkData: (data: any) => void) => {
     try {
         const result = await axios(`${import.meta.env.VITE_API_URL}/novel/${novelId}/data`);
         const data = result.data;
@@ -16,6 +16,7 @@ const fetchNovelData = async (novelId: string, setNovelData: (data: any) => void
             setCoverUrl?.(`${import.meta.env.VITE_API_URL.replace('/api', '')}${data.novel.cover_url}`);
             setCharacterSentimentValues?.(data.analysis.character_sentiment);
             setChapterData?.(data.chapters);
+            setChapterNetworkData?.(data.analysis.chapter_networks);
         } else {
             console.error("No characters field in response:", data);
         }

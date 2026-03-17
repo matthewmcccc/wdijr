@@ -1,8 +1,6 @@
 import * as d3 from "d3"
-import { use, useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useContext, useEffect } from "react";
 import { BookContext } from "../contexts/bookContext";
-import buildNameMap from "../utils/buildNameMap";
 
 
 const getColor = (group: number): string => {
@@ -10,11 +8,41 @@ const getColor = (group: number): string => {
     return colors[group] || "#999";
 };
 
-const createNetworkGraph = (data: any, containerId: string, height: number = 400, width: number = 600, onNodeHover?: (node: any) => void, showSideCard?: boolean, setShowSideCard?: (node: any) => void) => {
+const mergeChapterNetworks = (chapterNetworkData: Record<string, { nodes: any[], links: any[] }>, upToChapter: number) => {
+    const nodeMap = new Map();
+    const edgeMap = new Map();
+
+    for (let i = 0; i <= upToChapter; i++) {
+        const chapter = chapterNetworkData[String(i)];
+        if (!chapter) continue;
+
+        chapter.nodes.forEach((n: any) => {
+            if (!nodeMap.has(n.id)) {
+                nodeMap.set(n.id, { ...n });
+            }
+        });
+
+        chapter.links.forEach((l: any) => {
+            const key = [l.source, l.target].sort().join("--");
+            if (edgeMap.has(key)) {
+                edgeMap.get(key).value += l.value;
+            } else {
+                edgeMap.set(key, { ...l });
+            }
+        });
+    }
+
+    return {
+        nodes: Array.from(nodeMap.values()),
+        links: Array.from(edgeMap.values()),
+    };
+};
+
+const createNetworkGraph = (data: any, containerId: string, height: number = 400, width: number = 600, onNodeHover?: (node: any) => void) => {
     const links = data.links.map((d: any) => Object.create(d));
     const nodes = data.nodes.map((d: any) => Object.create(d));
 
-    console.log(showSideCard);
+    if (nodes.length === 0) return;
 
     const connectedNodes = new Set();
     links.forEach((d: any) => {
@@ -219,8 +247,6 @@ const createNetworkGraph = (data: any, containerId: string, height: number = 400
         .attr("fill", "#777")
         .attr("font-size", 9)
         .text("more");
-
-    
 };
 
 interface NetworkGraphProps {
@@ -228,52 +254,66 @@ interface NetworkGraphProps {
     filterCharacter?: string;
     height?: number;
     width?: number;
+    selectedChapter?: number | null;
+    chapterNetworkData?: Record<string, { nodes: any[], links: any[] }>;
     onNodeHover?: (node: any) => void;
     showSideCard?: boolean;
     setShowSideCard?: (node: any) => void;
 }
 
-const NetworkGraph = ({ id = "network-graph", filterCharacter, height = 400, width = 400, onNodeHover, showSideCard, setShowSideCard }: NetworkGraphProps) => {
+const NetworkGraph = ({ id = "network-graph", filterCharacter, height = 400, width = 400, selectedChapter = null, chapterNetworkData, onNodeHover }: NetworkGraphProps) => {
     const networkData = useContext(BookContext)?.networkData;
     const characterData = useContext(BookContext)?.characterData;
 
-    const edgeMap = new Map();
-    networkData?.links.forEach(l => {
-        const key = [l.source, l.target].sort().join("--");
-        if (edgeMap.has(key)) {
-            edgeMap.get(key).value += l.value;
-        } else {
-            edgeMap.set(key, { ...l });
-        }
-    });
+    // Determine which data to render
+    let graphData: { nodes: any[], links: any[] };
 
-    const data = {
-        nodes: networkData?.nodes.filter(n => !characterData?.[n.name]) || [],
-        links: Array.from(edgeMap.values())
-};
+    if (selectedChapter !== null && chapterNetworkData) {
+        // Cumulative mode: merge chapters 0 through selectedChapter
+        graphData = mergeChapterNetworks(chapterNetworkData, selectedChapter);
+    } else {
+        // Full network mode (original behaviour)
+        const edgeMap = new Map();
+        networkData?.links.forEach(l => {
+            const key = [l.source, l.target].sort().join("--");
+            if (edgeMap.has(key)) {
+                edgeMap.get(key).value += l.value;
+            } else {
+                edgeMap.set(key, { ...l });
+            }
+        });
 
+        graphData = {
+            nodes: networkData?.nodes.filter(n => !characterData?.[n.name]) || [],
+            links: Array.from(edgeMap.values())
+        };
+    }
+
+    // Apply character filter if present
     const filteredData = filterCharacter
         ? (() => {
             const name = filterCharacter.toLowerCase();
-            const filteredLinks = data.links.filter(
+            const filteredLinks = graphData.links.filter(
                 l => l.source === name || l.target === name
             );
             const connectedIds = new Set(
                 filteredLinks.flatMap(l => [l.source, l.target])
             );
             return {
-                nodes: data.nodes.filter(n => connectedIds.has(n.id)),
+                nodes: graphData.nodes.filter(n => connectedIds.has(n.id)),
                 links: filteredLinks,
             };
         })()
-        : data;
+        : graphData;
 
     useEffect(() => {
-        createNetworkGraph(filteredData, id, height, width, onNodeHover, showSideCard, setShowSideCard);
+        if (filteredData.nodes.length > 0) {
+            createNetworkGraph(filteredData, id, height, width, onNodeHover);
+        }
         return () => {
             d3.select(`#${id}`).selectAll("*").remove();
         };
-    }, [id, filterCharacter, height, width, networkData]);
+    }, [id, filterCharacter, height, width, networkData, selectedChapter, chapterNetworkData]);
 
     return (
         <div>

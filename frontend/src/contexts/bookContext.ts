@@ -55,6 +55,8 @@ interface BookContextType {
         novel_id: string;
     }> | null,
     setChapterData: (data: Array<{ chapter_number: number; title: string; summary: string; overview: string; novel_id: string }>) => void,
+    setChapterNetworkData: (data: { links: any[], nodes: any[] }) => void,
+    chapterNetworkData: { links: any[], nodes: any[] },
 }
 
 export const BookContext = createContext<BookContextType | null>(null);
