@@ -9,6 +9,7 @@ from app.db import get_db
 
 router = APIRouter(prefix="/quote", tags=["quote"])
 
+
 @router.get("/{novel_id}", response_model=List[QuoteSchema])
 async def get_quotes_by_novel(novel_id: uuid.UUID, db: AsyncSession = Depends(get_db)):
     quotes = await QuoteModel.get_from_novel_id(db, novel_id)

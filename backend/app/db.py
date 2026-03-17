@@ -5,8 +5,13 @@ import contextlib
 from typing import AsyncIterator
 
 from fastapi import Depends
-from sqlalchemy.ext.asyncio import (AsyncConnection, AsyncEngine, AsyncSession,
-                                    async_sessionmaker, create_async_engine)
+from sqlalchemy.ext.asyncio import (
+    AsyncConnection,
+    AsyncEngine,
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
 from sqlalchemy.orm import declarative_base
 from app.models.base import Base
 
@@ -31,7 +36,7 @@ class DatabaseSessionManager:
     async def connect(self) -> AsyncIterator[AsyncConnection]:
         if self._engine is None:
             raise Exception("DatabaseSessionManager is not initialized")
-        
+
         async with self._engine.begin() as connection:
             try:
                 yield connection
@@ -43,7 +48,7 @@ class DatabaseSessionManager:
     async def session(self) -> AsyncIterator[AsyncSession]:
         if self._sessionmaker is None:
             raise Exception("DatabaseSessionManager is not initialized")
-        
+
         session = self._sessionmaker()
         try:
             yield session
@@ -58,8 +63,10 @@ class DatabaseSessionManager:
 
     async def drop_all(self, connection: AsyncConnection):
         await connection.run_sync(Base.metadata.drop_all)
-    
+
+
 sessionmanager = DatabaseSessionManager()
+
 
 async def get_db():
     async with sessionmanager.session() as session:

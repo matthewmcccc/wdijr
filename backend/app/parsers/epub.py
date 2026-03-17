@@ -52,7 +52,7 @@ class Epub(Book):
             chapters[idx] = ch
             idx += 1
         return chapters
-    
+
     def check_valid_ch_title(self, ch_title: str) -> bool:
         valid = True
 
@@ -154,18 +154,17 @@ class Epub(Book):
             )
 
         return spans
-    
+
     def build_chapter_span_index(self) -> list[tuple[int, int]]:
         span_index = [(0, 0)] * len(self.chapters)
         for ch_idx, _ in self.chapters.items():
             text = self.get_chapter_text(ch_idx)
-            start_idx = span_index[max(0, ch_idx-1)][1]
+            start_idx = span_index[max(0, ch_idx - 1)][1]
             end_idx = start_idx
             for _ in text:
                 end_idx += 1
-            span_index[ch_idx] = ((start_idx, end_idx))
+            span_index[ch_idx] = (start_idx, end_idx)
         return span_index
-
 
     def get_full_text_quotes(self, text: str) -> list[dict]:
         """
@@ -217,24 +216,24 @@ class Epub(Book):
 
                 quotes.append(quote_dict)
         return quotes
-    
+
     def get_cover(self):
         def is_image(item):
-            return item is not None and item.media_type.startswith('image/')
+            return item is not None and item.media_type.startswith("image/")
 
-        for meta in self.book.get_metadata('OPF', 'cover'):
-            if is_image(item := self.book.get_item_with_id(meta[1]['content'])):
+        for meta in self.book.get_metadata("OPF", "cover"):
+            if is_image(item := self.book.get_item_with_id(meta[1]["content"])):
                 return item
-            
-        if is_image(item := self.book.get_item_with_id('cover')):
+
+        if is_image(item := self.book.get_item_with_id("cover")):
             return item
-        
+
         for item in self.book.get_items_of_type(ITEM_COVER):
-            if 'cover' in item.get_name().lower() and is_image(item):
+            if "cover" in item.get_name().lower() and is_image(item):
                 return item
-            
+
         return None
-    
+
     def write_cover(self, cover, novelId) -> str:
         os.makedirs(f"../data/{novelId}/covers", exist_ok=True)
         content = cover.get_content()

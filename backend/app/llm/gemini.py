@@ -14,9 +14,17 @@ class Gemini:
         self.client = genai.Client(api_key=self.api_key)
 
     def prompt(
-        self, model, prompt: str, instruction: str, character_name="", novel_title="", chapter_title: str = ""
+        self,
+        model,
+        prompt: str,
+        instruction: str,
+        character_name="",
+        novel_title="",
+        chapter_title: str = "",
     ) -> str:
-        additional_instruction = self.get_additional_instruction(instruction, character_name, novel_title)
+        additional_instruction = self.get_additional_instruction(
+            instruction, character_name, novel_title
+        )
 
         response = self.client.models.generate_content(
             model=model, contents=additional_instruction + "\nQuotes\n:" + prompt
@@ -24,47 +32,26 @@ class Gemini:
 
         return response.text
 
-    def character_summary_mass_prompt(self, model, characters, associated_quotes: dict[str, list[dict]], instruction: str, book_title: str) -> dict[str, str]:
+    def character_summary_mass_prompt(
+        self,
+        model,
+        characters,
+        associated_quotes: dict[str, list[dict]],
+        instruction: str,
+        book_title: str,
+    ) -> dict[str, str]:
         character_ids = list(associated_quotes.keys())
 
         def send_request(character):
             id = character[0]
             name = character[1]
-            additional_instruction = self.get_additional_instruction(instruction, character_name=character, novel_title=book_title)
+            additional_instruction = self.get_additional_instruction(
+                instruction, character_name=character, novel_title=book_title
+            )
             quotes_text = "\n".join(q["quote"] for q in associated_quotes[id])
             prompt = f"{additional_instruction}\n\nCharacter: {name}\nID: {id}\nBook: {book_title}\n\nQuotes:\n{quotes_text}"
-            return self.client.models.generate_content(
-                model=model,
-                contents=prompt,
-                config=types.GenerateContentConfig(
-                    response_mime_type="application/json",
-                    response_schema={
-                        "type": "OBJECT",
-                        "properties": {
-                            "summary": {"type": "string"},
-                            "description": {"type": "string"},
-                        },
-                        "required": ["summary", "description"]
-                    }
-                )
-            ).candidates[0].content.parts[0].text
-
-        with ThreadPoolExecutor(max_workers=len(characters)) as executor:
-            summaries = list(executor.map(send_request, zip(character_ids, [character["name"] for character in characters])))
-
-        return dict(zip(character_ids, summaries))
-    
-    def chapter_summary_mass_prompt(self, model, chapters, instruction, book_title: str):
-        def send_request(item):
-            ch_text, ch_idx, ch_title = item
-            additional_instruction = self.get_additional_instruction(
-                instruction=instruction,
-                novel_title=book_title,
-                chapter_title=ch_title
-            )
-            prompt = f"{additional_instruction}\n{ch_text}"
-            try:
-                response = self.client.models.generate_content(
+            return (
+                self.client.models.generate_content(
                     model=model,
                     contents=prompt,
                     config=types.GenerateContentConfig(
@@ -72,33 +59,83 @@ class Gemini:
                         response_schema={
                             "type": "OBJECT",
                             "properties": {
-                                "summary": {"type": "STRING"},
-                                "overview": {"type": "STRING"},
+                                "summary": {"type": "string"},
+                                "description": {"type": "string"},
                             },
-                            "required": ["summary", "overview"]
-                        }
+                            "required": ["summary", "description"],
+                        },
+                    ),
+                )
+                .candidates[0]
+                .content.parts[0]
+                .text
+            )
+
+        with ThreadPoolExecutor(max_workers=len(characters)) as executor:
+            summaries = list(
+                executor.map(
+                    send_request,
+                    zip(character_ids, [character["name"] for character in characters]),
+                )
+            )
+
+        return dict(zip(character_ids, summaries))
+
+    def chapter_summary_mass_prompt(
+        self, model, chapters, instruction, book_title: str
+    ):
+        def send_request(item):
+            ch_text, ch_idx, ch_title = item
+            additional_instruction = self.get_additional_instruction(
+                instruction=instruction, novel_title=book_title, chapter_title=ch_title
+            )
+            prompt = f"{additional_instruction}\n{ch_text}"
+            try:
+                response = (
+                    self.client.models.generate_content(
+                        model=model,
+                        contents=prompt,
+                        config=types.GenerateContentConfig(
+                            response_mime_type="application/json",
+                            response_schema={
+                                "type": "OBJECT",
+                                "properties": {
+                                    "summary": {"type": "STRING"},
+                                    "overview": {"type": "STRING"},
+                                },
+                                "required": ["summary", "overview"],
+                            },
+                        ),
                     )
-                ).candidates[0].content.parts[0].text
+                    .candidates[0]
+                    .content.parts[0]
+                    .text
+                )
                 if not response.strip():
                     print(f"WARNING: Empty response for chapter {ch_idx} ({ch_title})")
                 return (ch_idx, response)
             except Exception as e:
                 print(f"ERROR: Chapter {ch_idx} ({ch_title}) failed: {e}")
                 return (ch_idx, "")
-            
+
         with ThreadPoolExecutor(max_workers=len(chapters)) as executor:
             responses = list(executor.map(send_request, chapters))
 
         return responses
 
-    def text_span_summary_mass_prompt(self, model, texts: list[str], instruction: str) -> list[str]:
+    def text_span_summary_mass_prompt(
+        self, model, texts: list[str], instruction: str
+    ) -> list[str]:
         def send_request(text):
             additional_instruction = self.get_additional_instruction(instruction)
             prompt = f"{additional_instruction}\n{text}"
-            return self.client.models.generate_content(
-                model=model, contents=prompt
-            ).candidates[0].content.parts[0].text
-        
+            return (
+                self.client.models.generate_content(model=model, contents=prompt)
+                .candidates[0]
+                .content.parts[0]
+                .text
+            )
+
         with ThreadPoolExecutor(max_workers=len(texts)) as executor:
             summaries = list(executor.map(send_request, texts))
 
@@ -107,14 +144,24 @@ class Gemini:
     def get_models(self):
         return self.client.models.list()
 
-    def get_additional_instruction(self, instruction: str, character_name: str = "", novel_title: str = "", chapter_title: str = "") -> str:
+    def get_additional_instruction(
+        self,
+        instruction: str,
+        character_name: str = "",
+        novel_title: str = "",
+        chapter_title: str = "",
+    ) -> str:
         additional_instruction = ""
         if instruction == "excerpt_summary":
             additional_instruction = self.excerpt_summary_prompt()
         if instruction == "character_summary":
-            additional_instruction = self.character_summary_prompt(character_name, novel_title)
+            additional_instruction = self.character_summary_prompt(
+                character_name, novel_title
+            )
         if instruction == "chapter_summary":
-            additional_instruction = self.chapter_summary_prompt(novel_title, chapter_title)
+            additional_instruction = self.chapter_summary_prompt(
+                novel_title, chapter_title
+            )
         return additional_instruction
 
     @staticmethod
@@ -197,4 +244,3 @@ class Gemini:
         Novel title: {novel_title}
         Chapter title: {chapter_title}
         """
-        

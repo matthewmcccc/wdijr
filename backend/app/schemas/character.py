@@ -3,6 +3,7 @@ from typing import Any
 import json
 import uuid
 
+
 class CharacterSchemaBase(BaseModel):
     name: str | None = None
     summary: str | None = None
@@ -11,8 +12,10 @@ class CharacterSchemaBase(BaseModel):
     top_quote: str | None = None
     novel_id: uuid.UUID | None = None
 
+
 class CharacterSchemaCreate(CharacterSchemaBase):
     pass
+
 
 class CharacterSchema(CharacterSchemaBase):
     id: int

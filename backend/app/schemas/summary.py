@@ -6,6 +6,7 @@ from .analysis import AnalysisSchema
 from .quote import QuoteSchema
 from .chapter import ChapterSchema
 
+
 class SummarySchema(BaseModel):
     novel: NovelSchema
     characters: List[CharacterSchema]

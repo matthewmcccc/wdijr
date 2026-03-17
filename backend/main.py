@@ -22,5 +22,7 @@ if __name__ == "__main__":
     chapter_associated_quotes = er.get_associated_quotes_by_chapter(associated_quotes)
     chapters_conversational_network = defaultdict(dict)
     for idx, chapter_quotes in chapter_associated_quotes.items():
-        chapters_conversational_network[idx] = er.build_conversational_network(chapter_quotes)
+        chapters_conversational_network[idx] = er.build_conversational_network(
+            chapter_quotes
+        )
     print(chapters_conversational_network)

@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List, Optional
 from .base import Base
 
+
 class Analysis(Base):
     __tablename__ = "analysis"
 
@@ -15,9 +16,10 @@ class Analysis(Base):
     plot_summaries: Mapped[list | None] = mapped_column(JSON, nullable=True)
     novel_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("novel.id"))
     character_sentiment: Mapped[dict | None] = mapped_column(JSON, nullable=True)
-    
+    chapter_networks: Mapped[dict] = mapped_column(JSON)
+
     novel: Mapped["Novel"] = relationship(back_populates="analysis")
-    
+
     @classmethod
     async def get_from_novel_id(cls, db: AsyncSession, id: int):
         return (await db.execute(select(cls).where(cls.novel_id == id))).scalar_one()

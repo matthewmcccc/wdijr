@@ -1,13 +1,15 @@
 import os
+from collections import defaultdict
 from app.parsers.epub import Epub
 from app.services.celery_worker import celery_app
 from app.nlp.ner import EntityExtractor
 from app.nlp.plot_sentiment import PlotSentiment
 from app.services.task_states import TaskState
-from app.llm.gemini import Gemini   
+from app.llm.gemini import Gemini
 from .db_helper import save_analysis_to_db
 
 book_path = os.path.join(os.path.dirname(__file__), "..", "temp", "aaiw.epub")
+
 
 @celery_app.task(bind=True)
 def process_epub(self, book_path) -> Epub:
@@ -30,6 +32,7 @@ def process_epub(self, book_path) -> Epub:
                 print(f"Cleaned up file: {book_path}")
             except Exception as e:
                 print(f"Failed to delete {book_path}: {str(e)}")
+
 
 # TODO: split this up a bit
 @celery_app.task(bind=True)
@@ -56,8 +59,10 @@ def process_text(self, book_path):
     er: EntityExtractor = EntityExtractor("en_core_web_trf", text)
     g: Gemini = Gemini()
 
-    self.update_state(state="PROCESSING", meta={"status": "Associating quotes with characters..."})
-    
+    self.update_state(
+        state="PROCESSING", meta={"status": "Associating quotes with characters..."}
+    )
+
     associated_quotes = er.associate_text_quotes(quotes)
 
     self.update_state(state="PROCESSING", meta={"status": "Building social network..."})
@@ -77,19 +82,22 @@ def process_text(self, book_path):
     sentiment_values = ps.get_section_valence(full_text_words)
     inflection_points = ps.first_difference(sentiment_values)
 
-    summarisation_texts = ps.get_text_for_summarization(text, inflection_points, len(sentiment_values))
+    summarisation_texts = ps.get_text_for_summarization(
+        text, inflection_points, len(sentiment_values)
+    )
 
-    self.update_state(state="PROCESSING", meta={"status": "Generating character summaries..."})
+    self.update_state(
+        state="PROCESSING", meta={"status": "Generating character summaries..."}
+    )
 
     top_relationships_dict = {}
     top_quotes = {}
     for character in characters:
         name = character["name"]
-        top_relationships_dict[name] = er.get_top_relationships(nw, name) 
-        top_quotes[name] = er.get_character_quotes(
-            nw, name
-        )
+        top_relationships_dict[name] = er.get_top_relationships(nw, name)
+        top_quotes[name] = er.get_character_quotes(nw, name)
 
+    chapter_conversational_networks = get_chapter_networks(er, associated_quotes)
     character_summaries = get_character_summaries(er, characters, nw, g, book.title)
     plot_summaries = get_plot_summaries(g, summarisation_texts)
     chapter_summaries = get_chapter_summaries(g, chapters, title, book)
@@ -130,9 +138,21 @@ def process_text(self, book_path):
         "cover_url": cover_url,
         "character_sentiment": character_to_character_sentiment_dict,
     }
-        
 
-def get_character_summaries(er: EntityExtractor, characters: list[dict], nw_dict, g: Gemini, title):
+
+def get_chapter_networks(er: EntityExtractor, associated_quotes):
+    chapter_associated_quotes = er.get_associated_quotes_by_chapter(associated_quotes)
+    chapter_conversational_networks = defaultdict(dict)
+    for idx, chapter_quotes in chapter_associated_quotes.items():
+        chapter_conversational_networks[idx] = er.build_conversational_network(
+            chapter_quotes
+        )
+    return chapter_conversational_networks
+
+
+def get_character_summaries(
+    er: EntityExtractor, characters: list[dict], nw_dict, g: Gemini, title
+):
     associated_quotes_obj_list = {}
     for character in characters:
         char_quotes = er.get_character_quotes(
@@ -150,9 +170,10 @@ def get_character_summaries(er: EntityExtractor, characters: list[dict], nw_dict
         characters,
         associated_quotes_obj_list,
         "character_summary",
-        title
+        title,
     )
     return character_summaries
+
 
 def get_chapter_summaries(g: Gemini, chapters, book_title, book):
     chapter_items = []
@@ -168,8 +189,6 @@ def get_chapter_summaries(g: Gemini, chapters, book_title, book):
 
 def get_plot_summaries(g: Gemini, summarisation_texts: list[str]):
     plot_summaries = g.text_span_summary_mass_prompt(
-        "gemini-2.5-flash",
-        summarisation_texts,
-        "excerpt_summary"
+        "gemini-2.5-flash", summarisation_texts, "excerpt_summary"
     )
     return plot_summaries

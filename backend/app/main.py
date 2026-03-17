@@ -8,9 +8,10 @@ import os
 
 load_dotenv()
 
+
 def init_app(init_db=True):
     lifespan = None
-    
+
     db_url = os.getenv("DB_URL")
     if not db_url:
         raise Exception("DB_URL env variable doesn't exist")
@@ -46,5 +47,6 @@ def init_app(init_db=True):
     server.include_router(quote_router, prefix="/api", tags=["quote"])
 
     return server
+
 
 server = init_app()

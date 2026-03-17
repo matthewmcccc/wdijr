@@ -5,13 +5,12 @@ from sqlalchemy import String, select, types
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.ext.asyncio import AsyncSession
 
+
 class Novel(Base):
     __tablename__ = "novel"
 
     id: Mapped[uuid.UUID] = mapped_column(
-        types.Uuid,
-        primary_key=True,
-        default=uuid.uuid4
+        types.Uuid, primary_key=True, default=uuid.uuid4
     )
     title: Mapped[str] = mapped_column(String(100))
     author: Mapped[str] = mapped_column(String(50))
@@ -24,4 +23,3 @@ class Novel(Base):
     @classmethod
     async def get_from_id(cls, id: uuid.UUID, db: AsyncSession):
         return (await db.execute(select(cls).where(cls.id == id))).scalar_one()
-    

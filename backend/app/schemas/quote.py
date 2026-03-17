@@ -1,6 +1,7 @@
 import uuid
 from pydantic import BaseModel
 
+
 class QuoteSchemaBase(BaseModel):
     id: str
     content: str
@@ -9,8 +10,10 @@ class QuoteSchemaBase(BaseModel):
     chapter_number: int
     novel_id: uuid.UUID | None = None
 
+
 class QuoteSchemaCreate(QuoteSchemaBase):
     pass
+
 
 class QuoteSchema(QuoteSchemaBase):
     id: int

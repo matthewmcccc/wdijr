@@ -3,6 +3,7 @@ from typing import List
 from app.schemas.quote import QuoteSchema
 import uuid
 
+
 class AnalysisSchemaBase(BaseModel):
     novel_id: uuid.UUID
     network: dict
@@ -10,14 +11,15 @@ class AnalysisSchemaBase(BaseModel):
     inflection_points: list
     plot_summaries: list
     character_sentiment: dict
+    chapter_networks: dict
+
 
 class AnalysisSchemaCreate(AnalysisSchemaBase):
     pass
+
 
 class AnalysisSchema(AnalysisSchemaBase):
     id: int
 
     class Config:
         from_attributes = True
-
-

@@ -17,9 +17,11 @@ ALLOWED_CHARACTER_DIFF = 1500
 POST_SPAN_WINDOW = 3
 PRIOR_SPAN_WINDOW = 10
 
+
 class QuoteInfo(TypedDict):
     quotes: list[str]
     quote_count: int
+
 
 class EntityExtractor:
     def __init__(self, model: str, text: str):
@@ -125,7 +127,7 @@ class EntityExtractor:
                         ]
                     )
         return gen_persons
-    
+
     def persons_to_id(self):
         mapping = defaultdict(int)
         for i, person in enumerate(self.persons):
@@ -167,7 +169,7 @@ class EntityExtractor:
                 "word_count": quote["word_count"],
                 "speaker": None,
                 "sentiment": None,
-                "chapter_number": quote["chapter_number"]
+                "chapter_number": quote["chapter_number"],
             }
             prior = quote["prior"]
             post = quote["post"]
@@ -220,7 +222,7 @@ class EntityExtractor:
                 if re.search(r"\b" + re.escape(name_lower) + r"\b", context_str):
                     return True
         return False
-    
+
     @staticmethod
     def get_associated_quotes_by_chapter(associated_quotes: dict) -> dict:
         """
@@ -259,15 +261,16 @@ class EntityExtractor:
                     {"quote": quotes[q_idx]["quote"], "sentiment": sentiment}
                 )
         return nw_dict
-    
+
     @staticmethod
     def build_sentiment_dict_from_network(nw_dict: dict) -> dict:
         character_sentiment_dict = defaultdict(dict)
         for speaker, quote_dict in nw_dict.items():
             for target, quote_list in quote_dict.items():
-                character_sentiment_dict[speaker][target] = [q["sentiment"] for q in quote_list]
+                character_sentiment_dict[speaker][target] = [
+                    q["sentiment"] for q in quote_list
+                ]
         return character_sentiment_dict
-                
 
     def match_speech_verbs_regex(self, s: str) -> bool:
         verbs_regex = self.verbs_regex
@@ -322,7 +325,7 @@ class EntityExtractor:
         sentiment_descending=True,
         length_descending=False,
         min_quote_len=10,
-        max_quote_len=175
+        max_quote_len=175,
     ) -> list[dict]:
         """
         Get the top n quotes for a given character with respect to
@@ -332,7 +335,11 @@ class EntityExtractor:
         character_quotes = []
         for _target, quotes in network.items():
             for q in quotes:
-                if abs(q["sentiment"]) >= sentiment_boundary and len(q["quote"].split()) > min_quote_len and len(q["quote"].split()) < max_quote_len:
+                if (
+                    abs(q["sentiment"]) >= sentiment_boundary
+                    and len(q["quote"].split()) > min_quote_len
+                    and len(q["quote"].split()) < max_quote_len
+                ):
                     character_quotes.append(q)
         sorted_quotes = []
         if sentiment_descending and not length_descending:
@@ -448,18 +455,17 @@ class EntityExtractor:
                 else:
                     counts[speaker] = {
                         "count": len(incoming_quotes),
-                        "total_sentiment": sum(
-                            q["sentiment"] for q in incoming_quotes
-                        ),
+                        "total_sentiment": sum(q["sentiment"] for q in incoming_quotes),
                     }
 
         result = []
         for name, data in counts.items():
-            result.append((name, data["count"], data["total_sentiment"] / data["count"]))
+            result.append(
+                (name, data["count"], data["total_sentiment"] / data["count"])
+            )
 
         result.sort(key=lambda x: x[1], reverse=True)
         return result[:n]
-
 
     @staticmethod
     def build_speech_verbs_regex() -> str:

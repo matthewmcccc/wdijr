@@ -4,9 +4,11 @@ from sqlalchemy import String, ForeignKey, select, JSON
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import TYPE_CHECKING, List
+
 if TYPE_CHECKING:
     from novel import Novel
     from quote import Quote
+
 
 class Character(Base):
     __tablename__ = "character"
