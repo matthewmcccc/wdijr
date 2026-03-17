@@ -8,7 +8,6 @@ import CharacterAnalysisLanding from "./pages/CharacterAnalysisOverview"
 import CharacterAnalysisProfile from "./pages/CharacterAnalysisProfile";
 import { useState, useMemo } from "react";
 import { BookContext } from "./contexts/bookContext";
-import * as quotesData from "../data/quotes.json"
 import PlotAnalysisLanding from "./pages/PlotAnalysisOverview";
 import Processing from "./pages/Processing";
 import ChapterAnalysis from "./pages/ChapterAnalysis";
@@ -24,7 +23,7 @@ const App = () => {
   const [title, setTitle] = useState("");
   const [topCharacterQuotes, setTopCharacterQuotes] = useState<Record<string, any>>();
   const [attributedQuotes, setAttributedQuotes] = useState<any[]>([]);
-  const [quoteData, setQuoteData] = useState<any>(quotesData);
+  const [quoteData, setQuoteData] = useState<any>(null);
   const [sentimentValues, setSentimentValues] = useState<any>(null);
   const [inflectionPoints, setInflectionPoints] = useState<any>(null);
   const [plotSummaries, setPlotSummaries] = useState<any>(null);

@@ -1,4 +1,6 @@
 import os
+import requests
+from dotenv import load_dotenv
 from collections import defaultdict
 from app.parsers.epub import Epub
 from app.services.celery_worker import celery_app
@@ -9,7 +11,7 @@ from app.llm.gemini import Gemini
 from .db_helper import save_analysis_to_db
 
 book_path = os.path.join(os.path.dirname(__file__), "..", "temp", "aaiw.epub")
-
+load_dotenv()
 
 @celery_app.task(bind=True)
 def process_epub(self, book_path) -> Epub:
@@ -201,3 +203,32 @@ def get_plot_summaries(g: Gemini, summarisation_texts: list[str]):
         "gemini-2.5-flash", summarisation_texts, "excerpt_summary"
     )
     return plot_summaries
+
+def get_character_thumbnails(title: str, er: EntityExtractor):
+    wikimedia_api = os.getenv("WIKIMEDIA_API_URL")
+    if not wikimedia_api:
+        raise Exception("Couldn't get wikimedia API URL")
+    for character in er.persons:
+        search_url = f"{wikimedia_api}action=query&list=search&srsearch={character}%20{title}&srnamespace=6&srlimit=10&format=json"
+        res = requests.get(
+            search_url,
+            headers={
+                "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
+            }
+        ).json()
+        results = res.get("query", {}).get("search", [])
+        if results:
+            for result in results:
+                title = result["title"]
+                if title.endswith((".pdf", ".djvu")):
+                    continue
+                page_id = results[0]["pageid"]
+                break
+        image_url = f"{wikimedia_api}action=query&pageids={page_id}&prop=imageinfo&iiprop=url&iiurlwidth=400&format=json"
+        image_res = requests.get(
+            image_url,
+            headers={
+                "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
+            }
+        ).json()
+        print(image_res)

@@ -259,20 +259,22 @@ interface NetworkGraphProps {
     onNodeHover?: (node: any) => void;
     showSideCard?: boolean;
     setShowSideCard?: (node: any) => void;
+    cumulative?: boolean;
 }
 
-const NetworkGraph = ({ id = "network-graph", filterCharacter, height = 400, width = 400, selectedChapter = null, chapterNetworkData, onNodeHover }: NetworkGraphProps) => {
+const NetworkGraph = ({ id = "network-graph", filterCharacter, height = 400, width = 400, selectedChapter = null, chapterNetworkData, onNodeHover, cumulative = true }: NetworkGraphProps) => {
     const networkData = useContext(BookContext)?.networkData;
     const characterData = useContext(BookContext)?.characterData;
 
-    // Determine which data to render
     let graphData: { nodes: any[], links: any[] };
 
     if (selectedChapter !== null && chapterNetworkData) {
-        // Cumulative mode: merge chapters 0 through selectedChapter
-        graphData = mergeChapterNetworks(chapterNetworkData, selectedChapter);
+        if (cumulative) {
+            graphData = mergeChapterNetworks(chapterNetworkData, selectedChapter);
+        } else {
+            graphData = chapterNetworkData[String(selectedChapter)] || { nodes: [], links: [] };
+        }
     } else {
-        // Full network mode (original behaviour)
         const edgeMap = new Map();
         networkData?.links.forEach(l => {
             const key = [l.source, l.target].sort().join("--");
@@ -313,11 +315,11 @@ const NetworkGraph = ({ id = "network-graph", filterCharacter, height = 400, wid
         return () => {
             d3.select(`#${id}`).selectAll("*").remove();
         };
-    }, [id, filterCharacter, height, width, networkData, selectedChapter, chapterNetworkData]);
+    }, [id, filterCharacter, height, width, networkData, selectedChapter, chapterNetworkData, cumulative]);
 
     return (
         <div>
-            <div className="border border-gray-300 rounded-lg w-fit" id={id}></div>
+            <div className="" id={id}></div>
         </div>
     );
 };

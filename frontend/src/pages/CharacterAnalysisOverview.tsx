@@ -10,6 +10,7 @@ import { useParams } from "react-router-dom";
 import axios from "axios";
 import fetchNovelData from "../utils/fetchNovelData";
 import SideCharacterCard from "../components/SideCharacterCard";
+import newTabIcon from "../assets/img/new-tab.png";
 
 const CharacterAnalysisLanding = () => {
     const characterData = useContext(BookContext)?.characterData;
@@ -33,12 +34,11 @@ const CharacterAnalysisLanding = () => {
     const setChapterNetworkData = bookContext?.setChapterNetworkData;
     const chapterNetworkData = bookContext?.chapterNetworkData;
     const [showSideCard, setShowSideCard] = useState(false);
-
     const maxChapter = chapterData.length > 0 ? chapterData.length - 1 : 0;
     const allValue = maxChapter + 1;
     const [sliderValue, setSliderValue] = useState<number>(allValue);
-
     const selectedChapter = sliderValue === 0 ? null : sliderValue - 1;
+    const [cumulative, setCumulative] = useState(true);
 
     useEffect(() => {
         setSliderValue(0);
@@ -70,71 +70,82 @@ const CharacterAnalysisLanding = () => {
             <div className="flex flex-col gap-12 mt-4">
                 <div className="flex flex-row">
                     <div className="flex flex-col gap-2">
-                        <h1 className="font-dewi">Social Network Graph</h1>
-                        <div className="flex flex-row gap-4 w-full">
-                            <NetworkGraph 
-                                key={`${novelId}-${selectedChapter}`}
-                                id="network-graph-1" 
-                                height={400}
-                                width={1250}
-                                selectedChapter={selectedChapter}
-                                chapterNetworkData={chapterNetworkData}
-                                onNodeHover={(node) => {
-                                    const key = Object.keys(characterData).find(
-                                        k => characterData[k].name?.toLowerCase() === node.id
-                                    );
-                                    setShowSideCard(key || null);
-                                }}
-                            />
-                            {showSideCard && characterData?.[showSideCard] && (
-                                console.log(characterData[showSideCard]),
-                                <SideCharacterCard
-                                    name={characterData[showSideCard].name}
-                                    description={characterData[showSideCard].description}
-                                    top_relationships={characterData[showSideCard].top_relationships}
+                        <div className="flex flex-col gap-4 w-full border border-gray-300 rounded-lg p-4">
+                            <h1 className="font-dewi">Social Network Graph</h1>
+                            <div>
+                                <NetworkGraph 
+                                    key={`${novelId}-${selectedChapter}`}
+                                    id="network-graph-1" 
+                                    height={400}
+                                    width={1500}
+                                    selectedChapter={selectedChapter}
+                                    chapterNetworkData={chapterNetworkData}
+                                    onNodeHover={(node) => {
+                                        const key = Object.keys(characterData).find(
+                                            k => characterData[k].name?.toLowerCase() === node.id
+                                        );
+                                        setShowSideCard(key || null);
+                                    }}
+                                    cumulative={cumulative}
                                 />
-                            )}
-                        </div>
-                        <div className="flex flex-col items-center w-full mt-2">
-                            <span className="text-sm text-gray-500 font-dewi mb-2">
-                                {selectedChapter === null 
-                                    ? "Showing full network" 
-                                    : `${chapterData[selectedChapter]?.title || ""}`
-                                }
-                            </span>
-                            <input 
-                                type="range" 
-                                min={0} 
-                                max={allValue} 
-                                step={1} 
-                                value={sliderValue}
-                                onChange={(e) => setSliderValue(Number(e.target.value))}
-                                className="w-3/4" 
-                            />
-                            <div className="flex justify-between w-3/4 mt-1">
-                              <span 
-                                    className={`text-xs cursor-pointer ${
-                                        selectedChapter === null
-                                            ? "text-gray-700 font-medium" 
-                                            : "text-gray-400"
-                                    }`}
-                                    onClick={() => setSliderValue(0)}
-                                >
-                                    All
+                                {showSideCard && characterData?.[showSideCard] && (
+                                    console.log(characterData[showSideCard]),
+                                    <SideCharacterCard
+                                        name={characterData[showSideCard].name}
+                                        description={characterData[showSideCard].description}
+                                        top_relationships={characterData[showSideCard].top_relationships}
+                                    />
+                                )}
+                            </div>
+                            <div className="flex flex-col items-center w-full mt-2">
+                                <div className="flex items-center gap-1 self-end">
+                                    <input type="checkbox" id="cumulative" checked={cumulative} onChange={() => setCumulative(!cumulative)} className="mb-2" />
+                                    <label htmlFor="cumulative" className="text-sm text-gray-500 font-dewi mb-2">Cumulative</label>
+                                </div>
+                                <span className="text-sm text-black font-dewi mb-2 border border-gray-500 px-4 py-1 rounded-md">
+                                    {selectedChapter === null 
+                                        ? "Showing full network" 
+                                        : 
+                                        <div className="flex items-center gap-1 cursor-pointer" onClick={() => window.open(`/${novelId}/chapter/${selectedChapter}`, "_blank")}>
+                                            {chapterData[selectedChapter]?.title || ""}
+                                            <img src={newTabIcon} className="ml-1 w-4 h-4" />
+                                        </div>
+                                    }
                                 </span>
-                                {chapterData.map((_chapter, index) => (
-                                    <span 
-                                        key={index} 
+                                <input 
+                                    type="range" 
+                                    min={0} 
+                                    max={allValue} 
+                                    step={1} 
+                                    value={sliderValue}
+                                    onChange={(e) => setSliderValue(Number(e.target.value))}
+                                    className="w-3/4" 
+                                />
+                                <div className="flex justify-between w-3/4 mt-1">
+                                <span 
                                         className={`text-xs cursor-pointer ${
-                                            selectedChapter !== null && index <= selectedChapter
+                                            selectedChapter === null
                                                 ? "text-gray-700 font-medium" 
                                                 : "text-gray-400"
                                         }`}
-                                        onClick={() => setSliderValue(index + 1)}
+                                        onClick={() => setSliderValue(0)}
                                     >
-                                        {index + 1}
+                                        All
                                     </span>
-                                ))}
+                                    {chapterData.map((_chapter, index) => (
+                                        <span 
+                                            key={index} 
+                                            className={`text-xs cursor-pointer ${
+                                                selectedChapter !== null && index <= selectedChapter
+                                                    ? "text-gray-700 font-medium" 
+                                                    : "text-gray-400"
+                                            }`}
+                                            onClick={() => setSliderValue(index + 1)}
+                                        >
+                                            {index + 1}
+                                        </span>
+                                    ))}
+                                </div>
                             </div>
                         </div>
                     </div>   

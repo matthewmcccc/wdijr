@@ -23,8 +23,18 @@ const ChapterAnalysis = () => {
     const setCoverUrl = useContext(BookContext)?.setCoverUrl;
     const setCharacterSentimentValues = useContext(BookContext)?.setCharacterSentimentValues;
     const setChapterData = useContext(BookContext)?.setChapterData;
+    const setChapterNetworkData = useContext(BookContext)?.setChapterNetworkData;
     const novelId = useParams<{ novelId: string }>().novelId;
     const quoteData = useContext(BookContext)?.quoteData;
+
+    useEffect(() => {
+        const fetchData = async () => {
+            if (setNovelData && setCharacterData && setNetworkData && setTitle && setQuoteData && setPlotSummaries && setSentimentValues && setInflectionPoints && setCoverUrl && setCharacterSentimentValues && setChapterData && setChapterNetworkData) {
+                await fetchNovelData(novelId ?? "", setNovelData, setCharacterData, setNetworkData, setTitle, setQuoteData, setPlotSummaries, setSentimentValues, setInflectionPoints, setCoverUrl, setCharacterSentimentValues, setChapterData, setChapterNetworkData);
+            }
+        };
+        fetchData();
+    }, [novelId]);
 
     const keyCharacters = quoteData
         ?.filter(quote => quote.chapter_number === parseInt(chapterNumber))
@@ -38,17 +48,14 @@ const ChapterAnalysis = () => {
         .slice(0, 4)
         .map(([name]) => name);
 
-
-    useEffect(() => {
-        const fetchData = async () => {
-            if (setNovelData && setCharacterData && setNetworkData && setTitle && setQuoteData && setPlotSummaries && setSentimentValues && setInflectionPoints && setCoverUrl && setCharacterSentimentValues && setChapterData) {
-                await fetchNovelData(novelId ?? "", setNovelData, setCharacterData, setNetworkData, setTitle, setQuoteData, setPlotSummaries, setSentimentValues, setInflectionPoints, setCoverUrl, setCharacterSentimentValues, setChapterData);
-            }
-        };
-        fetchData();
-    }, [novelId]);
-
-    console.log(`all chapter data: ${JSON.stringify(allChapterData)}`);
+    if (!chapterData) {
+        return (
+            <div>
+                <Navbar />
+                Loading...
+            </div>
+        )
+    }
 
     return (
         <div className="container mx-auto px-4 py-8">
