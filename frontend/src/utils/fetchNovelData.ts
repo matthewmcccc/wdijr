@@ -4,6 +4,7 @@ const fetchNovelData = async (novelId: string, setNovelData: (data: any) => void
     try {
         const result = await axios(`${import.meta.env.VITE_API_URL}/novel/${novelId}/data`);
         const data = result.data;
+        console.log(data)
         if (data) {
             setNovelData?.(data.novel);
             setCharacterData?.(data.characters);

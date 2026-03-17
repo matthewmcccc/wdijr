@@ -47,6 +47,8 @@ const CharacterAnalysisProfile = () => {
     const setSentimentValues = useContext(BookContext)?.setSentimentValues;
     const setInflectionPoints = useContext(BookContext)?.setInflectionPoints;
     const setCoverUrl = useContext(BookContext)?.setCoverUrl;
+    const setChapterData = useContext(BookContext)?.setChapterData;
+    const setChapterNetworkData = useContext(BookContext)?.setChapterNetworkData;
     const currentChar = humanize(characterName ?? "").toLowerCase();
     const targetOptions = Object.keys(characterSentimentValues?.[currentChar] || {})
     .filter(t => (characterSentimentValues?.[currentChar]?.[t]?.length ?? 0) > 2);
@@ -65,9 +67,9 @@ const CharacterAnalysisProfile = () => {
 
     useEffect(() => {
         const fetchCharacterData = async () => {
-            if (!novelData || novelData.id !== novelId) {
-                if (setNovelData && setCharacterData && setNetworkData && setTitle && setQuoteData && setCharacterSentimentValues) {
-                    await fetchNovelData(novelId, setNovelData, setCharacterData, setNetworkData, setTitle, setQuoteData, setPlotSummaries, setSentimentValues, setInflectionPoints, setCoverUrl, setCharacterSentimentValues);
+            if (!novelData || novelData.id !== novelId || !characterData || !quoteData) {
+                if (setNovelData && setCharacterData && setNetworkData && setTitle && setQuoteData && setCharacterSentimentValues && setChapterData && setChapterNetworkData) {
+                    await fetchNovelData(novelId, setNovelData, setCharacterData, setNetworkData, setTitle, setQuoteData, setPlotSummaries, setSentimentValues, setInflectionPoints, setCoverUrl, setCharacterSentimentValues, setChapterData, setChapterNetworkData);
                 }
             }
         };
@@ -84,10 +86,19 @@ const CharacterAnalysisProfile = () => {
         window.scrollTo(0, 0);
     }, [])
 
+
     const characterQuotes = quoteData
         ? Object.values(quoteData).filter((q: any) => q.speaker?.toLowerCase() === humanize(characterName ?? "").toLowerCase())
         : [];
-        
+
+    if (!characterData || !quoteData) {
+        return (
+            <div>
+                Loading...
+            </div>
+        )
+    }
+            
     return (
         <div className="container mx-auto px-4 py-8"> 
             <Navbar />

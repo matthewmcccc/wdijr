@@ -36,7 +36,7 @@ interface BookContextType {
     associatedQuotes: Record<string, { quote: string, sentiment: number }[]>,
     setAssociatedQuotes: (data: Record<string, { quote: string, sentiment: number }[]>) => void,
     setTopCharacterRelationships: (data: Record<string, [string, number, number][]>) => void,
-    quoteData: any,
+    quoteData: (any),
     setQuoteData: (data: any) => void,
     sentimentValues: number[] | null,
     setSentimentValues: (data: number[]) => void,
