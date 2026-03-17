@@ -51,11 +51,7 @@ const CharacterAnalysisProfile = () => {
     const targetOptions = Object.keys(characterSentimentValues?.[currentChar] || {})
     .filter(t => (characterSentimentValues?.[currentChar]?.[t]?.length ?? 0) > 2);
     const [selectedTarget, setSelectedTarget] = useState<string>("");
-
-    console.log(`topRelationships: ${JSON.stringify(topRelationships)}`);  
-
-    const cum_sen = cumulativeSentiment(currentChar, characterSentimentValues || {});
-    console.log(cum_sen);
+    const characterImageUrl = characterData?.image_url ? `${import.meta.env.VITE_API_URL.replace('/api', '')}${characterData.image_url}` : null;
 
     const sortedCharacters = Object.values(allCharacterData ?? {})
     .map(c => c.name)
@@ -104,10 +100,12 @@ const CharacterAnalysisProfile = () => {
                             position={leftCharacter ? "left" : "none"}
                         />
                     </div>
-                    <h1 className="text-4xl flex-1 text-center">
+                    <div>
+                        {characterImageUrl && <img src={characterImageUrl} alt={characterName ? humanize(characterName) : "Character Analysis"} className="border border-gray-300 p-1 mx-auto mb-4 rounded-lg w-36 h-36 object-cover" />}
+                        <h1 className="text-4xl flex-1 text-center">
                         {characterName ? humanize(characterName) : "Character Analysis"}
-                        
                     </h1>
+                    </div>
                     <div className="flex-1 flex justify-end">
                         <CharacterNavigation 
                             name={humanize(rightCharacter)}
@@ -166,13 +164,16 @@ const CharacterAnalysisProfile = () => {
                             <h1 className="font-dewi text-md mb-4">
                                 {characterName ? `${humanize(characterName)}'s Social Network` : "Social Network"}
                             </h1>
-                            <NetworkGraph 
+                            <div className="border border-gray-300 rounded-lg p-1">
+                                <NetworkGraph 
                                     key={characterName}
                                     id={`network-${characterName}`} 
                                     filterCharacter={characterName} 
                                     height={350}
                                     width={550}
-                                />
+                                    showLegend={false}
+                                />    
+                            </div>
                         </div>
                         {/* <div>
                             <h1 className="font-dewi text-md mb-4">

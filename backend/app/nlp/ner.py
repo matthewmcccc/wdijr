@@ -22,7 +22,6 @@ class QuoteInfo(TypedDict):
     quotes: list[str]
     quote_count: int
 
-
 class EntityExtractor:
     def __init__(self, model: str, text: str):
         self.nlp = spacy.load(model)

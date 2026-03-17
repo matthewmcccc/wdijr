@@ -38,7 +38,7 @@ const mergeChapterNetworks = (chapterNetworkData: Record<string, { nodes: any[],
     };
 };
 
-const createNetworkGraph = (data: any, containerId: string, height: number = 400, width: number = 600, onNodeHover?: (node: any) => void) => {
+const createNetworkGraph = (data: any, containerId: string, height: number = 400, width: number = 600, onNodeHover?: (node: any) => void, showLegend: boolean = true) => {
     const links = data.links.map((d: any) => Object.create(d));
     const nodes = data.nodes.map((d: any) => Object.create(d));
 
@@ -176,77 +176,81 @@ const createNetworkGraph = (data: any, containerId: string, height: number = 400
             .attr("y", (d: any) => d.y);
     });
 
-    const legend = svg.append("g")
-        .attr("class", "legend")
-        .attr("transform", `translate(20, 20)`);
     
-    legend.append("rect")
-        .attr("width", 160)
-        .attr("height", 130)
-        .attr("rx", 5)
-        .attr("fill", "#000000")
-        .attr("stroke", "#444")
-        .attr("stroke-width", 0.5)
-        .attr("opacity", 0.8);
 
-    legend.append("text")
-        .attr("x", 10)
-        .attr("y", 20)
-        .attr("font-size", "14px")
-        .attr("font-family", "sans-serif")
-        .attr("fill", "white")
-        .text("Legend");
+    if (showLegend) {
+        const legend = svg.append("g")
+            .attr("class", "legend")
+            .attr("transform", `translate(20, 20)`);
     
-    const sentimentData = [
-        { label: "Positive Sentiment", color: "#2ecc71", y: 40 },
-        { label: "Neutral Sentiment",  color: "#555",    y: 58 },
-        { label: "Negative Sentiment", color: "#e74c3c", y: 76 },
-    ];
-
-    sentimentData.forEach(({ label, color, y }) => {
-        legend.append("line")
-            .attr("x1", 10).attr("y1", y)
-            .attr("x2", 22).attr("y2", y)
-            .attr("stroke", color)
-            .attr("stroke-width", 2);
+        legend.append("rect")
+            .attr("width", 160)
+            .attr("height", 130)
+            .attr("rx", 5)
+            .attr("fill", "#000000")
+            .attr("stroke", "#444")
+            .attr("stroke-width", 0.5)
+            .attr("opacity", 0.8);
 
         legend.append("text")
-            .attr("x", 28).attr("y", y + 4)
-            .attr("font-size", "12px")
-            .attr("fill", "#f3f3f3")
-            .text(label);
-    });
+            .attr("x", 10)
+            .attr("y", 20)
+            .attr("font-size", "14px")
+            .attr("font-family", "sans-serif")
+            .attr("fill", "white")
+            .text("Legend");
+        
+        const sentimentData = [
+            { label: "Positive Sentiment", color: "#2ecc71", y: 40 },
+            { label: "Neutral Sentiment",  color: "#555",    y: 58 },
+            { label: "Negative Sentiment", color: "#e74c3c", y: 76 },
+        ];
+        
+        sentimentData.forEach(({ label, color, y }) => {
+            legend.append("line")
+                .attr("x1", 10).attr("y1", y)
+                .attr("x2", 22).attr("y2", y)
+                .attr("stroke", color)
+                .attr("stroke-width", 2);
 
-    legend.append("text")
-        .attr("x", 12)
-        .attr("y", 100)
-        .attr("fill", "#ededed")
-        .attr("font-size", 9)
-        .text("Thickness = dialogue volume");
+            legend.append("text")
+                .attr("x", 28).attr("y", y + 4)
+                .attr("font-size", "12px")
+                .attr("fill", "#f3f3f3")
+                .text(label);
+        });
 
-    legend.append("line")
-        .attr("x1", 16).attr("y1", 115)
-        .attr("x2", 45).attr("y2", 115)
-        .attr("stroke", "#888")
-        .attr("stroke-width", 1);
+        legend.append("text")
+            .attr("x", 12)
+            .attr("y", 100)
+            .attr("fill", "#ededed")
+            .attr("font-size", 9)
+            .text("Thickness = dialogue volume");
 
-    legend.append("text")
-        .attr("x", 50).attr("y", 118)
-        .attr("fill", "#777")
-        .attr("font-size", 9)
-        .text("less");
+        legend.append("line")
+            .attr("x1", 16).attr("y1", 115)
+            .attr("x2", 45).attr("y2", 115)
+            .attr("stroke", "#888")
+            .attr("stroke-width", 1);
 
-    legend.append("line")
-        .attr("x1", 90).attr("y1", 115)
-        .attr("x2", 119).attr("y2", 115)
-        .attr("stroke", "#888")
-        .attr("stroke-width", 5);
+        legend.append("text")
+            .attr("x", 50).attr("y", 118)
+            .attr("fill", "#777")
+            .attr("font-size", 9)
+            .text("less");
 
-    legend.append("text")
-        .attr("x", 124).attr("y", 118)
-        .attr("fill", "#777")
-        .attr("font-size", 9)
-        .text("more");
+        legend.append("line")
+            .attr("x1", 90).attr("y1", 115)
+            .attr("x2", 119).attr("y2", 115)
+            .attr("stroke", "#888")
+            .attr("stroke-width", 5);
+
+        legend.append("text")
+            .attr("x", 124).attr("y", 118)
+            .attr("fill", "#777")
+            .attr("font-size", 9)
+            .text("more");
+    }
 };
 
 interface NetworkGraphProps {
@@ -260,9 +264,10 @@ interface NetworkGraphProps {
     showSideCard?: boolean;
     setShowSideCard?: (node: any) => void;
     cumulative?: boolean;
+    showLegend?: boolean;
 }
 
-const NetworkGraph = ({ id = "network-graph", filterCharacter, height = 400, width = 400, selectedChapter = null, chapterNetworkData, onNodeHover, cumulative = true }: NetworkGraphProps) => {
+const NetworkGraph = ({ id = "network-graph", filterCharacter, height = 400, width = 400, selectedChapter = null, chapterNetworkData, onNodeHover, showLegend = true, cumulative = true }: NetworkGraphProps) => {
     const networkData = useContext(BookContext)?.networkData;
     const characterData = useContext(BookContext)?.characterData;
 
@@ -310,12 +315,12 @@ const NetworkGraph = ({ id = "network-graph", filterCharacter, height = 400, wid
 
     useEffect(() => {
         if (filteredData.nodes.length > 0) {
-            createNetworkGraph(filteredData, id, height, width, onNodeHover);
+            createNetworkGraph(filteredData, id, height, width, onNodeHover, showLegend);
         }
         return () => {
             d3.select(`#${id}`).selectAll("*").remove();
         };
-    }, [id, filterCharacter, height, width, networkData, selectedChapter, chapterNetworkData, cumulative]);
+    }, [id, filterCharacter, height, width, networkData, selectedChapter, chapterNetworkData, cumulative, showLegend]);
 
     return (
         <div>

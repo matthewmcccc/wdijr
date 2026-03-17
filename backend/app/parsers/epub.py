@@ -240,7 +240,7 @@ class Epub(Book):
         cover_url = f"../data/{novelId}/covers/cover.jpg"
         with open(cover_url, "wb") as f:
             f.write(content)
-        return cover_url
+        return f"/data/{novelId}/covers/cover.jpg"
 
     def get_full_word_count(self):
         words = self.get_full_text_word_list()

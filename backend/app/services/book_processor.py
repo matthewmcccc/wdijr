@@ -92,14 +92,20 @@ def process_text(self, book_path):
         state="PROCESSING", meta={"status": "Generating character summaries..."}
     )
 
+    consolidated_network = g.consolidate_network(
+        "gemini-2.5-flash",
+        nw,
+        "consolidate_network"
+    )
+
     top_relationships_dict = {}
     top_quotes = {}
     for character in characters:
         name = character["name"]
-        top_relationships_dict[name] = er.get_top_relationships(nw, name)
-        top_quotes[name] = er.get_character_quotes(nw, name)
+        top_relationships_dict[name] = er.get_top_relationships(consolidated_network, name)
+        top_quotes[name] = er.get_character_quotes(consolidated_network, name)
 
-    character_summaries = get_character_summaries(er, characters, nw, g, book.title)
+    character_summaries = get_character_summaries(er, characters, consolidated_network, g, book.title)
     plot_summaries = get_plot_summaries(g, summarisation_texts)
     chapter_summaries = get_chapter_summaries(g, chapters, title, book)
     chapter_conversational_networks = get_chapter_networks(er, associated_quotes)

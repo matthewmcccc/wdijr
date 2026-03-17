@@ -19,5 +19,7 @@ if __name__ == "__main__":
     quotes = book.get_full_text_quotes(text)
 
     er: EntityExtractor = EntityExtractor("en_core_web_trf", text)
-    for person in er.persons:
-        print(person)
+    associated_quotes = er.associate_text_quotes(quotes)
+    
+    for quote in associated_quotes:
+        print(quote)

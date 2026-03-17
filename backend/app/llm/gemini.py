@@ -1,12 +1,19 @@
 import os
 import time
+import json
 from google import genai
 from google.genai import types
 from dotenv import load_dotenv
 from concurrent.futures import ThreadPoolExecutor
+from enum import Enum
 
 load_dotenv()
 
+class PromptInstruction(str, Enum):
+    EXCERPT_SUMMARY = "excerpt_summary"
+    CHARACTER_SUMMARY = "character_summary"
+    CHAPTER_SUMMARY = "chapter_summary"
+    CONSOLIDATE_QUOTES = "consolidate_quotes"
 
 class Gemini:
     def __init__(self):
@@ -140,6 +147,22 @@ class Gemini:
             summaries = list(executor.map(send_request, texts))
 
         return summaries
+    
+    def consolidate_quotes(
+        self, model, network: dict, instruction: str
+    ):
+        additional_instruction = self.get_additional_instruction(instruction)
+        prompt=f"{additional_instruction}\n{str(json.dumps(network))}"
+        return (
+            self.client.models.generate_content(
+                model=model, 
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    response_mime_type="application/json",
+                ),
+            )
+            .candidates[0].content.parts[0].text
+        )
 
     def get_models(self):
         return self.client.models.list()
@@ -152,17 +175,40 @@ class Gemini:
         chapter_title: str = "",
     ) -> str:
         additional_instruction = ""
-        if instruction == "excerpt_summary":
+        if instruction == PromptInstruction.EXCERPT_SUMMARY:
             additional_instruction = self.excerpt_summary_prompt()
-        if instruction == "character_summary":
+        if instruction == PromptInstruction.CHARACTER_SUMMARY:
             additional_instruction = self.character_summary_prompt(
                 character_name, novel_title
             )
-        if instruction == "chapter_summary":
+        if instruction == PromptInstruction.CHAPTER_SUMMARY:
             additional_instruction = self.chapter_summary_prompt(
                 novel_title, chapter_title
             )
+        if instruction == PromptInstruction.CONSOLIDATE_QUOTES:
+            additional_instruction = self.consolidate_quotes(
+                novel_title
+            )
         return additional_instruction
+
+    @staticmethod
+    def consolidate_quotes(novel_title: str):
+        return f"""You are an expert in literary analysis and named entity resolution.
+                Task:
+                You will be given quotes. Each entity has an associated quote count. Entity resolution has already been performed, but some duplicates remain — your job is to identify entities that refer to the same character and group them together.
+
+                Use your knowledge of the novel to inform merging decisions (e.g. knowing that "Heathcliff" and "Mr. Heathcliff" are the same person, or that "Henry" and "Dr. Jekyll" are not).
+
+                Rules:
+                - Only merge entities you are confident refer to the same character. When in doubt, keep them separate.
+                - A good way to increase your confidence is to look at characters that may be substrings of other characters.
+                - Do not invent new names. The canonical name for each group must be the variant with the highest quote count.
+                - Return the result in exactly the same format as the input.
+                - Do not remove any entities UNLESS you are confident they are in the quotes erroneously, an example might be a non-speaking character that has been identified as a speaking entity, those can be removed — every input entity must appear in the output, either as a canonical name or mapped to one — unless you are confident it is not a genuine speaking character (e.g. a pet, a person being addressed but not speaking, or a character from a recited poem). In that case, remove it and list the removed entities with a brief reason at the end of your response.
+                
+                Title: {novel_title}
+                Here are the quotes to consolidate:
+                """
 
     @staticmethod
     def excerpt_summary_prompt():

@@ -20,6 +20,7 @@ class Character(Base):
     top_relationships = mapped_column(JSON, nullable=True)
     top_quote: Mapped[str] = mapped_column(String(200))
     novel_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("novel.id"))
+    image_url: Mapped[str] = mapped_column(String(500), nullable=True)
 
     novel: Mapped["Novel"] = relationship(back_populates="characters")
     quotes: Mapped[List["Quote"]] = relationship(back_populates="character")

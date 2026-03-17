@@ -13,6 +13,7 @@ interface BookContextType {
         name: string;
         description: string,
         novel_id: string,
+        image_url: string,
     }> | null,
     characterNavigationDict: Record<string, {
         left: string | null,

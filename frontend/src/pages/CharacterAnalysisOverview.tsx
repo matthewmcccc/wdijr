@@ -7,10 +7,10 @@ import CharacterCard from "../components/CharacterCard";
 import { BookContext } from "../contexts/bookContext";
 import humanize from "../utils/humanize";
 import { useParams } from "react-router-dom";
-import axios from "axios";
 import fetchNovelData from "../utils/fetchNovelData";
 import SideCharacterCard from "../components/SideCharacterCard";
 import newTabIcon from "../assets/img/new-tab.png";
+import defaultAvatar from "../assets/img/default-avatar.png";
 
 const CharacterAnalysisLanding = () => {
     const characterData = useContext(BookContext)?.characterData;
@@ -102,7 +102,7 @@ const CharacterAnalysisLanding = () => {
                                     <input type="checkbox" id="cumulative" checked={cumulative} onChange={() => setCumulative(!cumulative)} className="mb-2" />
                                     <label htmlFor="cumulative" className="text-sm text-gray-500 font-dewi mb-2">Cumulative</label>
                                 </div>
-                                <span className="text-sm text-black font-dewi mb-2 border border-gray-500 px-4 py-1 rounded-md">
+                                <span className="text-sm text-black font-dewi mb-4 border border-gray-500 px-4 py-1 rounded-md">
                                     {selectedChapter === null 
                                         ? "Showing full network" 
                                         : 
@@ -150,24 +150,29 @@ const CharacterAnalysisLanding = () => {
                         </div>
                     </div>   
                 </div>
-                <div className="flex flex-col gap-4">
+                <div className="">
                     <div className="justify-between flex flex-row">
                         <h1 className="font-serif text-4xl">Characters</h1>
                         <Dropdown />
                     </div>
                     <hr className="border-gray-300 my-4" />
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {
                         characterData && Object.entries(characterData).map(([id, data]) => (
+                            console.log(`data for ${id}:`, data),
                             <Fragment key={id}>
                                 {(!data.name) ? "" : null}
                                 <CharacterCard 
                                     name={humanize(data.name)}
+                                    // setCoverUrl?.(`${import.meta.env.VITE_API_URL.replace('/api', '')}${data.novel.cover_url}`);
+                                    img={data.image_url ? `${import.meta.env.VITE_API_URL.replace('/api', '')}${data.image_url}` : defaultAvatar}
                                     description={data.description ?? "No description available."}
                                     size={"large"}
                                 />
                             </Fragment>
                         ))
-                    }   
+                    }
+                    </div>
                 </div>
             </div>
         </div> 

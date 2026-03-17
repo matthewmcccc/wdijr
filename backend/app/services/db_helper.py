@@ -36,7 +36,7 @@ def save_analysis_to_db(
         session.add(novel)
         session.flush()
         if has_cover:
-            novel.cover_url = f"/covers/{novel.id}/covers/cover.jpg"
+            novel.cover_url = f"/data/{novel.id}/covers/cover.jpg"
 
         for i, char in enumerate(characters):
             name = char["name"]

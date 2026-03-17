@@ -15,7 +15,7 @@ import CharacterNavigation from "./components/CharacterNavigation";
 
 
 const App = () => {
-  const [characterData, setCharacterData] = useState<Array<{ id: Number, name: string, summary: string, description: string, novel_id: string }>>([])
+  const [characterData, setCharacterData] = useState<Array<{ id: Number, name: string, summary: string, description: string, novel_id: string, image_url: string }>>([])
   const [networkData, setNetworkData] = useState<{ links: any[], nodes: any[] }>({ links: [], nodes: [] })
   const [novelData, setNovelData] = useState<{ author: string; id: string; title: string } | null>(null);
   const [associatedQuotes, setAssociatedQuotes] = useState<Record<string, { quote: string, sentiment: number }[]> | undefined>(undefined);

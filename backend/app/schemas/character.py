@@ -11,7 +11,7 @@ class CharacterSchemaBase(BaseModel):
     top_relationships: dict | list
     top_quote: str | None = None
     novel_id: uuid.UUID | None = None
-
+    image_url: str | None = None
 
 class CharacterSchemaCreate(CharacterSchemaBase):
     pass
