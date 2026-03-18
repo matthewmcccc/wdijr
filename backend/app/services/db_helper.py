@@ -1,5 +1,6 @@
 import os
 import json
+from app.parsers.epub import Epub
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from app.models.novel import Novel
@@ -29,6 +30,7 @@ def save_analysis_to_db(
     chapters,
     chapter_summaries,
     chapter_conversational_networks,
+    chapter_valence_vals,
     has_cover=False,
 ):
     with Session(sync_engine) as session:
@@ -97,15 +99,6 @@ def save_analysis_to_db(
                     chapter_number=ch_number,
                 )
             )
-
-        print(f"DEBUG chapter_summaries type: {type(chapter_summaries)}")
-        print(
-            f"DEBUG chapter_summaries keys: {list(chapter_summaries.keys()) if isinstance(chapter_summaries, dict) else 'NOT A DICT'}"
-        )
-        for k, v in chapter_summaries.items():
-            print(
-                f"DEBUG ch[{k}]: type={type(v)}, empty={not bool(v.strip() if isinstance(v, str) else v)}, first50={repr(v[:50]) if isinstance(v, str) else repr(v)}"
-            )
         for idx, chapter in chapters.items():
             try:
                 chapter_summary = chapter_summaries[idx]
@@ -119,8 +112,6 @@ def save_analysis_to_db(
                     try:
                         chapter_summary = json.loads(chapter_summary, strict=False)
                     except json.JSONDecodeError as e:
-                        print(f"JSON PARSE FAILED ch[{idx}]: {e}")
-                        print(f"RAW (first 200): {repr(chapter_summary[:200])}")
                         chapter_summary = {"summary": "", "overview": ""}
             except json.JSONDecodeError:
                 chapter_summary = {"summary": "", "overview": ""}
@@ -132,6 +123,7 @@ def save_analysis_to_db(
                     novel_id=novel.id,
                     summary=chapter_summary.get("summary", ""),
                     overview=chapter_summary.get("overview", ""),
+                    sentiment=chapter_valence_vals[idx]
                 )
             )
 

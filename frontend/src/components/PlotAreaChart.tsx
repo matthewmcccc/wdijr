@@ -80,8 +80,6 @@ const PlotAreaChart = ({ width, height }: { width: number, height: number }) => 
     const peakPointsTooltips = useContext(BookContext)?.plotSummaries || []
 
     useEffect(() => {
-        console.log(sentimentValues, peakPoints, peakPointsTooltips);
-
         if (sentimentValues.length > 0) {
             createAreaChart('areaChartContainer', width, height, sentimentValues, peakPoints, peakPointsTooltips)
         }

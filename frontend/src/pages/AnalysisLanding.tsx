@@ -55,7 +55,8 @@ const AnalysisLanding = () => {
                         coverUrl={coverUrl || ""} 
                         description="Alice's Adventures in Wonderland (1865) is a novel by Lewis Carroll, the pen name of Oxford mathematician Charles Lutwidge Dodgson. It follows young Alice as she falls down a rabbit hole into a fantastical underground world populated by eccentric characters — the Cheshire Cat, the Mad Hatter, the Queen of Hearts — and navigates a series of absurd encounters that play with logic, language, and the conventions of Victorian society. Originally written to entertain Alice Liddell, the daughter of a colleague, the book became one of the most influential works of literary nonsense and remains widely read across all ages."
                     />
-                    <div className="flex flex-col gap-12 mb-20">
+                    <hr className="border-gray-300" />
+                    <div className="flex flex-row gap-12 mb-20">
                         <AnalysisItem 
                             analysis_type="Characters" 
                             img={GraphImage} 

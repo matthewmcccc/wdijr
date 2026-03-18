@@ -2,13 +2,13 @@ import matplotlib.pyplot as plt
 import math
 from labMTsimple.storyLab import emotion, emotionFileReader, emotionV, stopper
 
-CTX_WINDOW = 10000
-
+SUMMARIZATION_CTX_WINDOW = 10000
+DELTA_THRESHOLD = 0.15
+CTX_WINDOW = 500
 # the value we slide the context window across by.
 # lower value gives more valence values
 # but impacts performance, vice versa as you increase
-SLIDE = 1000
-
+SLIDE = 150
 
 class PlotSentiment:
     def __init__(self):
@@ -36,7 +36,7 @@ class PlotSentiment:
         word_list: the list of words to get valence values for
         """
         if len(word_list) < CTX_WINDOW:
-            raise ValueError("Given word list is too short.")
+            raise ValueError(f"Given word list is too short. Length: {len(word_list)}\nRequired length: {CTX_WINDOW}")
 
         valence_vals: list[float] = []
 
@@ -85,28 +85,31 @@ class PlotSentiment:
 
         for i in range(1, len(valence_vals)):
             d_val = valence_vals[i - 1] - valence_vals[i]
+            print((i / (len(valence_vals)) - 1))
             delta.append((i / (len(valence_vals) - 1), d_val))
 
-        # 0.15 is a bit arbitrary, but esentially
-        # its for retrieving the top 15% (roughly)
-        # delta values by absolute value.
-        # group = math.ceil(0.15 * len(delta))
         for i, d in enumerate(delta):
             prev = delta[max(0, i - 1)][1]
             if (prev > 0 and d[1] < 0) or (prev < 0 and d[1] > 0):
-                points.append(delta[i - 1])
+                diff = abs(prev - d[1])
+                if diff > DELTA_THRESHOLD:
+                    points.append(delta[i - 1])
+
         return points
 
     @staticmethod
     def get_text_for_summarization(
-        text: str, delta: list[(int, float)], valence_vals_len: int
+        ch_text: str, delta: list[(int, float)], valence_vals_len: int
     ) -> list[str]:
-        words = text.split()
+        """
+        
+        """
+        words = ch_text.split()
         texts = []
-        for position, _ in delta:
-            i = int(round(position * (valence_vals_len - 1)))
+        for pos, _ in delta:
+            i = int(round(pos * (valence_vals_len - 1)))
             base_start = SLIDE * i
-            base_end = base_start + CTX_WINDOW
+            base_end = base_start + SUMMARIZATION_CTX_WINDOW
             if i != 0 and i != valence_vals_len - 1:
                 base_start = max(0, base_start - SLIDE)
                 base_end = min(len(words), base_end + SLIDE)

@@ -1,6 +1,6 @@
 import uuid
 from .base import Base
-from sqlalchemy import String, ForeignKey, select, Float, Text, Integer
+from sqlalchemy import String, ForeignKey, select, Float, Text, Integer, JSON
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -14,6 +14,7 @@ class Chapter(Base):
     summary: Mapped[str] = mapped_column(Text, nullable=True)
     overview: Mapped[str] = mapped_column(Text, nullable=True)
     novel_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("novel.id"))
+    sentiment: Mapped[list[float]] = mapped_column(JSON, nullable=True)
 
     novel: Mapped["Novel"] = relationship(back_populates="chapters")
 

@@ -170,7 +170,7 @@ class Epub(Book):
         """
         Get a list of all of the quotes from the text,
         and spans of text before and after the quote.
-        quotes in this context are instances of speech.
+        Quotes in this context are any instance of speech.
 
         :return A list of all of the quotes, and spans of text surrounding the quote
         :rtype list[dict]

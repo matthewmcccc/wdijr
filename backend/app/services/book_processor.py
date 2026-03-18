@@ -81,32 +81,48 @@ def process_text(self, book_path):
         nw_dict=nw
     )
 
-    sentiment_values = ps.get_section_valence(full_text_words)
-    inflection_points = ps.first_difference(sentiment_values)
+    chapter_valence_vals: list = []
+    for idx, chapter in book.chapters.items():
+        word_list = book.get_chapter_word_list(idx)
+        sentiment_values = ps.get_section_valence(
+            word_list
+        )
+        chapter_valence_vals.append(sentiment_values)
+    diff_values = []
+    for idx, valence_vals in enumerate(chapter_valence_vals):
+        first_diff = ps.first_difference(
+            valence_vals
+        )
+        diff_values.append(sorted(first_diff, key=lambda x: abs(x[1]), reverse=True)[:2])
 
-    summarisation_texts = ps.get_text_for_summarization(
-        text, inflection_points, len(sentiment_values)
-    )
+    text_for_summarisation = []
+    for idx, valence_vals in enumerate(chapter_valence_vals):
+        sum_text = ps.get_text_for_summarization(
+            book.get_chapter_text(idx),
+            diff_values[idx],
+            len(chapter_valence_vals[idx])
+        )   
+        text_for_summarisation.append(sum_text)
 
     self.update_state(
         state="PROCESSING", meta={"status": "Generating character summaries..."}
     )
 
-    consolidated_network = g.consolidate_network(
-        "gemini-2.5-flash",
-        nw,
-        "consolidate_network"
-    )
+    # consolidated_network = g.consolidate_network(
+    #     "gemini-2.5-flash",
+    #     nw,
+    #     "consolidate_network"
+    # )
 
     top_relationships_dict = {}
     top_quotes = {}
     for character in characters:
         name = character["name"]
-        top_relationships_dict[name] = er.get_top_relationships(consolidated_network, name)
-        top_quotes[name] = er.get_character_quotes(consolidated_network, name)
+        top_relationships_dict[name] = er.get_top_relationships(nw, name)
+        top_quotes[name] = er.get_character_quotes(nw, name)
 
-    character_summaries = get_character_summaries(er, characters, consolidated_network, g, book.title)
-    plot_summaries = get_plot_summaries(g, summarisation_texts)
+    character_summaries = get_character_summaries(er, characters, nw, g, book.title)
+    plot_summaries = get_plot_summaries(g, text_for_summarisation)
     chapter_summaries = get_chapter_summaries(g, chapters, title, book)
     chapter_conversational_networks = get_chapter_networks(er, associated_quotes)
     chapter_nw_nodes = get_chapter_network_nodes(er, chapter_conversational_networks)
@@ -123,14 +139,15 @@ def process_text(self, book_path):
         char_mapping=mapping,
         top_relationships=top_relationships_dict,
         top_quotes=top_quotes,
-        sentiment_values=sentiment_values,
-        inflection_points=inflection_points,
+        sentiment_values=[v for ch in chapter_valence_vals for v in ch],
+        inflection_points=diff_values,
         plot_summaries=plot_summaries,
         has_cover=cover is not None,
         character_to_character_sentiment=character_to_character_sentiment_dict,
         chapters=chapters,
         chapter_conversational_networks=chapter_nw_nodes,
         chapter_summaries=chapter_summaries,
+        chapter_valence_vals=chapter_valence_vals,
     )
 
     cover_url = book.write_cover(cover, novel_id)
@@ -143,7 +160,7 @@ def process_text(self, book_path):
         "associated_quotes": associated_quotes,
         "top_relationships": top_relationships_dict,
         "sentiment_values": sentiment_values,
-        "inflection_points": inflection_points,
+        "inflection_points": diff_values,
         "plot_summaries": {},
         "cover_url": cover_url,
         "character_sentiment": character_to_character_sentiment_dict,
@@ -238,3 +255,20 @@ def get_character_thumbnails(title: str, er: EntityExtractor):
             }
         ).json()
         print(image_res)
+
+
+def get_chapter_valence_vals(book: Epub, ps: PlotSentiment) -> list:
+    chapter_valence_vals: list = []
+    for idx, chapter in book.chapters.items():
+        word_list = book.get_chapter_word_list(idx)
+        sentiment_values = ps.get_section_valence(
+            word_list
+        )
+        chapter_valence_vals.append(sentiment_values)
+    diff_values = []
+    for idx, valence_vals in enumerate(chapter_valence_vals):
+        first_diff = ps.first_difference(
+            valence_vals
+        )
+        diff_values.append(sorted(first_diff, key=lambda x: abs(x[1]), reverse=True)[:2])
+    return chapter_valence_vals

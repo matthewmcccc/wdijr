@@ -51,13 +51,13 @@ const PlotAnalysisLanding = () => {
                 </p>
             </div>
             <hr className="border-gray-300 my-4"/>
-            <div className="flex flex-col gap-12 mt-4 h-100">
+            <div className="flex flex-col gap-12 mt-4 h-120">
                 <div className="flex flex-row justify-between ">
                     <div className="flex flex-col gap-2">
                         <h1 className="font-dewi">Plot Sentiment Over Time</h1>
                         <PlotAreaChart 
-                            width={1250}
-                            height={300}
+                            width={1500}
+                            height={400}
                         />
                     </div>   
                     <div className="flex flex-col gap-2">
@@ -69,7 +69,7 @@ const PlotAnalysisLanding = () => {
                     Chapters
                 </h1>
                 <hr className="border-gray-300 my-4"/>
-                <div className="flex flex-col gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {bookContext?.chapterData?.map(chapter => (
                         <ChapterCard
                             id={chapter.id}

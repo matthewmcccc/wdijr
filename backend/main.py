@@ -19,7 +19,26 @@ if __name__ == "__main__":
     quotes = book.get_full_text_quotes(text)
 
     er: EntityExtractor = EntityExtractor("en_core_web_trf", text)
-    associated_quotes = er.associate_text_quotes(quotes)
+    ps: PlotSentiment = PlotSentiment()
     
-    for quote in associated_quotes:
-        print(quote)
+    chapter_valence_vals: list = []
+    for idx, chapter in book.chapters.items():
+        word_list = book.get_chapter_word_list(idx)
+        sentiment_values = ps.get_section_valence(
+            word_list
+        )
+        chapter_valence_vals.append(sentiment_values)
+    diff_values = []
+    for idx, valence_vals in enumerate(chapter_valence_vals):
+        first_diff = ps.first_difference(
+            valence_vals
+        )
+        diff_values.append(sorted(first_diff, key=lambda x: abs(x[1]), reverse=True)[:2])
+    text_for_summarisation = []
+    for idx, valence_vals in enumerate(chapter_valence_vals):
+        sum_text = ps.get_text_for_summarization(
+            book.get_chapter_text(idx),
+            diff_values[idx],
+            len(chapter_valence_vals[idx])
+        )   
+        print(sum_text)

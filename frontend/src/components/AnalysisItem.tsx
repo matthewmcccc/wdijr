@@ -18,7 +18,7 @@ export default function AnalysisItem({ analysis_type, img, description, url }: A
             </div>
             <div className="">
                 {img ? (
-                    <img className="pointer-events-none h-36 select-none" src={img} alt={analysis_type} id="analysisImage"/>
+                    <img className="pointer-events-none h-48 select-none" src={img} alt={analysis_type} id="analysisImage"/>
                 ) : (
                     <div className="bg-gray-200 flex items-center justify-center">
                         <span className="text-gray-500">Image Placeholder</span>
