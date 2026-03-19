@@ -53,7 +53,7 @@ const CharacterAnalysisLanding = () => {
             }
         };
         fetchCharacterData();
-    }, [characterData, novelId, setCharacterData, setNetworkData, novelData, setNovelData, setTitle, setAssociatedQuotes, associatedQuotes]);
+    }, [novelId]);
 
     return (
         <div className="container mx-auto px-4 py-8">
@@ -77,7 +77,7 @@ const CharacterAnalysisLanding = () => {
                                     key={`${novelId}-${selectedChapter}`}
                                     id="network-graph-1" 
                                     height={400}
-                                    width={1500}
+                                    width={1250}
                                     selectedChapter={selectedChapter}
                                     chapterNetworkData={chapterNetworkData}
                                     onNodeHover={(node) => {

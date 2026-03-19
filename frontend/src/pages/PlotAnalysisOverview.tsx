@@ -3,9 +3,19 @@ import Navbar from "../components/Navbar"
 import ChapterCard from "../components/ChapterCard"
 import PlotAreaChart from "../components/PlotAreaChart"
 import { useParams } from "react-router-dom"
-import { useContext, useEffect, useRef } from "react"
+import { useContext, useEffect, useRef, useState } from "react"
 import { BookContext } from "../contexts/bookContext"
 import fetchNovelData from "../utils/fetchNovelData"
+import PlotEventCard from "../components/PlotEventCard"
+import useContainerSize from "../hooks/useContainerSize"
+
+interface SelectedEvent {
+    title: string;
+    chapter: string;
+    description: string;
+    category: string;
+    characters: string[];
+}
 
 const PlotAnalysisLanding = () => {
     const novelId = useParams<{ novelId: string }>().novelId;
@@ -25,8 +35,8 @@ const PlotAnalysisLanding = () => {
     const setChapterNetworkData = bookContext?.setChapterNetworkData;
     const hasFetched = useRef<string | null>(null);
     const title = bookContext?.title;
-
-    console.log("render", novelData?.id, novelId);
+    const { containerRef, width: containerWidth, height: containerHeight } = useContainerSize();
+    const [selectedEvent, setSelectedEvent] = useState<SelectedEvent | null>(null);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -40,8 +50,6 @@ const PlotAnalysisLanding = () => {
         fetchData();
     }, [novelId]);
 
-    console.log(`chapterData: ${JSON.stringify(bookContext?.chapterData)}`);
-
     return (
         <div className="container mx-auto px-4 py-8">
             <Navbar />
@@ -53,20 +61,35 @@ const PlotAnalysisLanding = () => {
                 </p>
             </div>
             <hr className="border-gray-300 my-4"/>
-            <div className="flex flex-col gap-12 mt-4 h-150">
-                <div className="flex flex-row justify-between ">
-                    <div className="flex flex-col gap-2">
-                        <div className="border border-gray-300 rounded-lg p-4">
-                            <h1 className="text-center text-lg font-serif">{title} | Plot Sentiment & Key Events</h1>
-                            <PlotAreaChart 
-                                width={1250}
-                                height={500}
-                            />
+            <div className="flex flex-row justify-between gap-4 mt-4">
+                <div className="flex-7 min-w-0">
+                    <div className="border border-gray-300 rounded-lg p-4">
+                        <h1 className="text-center text-lg font-serif">
+                            {title} | Plot Sentiment & Key Events
+                        </h1>
+                        <div ref={containerRef} className="w-full h-[450px]">
+                            {containerWidth > 0 && containerHeight > 0 && (
+                                <PlotAreaChart
+                                    width={containerWidth}
+                                    height={containerHeight}
+                                    onEventClick={(event) => setSelectedEvent(event)}
+                                />
+                            )}
                         </div>
-                    </div>   
-                    <div className="flex flex-col gap-2">
                     </div>
                 </div>
+                {selectedEvent && (
+                    <div className="flex-3">
+                        <PlotEventCard
+                            title={selectedEvent.title}
+                            chapter={selectedEvent.chapter}
+                            description={selectedEvent.description}
+                            characters={selectedEvent.characters}
+                            eventType={selectedEvent.category as any}
+                            onClose={() => setSelectedEvent(null)}
+                        />
+                    </div>
+                )}
             </div>
             <div className="flex flex-col gap-4 mt-4">
                 <h1 className="font-serif text-4xl">
@@ -76,6 +99,7 @@ const PlotAnalysisLanding = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {bookContext?.chapterData?.map(chapter => (
                         <ChapterCard
+                            key={chapter.id}
                             id={chapter.id}
                             number={chapter.chapter_number}
                             title={chapter.title}
