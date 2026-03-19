@@ -35,10 +35,20 @@ if __name__ == "__main__":
         )
         diff_values.append(sorted(first_diff, key=lambda x: abs(x[1]), reverse=True)[:2])
     text_for_summarisation = []
-    for idx, valence_vals in enumerate(chapter_valence_vals):
-        sum_text = ps.get_text_for_summarization(
-            book.get_chapter_text(idx),
-            diff_values[idx],
-            len(chapter_valence_vals[idx])
-        )   
-        print(sum_text)
+    offset = 0
+    global_inflection_points = []
+    for idx, diff in enumerate(diff_values):
+        chapter_point_count = len(chapter_valence_vals[idx])
+        for pos, delta in diff:
+            global_x = offset + pos * (chapter_point_count - 1)
+            global_inflection_points.append((global_x, delta))
+        offset += chapter_point_count
+    print(global_inflection_points)
+
+    # for idx, valence_vals in enumerate(chapter_valence_vals):
+    #     sum_text = ps.get_text_for_summarization(
+    #         book.get_chapter_text(idx),
+    #         diff_values[idx],
+    #         len(chapter_valence_vals[idx])
+    #     )   
+    #     print(sum_text)

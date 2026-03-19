@@ -22,6 +22,7 @@ const PlotAnalysisLanding = () => {
     const setCoverUrl = bookContext?.setCoverUrl;
     const setCharacterSentimentValues = bookContext?.setCharacterSentimentValues;
     const setChapterData = bookContext?.setChapterData;
+    const setChapterNetworkData = bookContext?.setChapterNetworkData;
     const hasFetched = useRef<string | null>(null);
 
     console.log("render", novelData?.id, novelId);
@@ -32,7 +33,7 @@ const PlotAnalysisLanding = () => {
             hasFetched.current = novelId ?? null;
 
             if (setNovelData && setCharacterData && setNetworkData && setTitle && setQuoteData && setPlotSummaries && setSentimentValues && setInflectionPoints && setCoverUrl && setCharacterSentimentValues && setChapterData) {
-                await fetchNovelData(novelId ?? "", setNovelData, setCharacterData, setNetworkData, setTitle, setQuoteData, setPlotSummaries, setSentimentValues, setInflectionPoints, setCoverUrl, setCharacterSentimentValues, setChapterData);
+                await fetchNovelData(novelId ?? "", setNovelData, setCharacterData, setNetworkData, setTitle, setQuoteData, setPlotSummaries, setSentimentValues, setInflectionPoints, setCoverUrl, setCharacterSentimentValues, setChapterData, setChapterNetworkData);
             }
         };
         fetchData();
@@ -56,7 +57,7 @@ const PlotAnalysisLanding = () => {
                     <div className="flex flex-col gap-2">
                         <h1 className="font-dewi">Plot Sentiment Over Time</h1>
                         <PlotAreaChart 
-                            width={1500}
+                            width={1250}
                             height={400}
                         />
                     </div>   

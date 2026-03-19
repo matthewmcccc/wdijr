@@ -121,13 +121,23 @@ def process_text(self, book_path):
         top_relationships_dict[name] = er.get_top_relationships(nw, name)
         top_quotes[name] = er.get_character_quotes(nw, name)
 
+    flat_texts = [text for chapter_texts in text_for_summarisation for text in chapter_texts]
     character_summaries = get_character_summaries(er, characters, nw, g, book.title)
-    plot_summaries = get_plot_summaries(g, text_for_summarisation)
+    plot_summaries = get_plot_summaries(g, flat_texts)
     chapter_summaries = get_chapter_summaries(g, chapters, title, book)
     chapter_conversational_networks = get_chapter_networks(er, associated_quotes)
     chapter_nw_nodes = get_chapter_network_nodes(er, chapter_conversational_networks)
 
     mapping = er.persons_to_id()
+
+    offset = 0
+    global_inflection_points = []
+    for idx, diff in enumerate(diff_values):
+        chapter_point_count = len(chapter_valence_vals[idx])
+        for pos, delta in diff:
+            global_x = offset + pos * (chapter_point_count - 1)
+            global_inflection_points.append((global_x, delta))
+        offset += chapter_point_count
 
     novel_id = save_analysis_to_db(
         title=title,
@@ -140,7 +150,7 @@ def process_text(self, book_path):
         top_relationships=top_relationships_dict,
         top_quotes=top_quotes,
         sentiment_values=[v for ch in chapter_valence_vals for v in ch],
-        inflection_points=diff_values,
+        inflection_points=global_inflection_points,
         plot_summaries=plot_summaries,
         has_cover=cover is not None,
         character_to_character_sentiment=character_to_character_sentiment_dict,
@@ -159,12 +169,13 @@ def process_text(self, book_path):
         "characters": characters,
         "associated_quotes": associated_quotes,
         "top_relationships": top_relationships_dict,
-        "sentiment_values": sentiment_values,
-        "inflection_points": diff_values,
+        "sentiment_values": [v for ch in chapter_valence_vals for v in ch],
+        "inflection_points": global_inflection_points,
         "plot_summaries": {},
         "cover_url": cover_url,
         "character_sentiment": character_to_character_sentiment_dict,
         "chapter_network": chapter_nw_nodes,
+        "chapter_lengths": [len(ch) for ch in chapter_valence_vals],
     }
 
 

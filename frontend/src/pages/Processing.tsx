@@ -24,6 +24,7 @@ const Processing = () => {
     const navigate = useNavigate();
     const chapterNetworkData = useContext(BookContext)?.chapterNetworkData;
     const setChapterNetworkData = useContext(BookContext)?.setChapterNetworkData;
+    const setChapterLengths = useContext(BookContext)?.setChapterLengths;
 
     useEffect(() => {
         if (done) return;
@@ -44,6 +45,7 @@ const Processing = () => {
                 setCoverUrl?.(data.data.data.cover_url);
                 setCharacterSentimentValues?.(data.data.data.character_sentiment);
                 setChapterNetworkData?.(data.data.data.chapter_network);
+                setChapterLengths?.(data.data.data.chapter_lengths);
                 setDone(true);
             }
         }, 2000);

@@ -31,6 +31,7 @@ const App = () => {
   const [characterSentimentValues, setCharacterSentimentValues] = useState<any>(null);
   const [chapterData, setChapterData] = useState<Array<{ chapter_number: number; title: string; summary: string; overview: string; novel_id: string }> | null>(null);
   const [chapterNetworkData, setChapterNetworkData] = useState<{ links: any[], nodes: any[] }>({ links: [], nodes: [] });
+  const [chapterLengths, setChapterLengths] = useState<number[] | null>(null);
 
   const contextValue = useMemo(() => ({
       characterData,
@@ -64,7 +65,9 @@ const App = () => {
       setChapterData,
       chapterNetworkData,
       setChapterNetworkData,
-  }), [characterData, networkData, novelData, associatedQuotes, topCharacterRelationships, title, topCharacterQuotes, attributedQuotes, quoteData, sentimentValues, inflectionPoints, plotSummaries, coverUrl, characterSentimentValues, chapterData, chapterNetworkData]);
+      chapterLengths,
+      setChapterLengths,
+  }), [characterData, networkData, novelData, associatedQuotes, topCharacterRelationships, title, topCharacterQuotes, attributedQuotes, quoteData, sentimentValues, inflectionPoints, plotSummaries, coverUrl, characterSentimentValues, chapterData, chapterNetworkData, chapterLengths]);
 
   return (
     <BrowserRouter>
