@@ -24,6 +24,7 @@ const PlotAnalysisLanding = () => {
     const setChapterData = bookContext?.setChapterData;
     const setChapterNetworkData = bookContext?.setChapterNetworkData;
     const hasFetched = useRef<string | null>(null);
+    const title = bookContext?.title;
 
     console.log("render", novelData?.id, novelId);
 
@@ -52,14 +53,16 @@ const PlotAnalysisLanding = () => {
                 </p>
             </div>
             <hr className="border-gray-300 my-4"/>
-            <div className="flex flex-col gap-12 mt-4 h-120">
+            <div className="flex flex-col gap-12 mt-4 h-150">
                 <div className="flex flex-row justify-between ">
                     <div className="flex flex-col gap-2">
-                        <h1 className="font-dewi">Plot Sentiment Over Time</h1>
-                        <PlotAreaChart 
-                            width={1250}
-                            height={400}
-                        />
+                        <div className="border border-gray-300 rounded-lg p-4">
+                            <h1 className="text-center text-lg font-serif">{title} | Plot Sentiment & Key Events</h1>
+                            <PlotAreaChart 
+                                width={1250}
+                                height={500}
+                            />
+                        </div>
                     </div>   
                     <div className="flex flex-col gap-2">
                     </div>

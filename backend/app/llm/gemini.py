@@ -137,7 +137,21 @@ class Gemini:
             additional_instruction = self.get_additional_instruction(instruction)
             prompt = f"{additional_instruction}\n{text}"
             return (
-                self.client.models.generate_content(model=model, contents=prompt)
+                self.client.models.generate_content(
+                    model=model, 
+                    contents=prompt, 
+                    config=types.GenerateContentConfig(
+                            response_mime_type="application/json",
+                            response_schema={
+                                "type": "OBJECT",
+                                "properties": {
+                                    "summary": {"type": "STRING"},
+                                    "category": {"type": "STRING"},
+                                },
+                                "required": ["summary", "category"],
+                            },
+                        )
+                    )
                 .candidates[0]
                 .content.parts[0]
                 .text
@@ -216,12 +230,25 @@ class Gemini:
                     Task:
                     Summarize this short novel excerpt in a single concise sentence of under 25 words.
                     Focus on the key emotional or narrative event.
+                    Categorize the excerpt as one of the following types of narrative event:
+                    Death — character death or loss
+                    Conflict — arguments, fights, confrontations
+                    Discovery — revelations, secrets uncovered, key information learned
+                    Reunion — characters meeting again or coming together
+                    Departure — characters leaving, journeys beginning, separations
+                    Romance — love declarations, proposals, romantic moments
+                    Betrayal — deception revealed, trust broken
+                    Transformation — character change, disguise, identity shift
+                    Peril — danger, threat, chase, narrow escape
+                    Resolution — problems solved, peace restored, conclusions reached
 
                     Rules:
                     - Reference characters by their full canonical names where possible.
                     - Do not add interpretation beyond what is present in the text.
                     - Do not make any reference to the prompt itself.
                     - Only give the summarisation, nothing else.
+                    - The response must be in the following JSON format: "summary": *EXCERPT SUMMARY IN DOUBLE QUOTES*,
+                    "category": *EXCERPT CATEGORY* 
 
                     Here is the excerpt to summarize:
             """
