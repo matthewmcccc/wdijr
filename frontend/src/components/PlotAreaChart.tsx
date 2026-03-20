@@ -42,12 +42,6 @@ const createAreaChart = (
         catch { return { summary: s, category: '', characters: [] } }
     })
 
-    const inflectionLookup = peakPoints.map((d, i) => ({
-        idx: Math.round(d[0]),
-        summary: parsedSummaries[i]?.summary || '',
-        category: parsedSummaries[i]?.category || ''
-    }))
-
     let chOffset = 0
     const chapterBoundaries: { start: number, end: number, idx: number }[] = []
     chapterLengths.forEach((len, i) => {
@@ -69,7 +63,6 @@ const createAreaChart = (
         .attr('x', 0)
         .attr('y', -margin.top)
 
-    // Focus (main chart)
     const focus = svgEl.append('g')
         .attr('transform', `translate(${margin.left},${margin.top})`)
 
@@ -86,7 +79,6 @@ const createAreaChart = (
         .domain([d3.min(sentimentValues)!, d3.max(sentimentValues)!])
         .range([innerHeight, 0])
 
-    // Context (mini chart)
     const contextTop = margin.top + innerHeight + gap
     const context = svgEl.append('g')
         .attr('transform', `translate(${margin.left},${contextTop})`)
@@ -99,7 +91,6 @@ const createAreaChart = (
         .domain([d3.min(sentimentValues)!, d3.max(sentimentValues)!])
         .range([contextHeight, 0])
 
-    // Draw context mini chart
     const contextArea = d3.area<number>()
         .x((d, i) => xContext(i))
         .y0(contextHeight)
@@ -121,7 +112,6 @@ const createAreaChart = (
         .attr('d', contextLine)
         .attr('stroke-width', 1)
 
-    // Context chapter lines
     chapterBoundaries.forEach((ch, i) => {
         if (i > 0) {
             context.append('line')
@@ -143,7 +133,6 @@ const createAreaChart = (
 
     const badgeRadius = iconSize / 2 + 4
 
-    // Helper to handle icon/badge click
     const handleEventClick = (d: number[], i: number) => {
         const idx = Math.round(d[0])
         const chapter = chapterBoundaries.find(c => idx >= c.start && idx <= c.end)
@@ -161,7 +150,6 @@ const createAreaChart = (
     function drawFocus() {
         focusContent.selectAll('*').remove()
 
-        // Chapter boundaries
         chapterBoundaries.forEach((ch, i) => {
             const bandStart = xFocus(ch.start)
 
@@ -176,7 +164,6 @@ const createAreaChart = (
             }
         })
 
-        // Area
         const area = d3.area<number>()
             .x((d, i) => xFocus(i))
             .y0(innerHeight)
@@ -198,7 +185,6 @@ const createAreaChart = (
             .attr('d', line)
             .attr('stroke-width', 1.5)
 
-        // Badge circles
         focusContent.selectAll('circle.badge')
             .data(peakPoints)
             .enter()
@@ -216,7 +202,6 @@ const createAreaChart = (
                 handleEventClick(d, i)
             })
 
-        // Icon foreignObjects
         focusContent.selectAll('foreignObject.icon')
             .data(peakPoints)
             .enter()
@@ -244,7 +229,6 @@ const createAreaChart = (
     drawFocus()
 
 
-    // Brush on context
     const brush = d3.brushX()
         .extent([[0, 0], [innerWidth, contextHeight]])
         .on('brush end', (event) => {

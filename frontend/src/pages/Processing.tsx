@@ -34,7 +34,7 @@ const Processing = () => {
             setStatus(data.data.detail || "Processing...");
         if (data.data.status == "complete") {
                 setTitle?.(data.data.data.title);
-                setNetworkData?.(data.data.data.network);
+                setNetworkData?.(data.data.data.conversational_network);
                 setSentimentValues?.(data.data.data.sentiment_values);
                 setInflectionPoints?.(data.data.data.inflection_points);
                 setCharacterData?.(data.data.data.characters);

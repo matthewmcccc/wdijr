@@ -24,9 +24,9 @@ const CharacterCard = ({ name, img, description, traits, size, sentiment }: { na
             onClick={() => navigate(`/character/${novelId}/${name.toLowerCase().replace(/\s+/g, '-')}`)} 
             className={`mb-8 ${padding} border border-gray-300 rounded-lg cursor-pointer hover:shadow-sm transition-shadow duration-300 ${sentiment !== undefined ? (sentiment > 0 && size == "small" ? "ring-1 ring-green-500" : sentiment < 0 && size == "small" ? "ring-1 ring-red-500" : "ring-1 ring-gray-300") : "bg-white"}`}
         >
-            {img && <img src={img} alt={name} className="border border-gray-800 mx-auto mb-4 rounded-lg w-18 h-24 object-cover" />}
+            {img && <img src={img} alt={name} className="border border-gray-800 mx-auto mb-4 rounded-lg w-24 h-30 object-cover" />}
             <h2 className={`text-${textSize} ${size == "small" ? "" : "text-center"} font-serif mb-4 text-black`}>{name}</h2>
-            <div className={`${size === "small" ? "" : "h-24"}`}>
+            <div className={`${size === "small" ? "" : "h-32"}`}>
                 <p className="mb-4 text-center">{description}</p>
             </div>    
             {size === "large" && (

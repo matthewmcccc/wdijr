@@ -8,6 +8,9 @@ import { BookContext } from "../contexts/bookContext";
 import fetchNovelData from "../utils/fetchNovelData";
 import BookCard from "../components/BookCard";
 import Breadcrumbs from "../components/Breadcrumbs";
+import TheatreMask from "../assets/img/drama_mask.png"
+import BookIcon from "../assets/img/book_icon.png"
+import Puzzle from "../assets/img/puzzle.png"
 
 interface AnalysisProps {
     text_title: string
@@ -61,20 +64,20 @@ const AnalysisLanding = () => {
                         <div className="flex flex-row gap-12 mb-20">
                             <AnalysisItem 
                                 analysis_type="Characters" 
-                                img={GraphImage} 
+                                img={TheatreMask} 
                                 url={`/character-analysis/${novelId}`} 
                                 description="View a list of characters and their details, as well as interactive
                                 visualisations."
                             />
                             <AnalysisItem 
                                 analysis_type="Plot" 
-                                img={GraphImage} 
+                                img={BookIcon} 
                                 url={`/plot-analysis/${novelId}`} 
                                 description="View a detailed analysis of the plot, including key events and their impact on the story."
                             />
                             <AnalysisItem 
                                 analysis_type="Miscellany" 
-                                img={GraphImage} 
+                                img={Puzzle} 
                                 url={`/miscellany-analysis/${novelId}`} 
                                 description="View a collection of miscellaneous analyses, including character interactions, thematic elements, and other insights."
                             />

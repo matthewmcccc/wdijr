@@ -4,6 +4,7 @@ import spacy
 import gender_guesser.detector as gender
 import regex as re
 import networkx as nx
+from itertools import combinations
 from networkx.algorithms import community
 from spacy.language import Language
 from collections import Counter
@@ -27,6 +28,8 @@ class EntityExtractor:
         self.nlp = spacy.load(model)
         self.doc = self.process_text(text)
         self.persons = self.get_persons_from_text()
+        self.consolidated_persons = self.consolidate_persons()
+        self.canonical_characters = [p[0] for p in self.consolidated_persons]
         self.verbs_regex = self.build_speech_verbs_regex()
         self.gender_detector = gender.Detector()
         self.entity_index = self.build_entity_index(text)
@@ -81,12 +84,9 @@ class EntityExtractor:
         :return: List of consolidated name groups
         :rtype: list[list[str]]
         """
-        sorted_persons = sorted(
-            self.persons, reverse=True, key=lambda entity: len(entity)
-        )
         gen_persons = []
         stop_words = self.nlp.Defaults.stop_words
-        name = self.clean_string(sorted_persons[0])
+        name = self.clean_string(self.persons[0])
         gen_persons.append(
             [
                 name,
@@ -97,9 +97,9 @@ class EntityExtractor:
                 ],
             ]
         )
-        for p_idx in range(len(sorted_persons)):
+        for p_idx in range(len(self.persons)):
             seen = False
-            p = self.clean_string(sorted_persons[p_idx])
+            p = self.clean_string(self.persons[p_idx])
             if len(p) <= 3 or p in stop_words:
                 break
             p_split = p.split(" ")
@@ -129,9 +129,27 @@ class EntityExtractor:
 
     def persons_to_id(self):
         mapping = defaultdict(int)
-        for i, person in enumerate(self.persons):
+        for i, person in enumerate(self.canonical_characters):
             mapping[person] = i
         return mapping
+    
+    def build_cocurrence_network(self, paras: list[str]) -> tuple[dict, dict]:
+        cooccurrence_dict = defaultdict(list)
+        persons_dict = self.build_persons_dict()
+        for para in paras:
+            para_lower = para.lower()
+            seen = set()
+            for variant, canonical in persons_dict.items():
+                if variant in para_lower:
+                    seen.add(canonical)
+            for char_a, char_b in combinations(seen, 2):
+                key = tuple(sorted([char_a, char_b]))
+                cooccurrence_dict[key].append(1)
+        cooccurrence_frequency_dict = defaultdict(int)
+        for pair, frequency_list in cooccurrence_dict.items():
+            cooccurrence_frequency_dict[pair] = sum(frequency_list)        
+        return (cooccurrence_dict, cooccurrence_frequency_dict)
+
 
     def build_persons_dict(self) -> dict:
         """
@@ -392,6 +410,17 @@ class EntityExtractor:
             node["group"] = node_to_group.get(node["id"], 0)
 
         return {"nodes": nodes, "links": links}
+    
+    @staticmethod
+    def get_nodes_from_cooccurrence_network_dict(
+        cooccurrence_nw_dict: dict
+    ):
+        nodes = []
+        links = []
+        seen_nodes = set()
+        pass
+
+
 
     # TODO: used typeddict
     @staticmethod

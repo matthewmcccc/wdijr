@@ -131,10 +131,10 @@ class Gemini:
         return responses
 
     def text_span_summary_mass_prompt(
-        self, model, texts: list[str], instruction: str
+        self, model, texts: list[str], instruction: str, characters: list[str]
     ) -> list[str]:
         def send_request(text):
-            additional_instruction = self.get_additional_instruction(instruction)
+            additional_instruction = self.get_additional_instruction(instruction, characters=characters)
             prompt = f"{additional_instruction}\n{text}"
             return (
                 self.client.models.generate_content(
@@ -147,8 +147,12 @@ class Gemini:
                                 "properties": {
                                     "summary": {"type": "STRING"},
                                     "category": {"type": "STRING"},
+                                    "characters": {
+                                        "type": "ARRAY",
+                                        "items": {"type": "STRING"}
+                                    }
                                 },
-                                "required": ["summary", "category"],
+                                "required": ["summary", "category", "characters"],
                             },
                         )
                     )
@@ -187,10 +191,11 @@ class Gemini:
         character_name: str = "",
         novel_title: str = "",
         chapter_title: str = "",
+        characters: list[str] = []
     ) -> str:
         additional_instruction = ""
         if instruction == PromptInstruction.EXCERPT_SUMMARY:
-            additional_instruction = self.excerpt_summary_prompt()
+            additional_instruction = self.excerpt_summary_prompt(characters)
         if instruction == PromptInstruction.CHARACTER_SUMMARY:
             additional_instruction = self.character_summary_prompt(
                 character_name, novel_title
@@ -225,12 +230,16 @@ class Gemini:
                 """
 
     @staticmethod
-    def excerpt_summary_prompt():
-        return """You are an expert in literary summarization.
-                    Task:
-                    Summarize this short novel excerpt in a single concise sentence of under 25 words.
-                    Focus on the key emotional or narrative event.
-                    Categorize the excerpt as one of the following types of narrative event:
+    def excerpt_summary_prompt(characters):
+        return f"""You are an expert in literary summarization.
+                    Task(s):
+                    - Summarize this short novel excerpt in a single concise sentence of under 25 words.
+                    - Focus on the key emotional or narrative event.
+                    - Detail the characters involved. A list of characters will be provided to you,
+                    you must only use those character names exactly as how they are given to you.
+                    Do not invent names.
+                    - Categorize the excerpt as one of the following types of narrative event:
+
                     Death — character death or loss
                     Conflict — arguments, fights, confrontations
                     Discovery — revelations, secrets uncovered, key information learned
@@ -247,9 +256,12 @@ class Gemini:
                     - Do not add interpretation beyond what is present in the text.
                     - Do not make any reference to the prompt itself.
                     - Only give the summarisation, nothing else.
-                    - The response must be in the following JSON format: "summary": *EXCERPT SUMMARY IN DOUBLE QUOTES*,
-                    "category": *EXCERPT CATEGORY* 
+                    - The response must be in the following JSON format: 
+                    "summary": "EXCERPT SUMMARY",
+                    "category": "EXCERPT CATEGORY" ,
+                    "characters": ["CHARACTER_1", "CHARACTER_2", ...]
 
+                    Character List: {', '.join(characters)}
                     Here is the excerpt to summarize:
             """
 
@@ -280,8 +292,9 @@ class Gemini:
                 - Do not use markdown formatting, headers, or bullet points.
                 - Do not make any reference to the prompt whatsoever.
                 - Provide ONLY the character summary.
-                - The response must be in the following JSON format: "summary": *LONG SUMMARY IN DOUBLE QUOTES*,
-                "description": *SHORT DESCRIPTION IN DOUBLE QUOTES* 
+                - The response must be in the following JSON format: 
+                "summary": "LONG SUMMARY",
+                "description": "SHORT DESCRIPTION" 
 
                 Below are the quotes, the name of the title, and the name of the character:
                 Character name: {character_name}
@@ -304,8 +317,10 @@ class Gemini:
         though try and make the most use of the given chapter as possible.
         - Write in an accessible but informed tone suitable for casual readers.
         - Make no use whatsoever of markdown formatting, heading, or bullet points.
-        - The response must be in the following JSON format: {{"summary": *LONG SUMMARY IN DOUBLE QUOTES*,
-        "overview": *SHORT OVERVIEW IN DOUBLE QUOTES*}}
+        - The response must be in the following JSON format: {{
+            "summary": "LONG SUMMARY",
+            "overview": "SHORT OVERVIEW"
+        }}
         - Do NOT take on the tone of the novel in your summary. Keep your summary factual,
         and keep your tone seperate from the source. 
         - Summarise the narrative / plot points. Do NOT allude to literary devices.

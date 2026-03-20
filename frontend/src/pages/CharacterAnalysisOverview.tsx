@@ -71,7 +71,7 @@ const CharacterAnalysisLanding = () => {
                 <div className="flex flex-row">
                     <div className="flex flex-col gap-2">
                         <div className="flex flex-col gap-4 w-full border border-gray-300 rounded-lg p-4">
-                            <h1 className="font-dewi">Social Network Graph</h1>
+                            <h1 className="font-serif text-center text-lg">{title} | Social Network Graph</h1>
                             <div>
                                 <NetworkGraph 
                                     key={`${novelId}-${selectedChapter}`}
@@ -88,18 +88,10 @@ const CharacterAnalysisLanding = () => {
                                     }}
                                     cumulative={cumulative}
                                 />
-                                {showSideCard && characterData?.[showSideCard] && (
-                                    console.log(characterData[showSideCard]),
-                                    <SideCharacterCard
-                                        name={characterData[showSideCard].name}
-                                        description={characterData[showSideCard].description}
-                                        top_relationships={characterData[showSideCard].top_relationships}
-                                    />
-                                )}
                             </div>
                             <div className="flex flex-col items-center w-full mt-2">
                                 <div className="flex items-center gap-1 self-end">
-                                    <input type="checkbox" id="cumulative" checked={cumulative} onChange={() => setCumulative(!cumulative)} className="mb-2" />
+                                    <input type="checkbox" id="cumulative" checked={cumulative} onChange={() => setCumulative(!cumulative)} className="accent-[#228B22] mb-2" />
                                     <label htmlFor="cumulative" className="text-sm text-gray-500 font-dewi mb-2">Cumulative</label>
                                 </div>
                                 <span className="text-sm text-black font-dewi mb-4 border border-gray-500 px-4 py-1 rounded-md">
@@ -119,7 +111,7 @@ const CharacterAnalysisLanding = () => {
                                     step={1} 
                                     value={sliderValue}
                                     onChange={(e) => setSliderValue(Number(e.target.value))}
-                                    className="w-3/4" 
+                                    className="accent-[#228B22] w-3/4" 
                                 />
                                 <div className="flex justify-between w-3/4 mt-1">
                                 <span 
@@ -164,7 +156,6 @@ const CharacterAnalysisLanding = () => {
                                 {(!data.name) ? "" : null}
                                 <CharacterCard 
                                     name={humanize(data.name)}
-                                    // setCoverUrl?.(`${import.meta.env.VITE_API_URL.replace('/api', '')}${data.novel.cover_url}`);
                                     img={data.image_url ? `${import.meta.env.VITE_API_URL.replace('/api', '')}${data.image_url}` : defaultAvatar}
                                     description={data.description ?? "No description available."}
                                     size={"large"}

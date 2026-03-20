@@ -8,7 +8,7 @@ const fetchNovelData = async (novelId: string, setNovelData: (data: any) => void
         if (data) {
             setNovelData?.(data.novel);
             setCharacterData?.(data.characters);
-            setNetworkData?.(data.analysis.network);
+            setNetworkData?.(data.analysis.conversational_network);
             setTitle?.(data.novel.title);
             setQuoteData?.(data.quotes);
             setPlotSummaries?.(data.analysis.plot_summaries);

@@ -69,16 +69,18 @@ def process_text(self, book_path):
 
     self.update_state(state="PROCESSING", meta={"status": "Building social network..."})
 
-    nw = er.build_conversational_network(associated_quotes)
-    nw_nodes = er.get_nodes_from_network_dict(nw)
+    conversational_network = er.build_conversational_network(associated_quotes)
+    cooccurrence_network, cooccurrence_frequency_network = er.build_cocurrence_network(book.get_full_text_paras())
+    
+    conversational_nw_nodes = er.get_nodes_from_network_dict(conversational_network)
 
-    characters = er.get_persons_from_text()
+    characters = er.canonical_characters
     characters = [{"id": i, "name": name} for i, name in enumerate(characters)]
 
     self.update_state(state="PROCESSING", meta={"status": "Analysing plot data..."})
 
     character_to_character_sentiment_dict = er.build_sentiment_dict_from_network(
-        nw_dict=nw
+        nw_dict=conversational_network
     )
 
     chapter_valence_vals: list = []
@@ -118,12 +120,12 @@ def process_text(self, book_path):
     top_quotes = {}
     for character in characters:
         name = character["name"]
-        top_relationships_dict[name] = er.get_top_relationships(nw, name)
-        top_quotes[name] = er.get_character_quotes(nw, name)
+        top_relationships_dict[name] = er.get_top_relationships(conversational_network, name)
+        top_quotes[name] = er.get_character_quotes(conversational_network, name)
 
     flat_texts = [text for chapter_texts in text_for_summarisation for text in chapter_texts]
-    character_summaries = get_character_summaries(er, characters, nw, g, book.title)
-    plot_summaries = get_plot_summaries(g, flat_texts)
+    character_summaries = get_character_summaries(er, characters, conversational_network, g, book.title)
+    plot_summaries = get_plot_summaries(g, flat_texts, er.canonical_characters)
     chapter_summaries = get_chapter_summaries(g, chapters, title, book)
     chapter_conversational_networks = get_chapter_networks(er, associated_quotes)
     chapter_nw_nodes = get_chapter_network_nodes(er, chapter_conversational_networks)
@@ -144,7 +146,7 @@ def process_text(self, book_path):
         author=author,
         characters=characters,
         quotes=associated_quotes,
-        network=nw_nodes,
+        network=conversational_nw_nodes,
         summaries=character_summaries,
         char_mapping=mapping,
         top_relationships=top_relationships_dict,
@@ -158,6 +160,7 @@ def process_text(self, book_path):
         chapter_conversational_networks=chapter_nw_nodes,
         chapter_summaries=chapter_summaries,
         chapter_valence_vals=chapter_valence_vals,
+        cooccurrence_frequency_network=cooccurrence_frequency_network
     )
 
     cover_url = book.write_cover(cover, novel_id)
@@ -165,7 +168,7 @@ def process_text(self, book_path):
     return {
         "novel_id": novel_id,
         "title": title,
-        "network": nw_nodes,
+        "network": conversational_nw_nodes,
         "characters": characters,
         "associated_quotes": associated_quotes,
         "top_relationships": top_relationships_dict,
@@ -232,9 +235,9 @@ def get_chapter_summaries(g: Gemini, chapters, book_title, book):
     return dict(responses)
 
 
-def get_plot_summaries(g: Gemini, summarisation_texts: list[str]):
+def get_plot_summaries(g: Gemini, summarisation_texts: list[str], characters: list[str]):
     plot_summaries = g.text_span_summary_mass_prompt(
-        "gemini-2.5-flash", summarisation_texts, "excerpt_summary"
+        "gemini-2.5-flash", summarisation_texts, "excerpt_summary", characters
     )
     return plot_summaries
 
@@ -242,7 +245,7 @@ def get_character_thumbnails(title: str, er: EntityExtractor):
     wikimedia_api = os.getenv("WIKIMEDIA_API_URL")
     if not wikimedia_api:
         raise Exception("Couldn't get wikimedia API URL")
-    for character in er.persons:
+    for character in er.canonical_characters:
         search_url = f"{wikimedia_api}action=query&list=search&srsearch={character}%20{title}&srnamespace=6&srlimit=10&format=json"
         res = requests.get(
             search_url,

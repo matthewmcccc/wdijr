@@ -10,7 +10,8 @@ class Analysis(Base):
     __tablename__ = "analysis"
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    network: Mapped[dict] = mapped_column(JSON)
+    conversational_network: Mapped[dict] = mapped_column(JSON)
+    cooccurrence_network: Mapped[dict] = mapped_column(JSON, nullable=True)
     sentiment_values: Mapped[list | None] = mapped_column(JSON, nullable=True)
     inflection_points: Mapped[list | None] = mapped_column(JSON, nullable=True)
     plot_summaries: Mapped[list | None] = mapped_column(JSON, nullable=True)

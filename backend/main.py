@@ -1,6 +1,7 @@
 import os
 import io
 import json
+from itertools import combinations
 from pathlib import Path
 from app.parsers.book import Chapter
 from app.parsers.epub import Epub
@@ -17,38 +18,12 @@ if __name__ == "__main__":
     book = Epub(book_path)
     text = book.get_full_text()
     quotes = book.get_full_text_quotes(text)
+    paras = book.get_full_text_paras()
 
     er: EntityExtractor = EntityExtractor("en_core_web_trf", text)
-    ps: PlotSentiment = PlotSentiment()
-    
-    chapter_valence_vals: list = []
-    for idx, chapter in book.chapters.items():
-        word_list = book.get_chapter_word_list(idx)
-        sentiment_values = ps.get_section_valence(
-            word_list
-        )
-        chapter_valence_vals.append(sentiment_values)
-    diff_values = []
-    for idx, valence_vals in enumerate(chapter_valence_vals):
-        first_diff = ps.first_difference(
-            valence_vals
-        )
-        diff_values.append(sorted(first_diff, key=lambda x: abs(x[1]), reverse=True)[:2])
-    text_for_summarisation = []
-    offset = 0
-    global_inflection_points = []
-    for idx, diff in enumerate(diff_values):
-        chapter_point_count = len(chapter_valence_vals[idx])
-        for pos, delta in diff:
-            global_x = offset + pos * (chapter_point_count - 1)
-            global_inflection_points.append((global_x, delta))
-        offset += chapter_point_count
-    print(global_inflection_points)
+    persons_dict = er.build_persons_dict()
+    cooccurrence_dict, cooccurrence_frequency_dict = er.build_cocurrence_network(paras)
+    print(cooccurrence_frequency_dict)
 
-    # for idx, valence_vals in enumerate(chapter_valence_vals):
-    #     sum_text = ps.get_text_for_summarization(
-    #         book.get_chapter_text(idx),
-    #         diff_values[idx],
-    #         len(chapter_valence_vals[idx])
-    #     )   
-    #     print(sum_text)
+    
+        

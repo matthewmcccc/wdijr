@@ -67,7 +67,7 @@ const PlotAnalysisLanding = () => {
                         <h1 className="text-center text-lg font-serif">
                             {title} | Plot Sentiment & Key Events
                         </h1>
-                        <div ref={containerRef} className="w-full h-[450px]">
+                        <div ref={containerRef} className="w-full h-[500px]">
                             {containerWidth > 0 && containerHeight > 0 && (
                                 <PlotAreaChart
                                     width={containerWidth}
@@ -79,6 +79,7 @@ const PlotAnalysisLanding = () => {
                     </div>
                 </div>
                 {selectedEvent && (
+                    console.log(selectedEvent),
                     <div className="flex-3">
                         <PlotEventCard
                             title={selectedEvent.title}

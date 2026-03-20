@@ -31,6 +31,7 @@ def save_analysis_to_db(
     chapter_summaries,
     chapter_conversational_networks,
     chapter_valence_vals,
+    cooccurrence_frequency_network,
     has_cover=False,
 ):
     with Session(sync_engine) as session:
@@ -69,12 +70,13 @@ def save_analysis_to_db(
 
         analysis = Analysis(
             novel_id=novel.id,
-            network=network,
+            conversational_network=network,
             sentiment_values=sentiment_values,
             inflection_points=inflection_points,
             plot_summaries=plot_summaries,
             character_sentiment=character_to_character_sentiment,
-            chapter_networks=chapter_conversational_networks
+            chapter_networks=chapter_conversational_networks,
+            cooccurrence_network=[{"source": k[0], "target": k[1], "value": v} for k, v in cooccurrence_frequency_network.items()]
         )
 
         session.add(analysis)

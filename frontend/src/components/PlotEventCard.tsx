@@ -1,3 +1,9 @@
+import { BookContext } from "../contexts/bookContext";
+import { useContext } from "react";
+import humanize from "../utils/humanize";
+import { Navigate, useNavigate } from "react-router";
+import defaultAvatar from "../assets/img/default-avatar.png";
+
 interface PlotEventProps {
     title: string;
     chapter: string;
@@ -20,7 +26,12 @@ const eventIcons: Record<string, string> = {
         'Resolution': `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#228B22" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 13V2l8 4-8 4"/><path d="M20.561 10.222a9 9 0 1 1-12.55-5.29"/><path d="M8.002 9.997a5 5 0 1 0 8.9 2.02"/></svg>`
 };
 
+
 const PlotEventCard = ({ title, chapter, description, characters, eventType, onClose }: PlotEventProps) => {
+    const bookContext = useContext(BookContext);
+    const characterData = bookContext?.characterData|| [];
+    const navigate = useNavigate();
+    
     return (
        <div className="border border-gray-300 rounded-lg p-4 h-full flex flex-col relative">
             <button
@@ -46,16 +57,35 @@ const PlotEventCard = ({ title, chapter, description, characters, eventType, onC
             </div>
             <p className="mb-2 text-sm text-gray-600">{chapter}</p>
             <hr className="border-gray-300 mb-2" />
-            <p className="text-sm text-gray-600">{description}</p>
+            <p className="text-md text-gray-600">{description}</p>
             <div className="mt-auto">
                 <h1 className="text-lg font-serif mb-1">Involved Characters</h1>
                 <hr className="border-gray-300 mb-2" />
                 <div className="flex flex-wrap gap-2">
-                    {characters.map((character, index) => (
-                        <span key={index} className="bg-gray-200 text-gray-800 px-2 py-1 rounded">
-                            {character}
-                        </span>
-                    ))}
+                    {characters.map((character, index) => {
+                        const charInfo = characterData.find(
+                            c => c.name.toLowerCase() === character.toLowerCase()
+                        );
+                        console.log(charInfo);
+                        return (
+                            <div key={index} className="flex items-center px-2 py-1">
+                                <div className="relative group">
+                                    <img
+                                        src={charInfo?.image_url ? `${import.meta.env.VITE_API_URL.replace('/api', '')}${charInfo.image_url}` : defaultAvatar}
+                                        alt={character}
+                                        className="cursor-pointer w-14 h-14 object-cover border border-gray-800 p-1 rounded-lg"
+                                        onClick={() => window.open(
+                                            `/character/${bookContext?.novelData?.id}/${character.toLowerCase().replace(/\s+/g, '-')}`,
+                                            '_blank'
+                                        )}
+                                    />
+                                    <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                                        {humanize(character)}
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })}
                 </div>
             </div>
         </div>

@@ -74,8 +74,15 @@ class Epub(Book):
                     valid = False
         except json.JSONDecodeError as e:
             print(f"Error opening config.json: {e}")
-
         return valid
+    
+    def get_full_text_paras(self) -> list[str]:
+        paras = []
+        for chapter in self.chapters.values():
+            soup = BeautifulSoup(chapter.item.get_body_content(), "html.parser")
+            for para in soup.find_all("p"):
+                paras.append(para.get_text())
+        return paras
 
     def get_full_text(self) -> str:
         text = []
