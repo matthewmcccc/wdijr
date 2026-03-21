@@ -1,9 +1,55 @@
+import { useParams } from "react-router-dom";
+import { useContext, useEffect } from "react";
 import Navbar from "../components/Navbar";
+import Breadcrumbs from "../components/Breadcrumbs";
+import { BookContext } from "../contexts/bookContext";
+import fetchNovelData from "../utils/fetchNovelData";
 
 const Author = () => {
+    const novelId = useParams().novelId;
+    const title = useContext(BookContext)?.title || "";
+    const setNovelData = useContext(BookContext)?.setNovelData;
+    const setCharacterData = useContext(BookContext)?.setCharacterData;
+    const setNetworkData = useContext(BookContext)?.setNetworkData;
+    const setTitle = useContext(BookContext)?.setTitle;
+    const setQuoteData = useContext(BookContext)?.setQuoteData;
+    const setPlotSummaries = useContext(BookContext)?.setPlotSummaries;
+    const setSentimentValues = useContext(BookContext)?.setSentimentValues;
+    const setInflectionPoints = useContext(BookContext)?.setInflectionPoints;
+    const setCoverUrl = useContext(BookContext)?.setCoverUrl;
+    const setCharacterSentimentValues = useContext(BookContext)?.setCharacterSentimentValues;
+    const setChapterData = useContext(BookContext)?.setChapterData;
+    const setChapterNetworkData = useContext(BookContext)?.setChapterNetworkData;
+    const setCooccurrenceNetworkData = useContext(BookContext)?.setCooccurrenceNetworkData;
+    const setAuthorData = useContext(BookContext)?.setAuthorData;
+    const authorData = useContext(BookContext)?.authorData;
+
+    useEffect(() => {
+        fetchNovelData(novelId, setNovelData, setCharacterData, setNetworkData, setTitle, setQuoteData, setPlotSummaries, setSentimentValues, setInflectionPoints, setCoverUrl, setCharacterSentimentValues, setChapterData, setChapterNetworkData, setCooccurrenceNetworkData, setAuthorData);
+    }, [novelId, setNovelData, setCharacterData, setNetworkData, setTitle, setQuoteData, setPlotSummaries, setSentimentValues, setInflectionPoints, setCoverUrl, setCharacterSentimentValues, setChapterData, setChapterNetworkData, setCooccurrenceNetworkData, setAuthorData]);
+
+    console.log(authorData)
+
     return (
         <div className="container mx-auto px-4 py-8">
             <Navbar />
+            <div>
+                <Breadcrumbs items={[{ label: "Analysis", url: `/analysis/${novelId}` }, { label: "Miscellany", url: `/miscellany/${novelId}` }, { label: "About the Author", url: `/author/${novelId}` }]} />
+                <h1 className="text-5xl font-serif mb-4">About the Author</h1>
+                <p className="text-lg text-gray-700">
+                    This page provides information about the author of the novel. Learn more about their background, other works, and contributions to literature.
+                </p>
+            </div>
+            <hr className="border-gray-300 my-4" />
+            <div>
+                {authorData && (
+                    <div>
+                        <img src={authorData.image_url} alt={authorData.name} className="float-left mr-8 mb-4 h-120 w-100 object-cover p-4 border border-gray-400 rounded-md" />
+                        <h2 className="text-3xl font-serif mb-4">{authorData.name}</h2>
+                        <p className="text-lg text-gray-700 whitespace-pre-line">{authorData.description}</p>
+                    </div>
+                )}
+            </div>
         </div>
     )
 }
