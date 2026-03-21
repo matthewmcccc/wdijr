@@ -85,7 +85,8 @@ def save_analysis_to_db(
             name=str(author),
             description=author_details["description"],
             image_url=author_details["image_url"],
-            novel_id=novel.id
+            novel_id=novel.id,
+            other_works=author_details["other_works"]
         )
 
         session.add(author_obj)

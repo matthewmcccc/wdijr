@@ -12,6 +12,7 @@ class Author(MappedAsDataclass, Base):
     name: Mapped[str] = mapped_column(String(100))
     description: Mapped[str] = mapped_column(Text)
     image_url: Mapped[str] = mapped_column(Text)
+    other_works: Mapped[list] = mapped_column(JSON, nullable=True)
     novel_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("novel.id"))
 
     novel: Mapped["Novel"] = relationship(back_populates="author_details", init=False)

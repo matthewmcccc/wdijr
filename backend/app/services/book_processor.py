@@ -283,15 +283,15 @@ def get_author_data(book: Epub, g: Gemini, author: str) -> dict:
     author_dict = {}
     
     author_normalized = ("_").join(author.split(" "))
-    url = f"https://en.wikipedia.org/w/api.php?action=query&titles={author_normalized}&prop=extracts|pageimages&explaintext=true&pithumbsize=400&format=json"
-    res = requests.get(
-        url,
+    wiki_url = f"https://en.wikipedia.org/w/api.php?action=query&titles={author_normalized}&prop=extracts|pageimages&explaintext=true&pithumbsize=400&format=json"
+    wiki_res = requests.get(
+        wiki_url,
         headers={
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36"
     })
 
-    body = res.json()
-    extract = next(iter(body["query"]["pages"].values()))
+    wiki_body = wiki_res.json()
+    extract = next(iter(wiki_body["query"]["pages"].values()))
 
     author_summary = g.generate_author_summary(
         "gemini-2.5-flash",
@@ -300,9 +300,30 @@ def get_author_data(book: Epub, g: Gemini, author: str) -> dict:
         book.title
     )
 
+    other_works_list = []
+
+    open_lib_url = f"https://openlibrary.org/search.json?author=Lewis+Carroll&limit=10"
+    open_lib_res = requests.get(
+        open_lib_url,
+        headers={
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36"
+        }
+    )
+
+    open_lib_body = open_lib_res.json()
+    for doc in open_lib_body["docs"]:
+        if book.title not in doc["title"] and author in doc["author_name"]:
+            work_obj = {
+                "title": doc["title"],
+                "image_url": f"https://covers.openlibrary.org/b/id/{doc["cover_i"]}-M.jpg",
+                "year": doc["first_publish_year"]
+            }
+            other_works_list.append(work_obj)
+
     author_dict["name"] = author
     author_dict["image_url"] = extract["thumbnail"]["source"]
     author_dict["description"] = json.loads(author_summary)["summary"]
+    author_dict["other_works"] = other_works_list
 
     return author_dict
 

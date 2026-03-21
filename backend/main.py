@@ -25,5 +25,4 @@ if __name__ == "__main__":
 
     author = book.author
     author_dict = get_author_data(book, g, author)
-    print(author_dict)
         

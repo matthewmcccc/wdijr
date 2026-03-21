@@ -6,6 +6,7 @@ class AuthorSchemaBase(BaseModel):
     name: str
     description: str
     image_url: str
+    other_works: list
     novel_id: uuid.UUID
 
 
