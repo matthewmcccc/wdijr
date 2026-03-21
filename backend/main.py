@@ -21,8 +21,5 @@ if __name__ == "__main__":
     text = book.get_full_text()
     quotes = book.get_full_text_quotes(text)
     paras = book.get_full_text_paras()
-    g: Gemini = Gemini()
 
-    author = book.author
-    author_dict = get_author_data(book, g, author)
-        
+    book.chunk_text_for_motif_analysis()        

@@ -9,10 +9,10 @@ from ebooklib import epub, ITEM_COVER
 from bs4 import BeautifulSoup
 from typing import TypedDict
 
-# yikes! need new names
 PRIOR_SPAN_WINDOW = 75
 POST_SPAN_WINDOW = 50
 QUOTE_SPAN_WINDOW = 400
+CHUNK_SPAN_WINDOW = 500
 
 
 class Epub(Book):
@@ -130,6 +130,19 @@ class Epub(Book):
         text_str = "\n".join(text)
         words = text_str.split()
         return words
+
+    def chunk_text_for_motif_analysis(self) -> list[str]:
+        text_chunks = []
+    
+        for idx, _chapter in self.chapters.items():
+            text = self.get_chapter_text(idx)
+            words = text.split(" ")
+            for idx in range(0, len(words) - 1, CHUNK_SPAN_WINDOW):
+                chunk = (" ").join(words[idx : idx + CHUNK_SPAN_WINDOW])
+                if chunk.strip():
+                    text_chunks.append(chunk)
+        
+        return text_chunks
 
     def get_text_span(self, idx_start: int, idx_end: int) -> str:
         """
