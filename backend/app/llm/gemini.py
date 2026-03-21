@@ -14,6 +14,7 @@ class PromptInstruction(str, Enum):
     CHARACTER_SUMMARY = "character_summary"
     CHAPTER_SUMMARY = "chapter_summary"
     CONSOLIDATE_QUOTES = "consolidate_quotes"
+    AUTHOR_SUMMARY = "author_summary"
 
 class Gemini:
     def __init__(self):
@@ -87,6 +88,36 @@ class Gemini:
             )
 
         return dict(zip(character_ids, summaries))
+    
+    def generate_author_summary(
+            self, model, instruction, extract: str, novel_title: str
+    ):
+        additional_instruction = self.get_additional_instruction(
+            instruction=instruction, novel_title=novel_title
+        )
+        prompt = f"{additional_instruction}\n{extract}"
+        try: 
+            response = (
+                self.client.models.generate_content(
+                    model=model,
+                    contents=prompt,
+                    config=types.GenerateContentConfig(
+                        response_mime_type="application/json",
+                        response_schema={
+                                "type": "OBJECT",
+                                "properties": {
+                                    "summary": {"type": "STRING"},
+                                },
+                                "required": ["summary"],
+                            },
+                    )
+                ).candidates[0].content.parts[0].text   
+            )
+        except Exception as e:
+            print(f"Error generating author summary: {e}")
+        
+        return response
+        
 
     def chapter_summary_mass_prompt(
         self, model, chapters, instruction, book_title: str
@@ -146,13 +177,18 @@ class Gemini:
                                 "type": "OBJECT",
                                 "properties": {
                                     "summary": {"type": "STRING"},
+                                    "headline": {
+                                        "type": "STRING",
+                                        "description": "A short 2-5 word narrative headline"
+                                        "for the event, NOT the category name"
+                                    },
                                     "category": {"type": "STRING"},
                                     "characters": {
                                         "type": "ARRAY",
                                         "items": {"type": "STRING"}
                                     }
                                 },
-                                "required": ["summary", "category", "characters"],
+                                "required": ["summary", "category", "characters", "headline"],
                             },
                         )
                     )
@@ -208,6 +244,10 @@ class Gemini:
             additional_instruction = self.consolidate_quotes(
                 novel_title
             )
+        if instruction == PromptInstruction.AUTHOR_SUMMARY:
+            additional_instruction = self.author_summary_prompt(
+                novel_title
+            )
         return additional_instruction
 
     @staticmethod
@@ -235,6 +275,7 @@ class Gemini:
                     Task(s):
                     - Summarize this short novel excerpt in a single concise sentence of under 25 words.
                     - Focus on the key emotional or narrative event.
+                    - Provide a short, two to five word narrative headline for the event.
                     - Detail the characters involved. A list of characters will be provided to you,
                     you must only use those character names exactly as how they are given to you.
                     Do not invent names.
@@ -258,8 +299,15 @@ class Gemini:
                     - Only give the summarisation, nothing else.
                     - The response must be in the following JSON format: 
                     "summary": "EXCERPT SUMMARY",
-                    "category": "EXCERPT CATEGORY" ,
+                    "category": "EXCERPT CATEGORY",
+                    "headline": "EXCERPT HEADLINE",
                     "characters": ["CHARACTER_1", "CHARACTER_2", ...]
+
+                    Example output:
+                    "summary": "Alice shrinks after drinking from a mysterious bottle, unable to reach the key on the table.",
+                    "headline": "Alice's Shrinking Potion",
+                    "category": "Transformation",
+                    "characters": ["Alice"]
 
                     Character List: {', '.join(characters)}
                     Here is the excerpt to summarize:
@@ -331,4 +379,25 @@ class Gemini:
 
         Novel title: {novel_title}
         Chapter title: {chapter_title}
+        """
+
+
+    @staticmethod
+    def author_summary_prompt(novel_title: str = ""):
+        return f"""You are an expert in text summarisation.
+        You will be given an extract from wikipedia regarding the author of a novel, the title
+        of which you will also be provided with.
+        Your task is to generate a summary of the information in the extract. 
+
+        Rules
+        - Do NOT acknowledgement the prompt. Just generate the summary
+        and short description and return it in the format described below.
+        - Summarise the extract given only
+        - You CAN and SHOULD make SOME reference to the novel given.  
+        - Do not take on the tone of the Wikipedia or novel, remain factual.
+        - Your summary should span 2-3 moderate length paragraphs.
+        - Make NO use of markdown formatting. You can use newlines.
+
+        Novel Title: {novel_title}
+        Below is the extract for summarisation
         """

@@ -11,6 +11,7 @@ interface PlotEventProps {
     characters: string[]; 
     onClose? : () => void;
     eventType?: 'Death' | 'Conflict' | 'Discovery' | 'Reunion' | 'Departure' | 'Romance' | 'Betrayal' | 'Transformation' | 'Peril' | 'Resolution';
+    headline?: string;
 }
 
 const eventIcons: Record<string, string> = {
@@ -27,7 +28,7 @@ const eventIcons: Record<string, string> = {
 };
 
 
-const PlotEventCard = ({ title, chapter, description, characters, eventType, onClose }: PlotEventProps) => {
+const PlotEventCard = ({ title, chapter, description, characters, eventType, onClose, headline }: PlotEventProps) => {
     const bookContext = useContext(BookContext);
     const characterData = bookContext?.characterData|| [];
     const navigate = useNavigate();
@@ -53,9 +54,9 @@ const PlotEventCard = ({ title, chapter, description, characters, eventType, onC
                     <div className="w-6 h-6 rounded-full border border-gray-400" />
                 )}
                 <div className="border-l border-black h-6" />
-                <h2 className="text-2xl font-serif">{title}</h2>
+                <h2 className="text-2xl font-serif">{headline}</h2>
             </div>
-            <p className="mb-2 text-sm text-gray-600">{chapter}</p>
+            <p className="mb-2 text-md text-black">{chapter}</p>
             <hr className="border-gray-300 mb-2" />
             <p className="text-md text-gray-600">{description}</p>
             <div className="mt-auto">
@@ -66,7 +67,6 @@ const PlotEventCard = ({ title, chapter, description, characters, eventType, onC
                         const charInfo = characterData.find(
                             c => c.name.toLowerCase() === character.toLowerCase()
                         );
-                        console.log(charInfo);
                         return (
                             <div key={index} className="flex items-center px-2 py-1">
                                 <div className="relative group">

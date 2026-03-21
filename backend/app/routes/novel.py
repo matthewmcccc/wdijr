@@ -11,6 +11,7 @@ from app.models.novel import Novel as NovelModel
 from app.models.character import Character as CharacterModel
 from app.models.analysis import Analysis as AnalysisModel
 from app.models.chapter import Chapter as ChapterModel
+from app.models.author import Author as AuthorModel
 from app.db import get_db
 
 router = APIRouter(prefix="/novel", tags=["novel"])
@@ -47,10 +48,12 @@ async def get_novel_data(novel_id: uuid.UUID, db: AsyncSession = Depends(get_db)
     analysis = await AnalysisModel.get_from_novel_id(db, novel_id)
     quotes = await QuoteModel.get_from_novel_id(db, novel_id)
     chapters = await ChapterModel.get_from_novel_id(db, novel_id)
+    author = await AuthorModel.get_from_novel_id(db, novel_id)
     return {
         "novel": novel,
         "characters": characters,
         "analysis": analysis,
         "quotes": quotes,
         "chapters": chapters,
+        "author": author,
     }

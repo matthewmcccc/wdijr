@@ -8,6 +8,7 @@ from app.models.character import Character
 from app.models.quote import Quote
 from app.models.analysis import Analysis
 from app.models.chapter import Chapter
+from app.models.author import Author
 
 db_path = os.path.join(os.path.dirname(__file__), "..", "..", "data", "app.db")
 sync_engine = create_engine(f"sqlite:///{db_path}")
@@ -32,6 +33,7 @@ def save_analysis_to_db(
     chapter_conversational_networks,
     chapter_valence_vals,
     cooccurrence_frequency_network,
+    author_details,
     has_cover=False,
 ):
     with Session(sync_engine) as session:
@@ -79,6 +81,15 @@ def save_analysis_to_db(
             cooccurrence_network=[{"source": k[0], "target": k[1], "value": v} for k, v in cooccurrence_frequency_network.items()]
         )
 
+        author_obj = Author(
+            name=str(author),
+            description=author_details["description"],
+            image_url=author_details["image_url"],
+            novel_id=novel.id
+        )
+
+        session.add(author_obj)
+        session.flush()
         session.add(analysis)
         session.flush()
 

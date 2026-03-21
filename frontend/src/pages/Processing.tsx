@@ -25,6 +25,8 @@ const Processing = () => {
     const chapterNetworkData = useContext(BookContext)?.chapterNetworkData;
     const setChapterNetworkData = useContext(BookContext)?.setChapterNetworkData;
     const setChapterLengths = useContext(BookContext)?.setChapterLengths;
+    const setCooccurrenceNetworkData = useContext(BookContext)?.setCooccurrenceNetworkData;
+    const setAuthorData = useContext(BookContext)?.setAuthorData;
 
     useEffect(() => {
         if (done) return;
@@ -46,12 +48,18 @@ const Processing = () => {
                 setCharacterSentimentValues?.(data.data.data.character_sentiment);
                 setChapterNetworkData?.(data.data.data.chapter_network);
                 setChapterLengths?.(data.data.data.chapter_lengths);
+                setCooccurrenceNetworkData?.(data.data.data.cooccurrence_network);
+                setAuthorData?.(data.data.data.author_details);
                 setDone(true);
             }
         }, 2000);
 
         return () => clearInterval(pollInterval);
     }, [taskId, done]);   
+
+    useEffect(() => {
+        document.title = "Processing Analysis"
+    }, []);
 
     useEffect(() => {
         if (done) {

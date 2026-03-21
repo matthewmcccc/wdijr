@@ -1,3 +1,4 @@
+import json
 import os
 import requests
 from dotenv import load_dotenv
@@ -141,6 +142,12 @@ def process_text(self, book_path):
             global_inflection_points.append((global_x, delta))
         offset += chapter_point_count
 
+    author_details = get_author_data(
+        book,
+        g,
+        book.author
+    )
+
     novel_id = save_analysis_to_db(
         title=title,
         author=author,
@@ -160,7 +167,8 @@ def process_text(self, book_path):
         chapter_conversational_networks=chapter_nw_nodes,
         chapter_summaries=chapter_summaries,
         chapter_valence_vals=chapter_valence_vals,
-        cooccurrence_frequency_network=cooccurrence_frequency_network
+        cooccurrence_frequency_network=cooccurrence_frequency_network,
+        author_details=author_details,
     )
 
     cover_url = book.write_cover(cover, novel_id)
@@ -179,6 +187,7 @@ def process_text(self, book_path):
         "character_sentiment": character_to_character_sentiment_dict,
         "chapter_network": chapter_nw_nodes,
         "chapter_lengths": [len(ch) for ch in chapter_valence_vals],
+        "author_details": author_details
     }
 
 
@@ -270,6 +279,32 @@ def get_character_thumbnails(title: str, er: EntityExtractor):
         ).json()
         print(image_res)
 
+def get_author_data(book: Epub, g: Gemini, author: str) -> dict:
+    author_dict = {}
+    
+    author_normalized = ("_").join(author.split(" "))
+    url = f"https://en.wikipedia.org/w/api.php?action=query&titles={author_normalized}&prop=extracts|pageimages&explaintext=true&pithumbsize=400&format=json"
+    res = requests.get(
+        url,
+        headers={
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36"
+    })
+
+    body = res.json()
+    extract = next(iter(body["query"]["pages"].values()))
+
+    author_summary = g.generate_author_summary(
+        "gemini-2.5-flash",
+        "author_summary",
+        extract,
+        book.title
+    )
+
+    author_dict["name"] = author
+    author_dict["image_url"] = extract["thumbnail"]["source"]
+    author_dict["description"] = json.loads(author_summary)["summary"]
+
+    return author_dict
 
 def get_chapter_valence_vals(book: Epub, ps: PlotSentiment) -> list:
     chapter_valence_vals: list = []

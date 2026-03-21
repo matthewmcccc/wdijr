@@ -34,23 +34,28 @@ const AnalysisLanding = () => {
     const coverUrl = bookContext?.coverUrl;
     const novelData = bookContext?.novelData;
     const setChapterNetworkData = bookContext?.setChapterNetworkData;
-    const chapterNetworkData = bookContext?.chapterNetworkData;
+    const setCooccurrenceNetworkData = bookContext?.setCooccurrenceNetworkData;
 
     useEffect(() => {   
         const fetchData = async () => {
-            if (novelId && setNovelData && setCharacterData && setNetworkData && setTitle && setQuoteData && setPlotSummaries && setSentimentValues && setInflectionPoints && setCoverUrl && setCharacterSentimentValues && setChapterData && setChapterNetworkData) {
-                await fetchNovelData(novelId, setNovelData, setCharacterData, setNetworkData, setTitle, setQuoteData, setPlotSummaries, setSentimentValues, setInflectionPoints, setCoverUrl, setCharacterSentimentValues, setChapterData, setChapterNetworkData);
+            if (novelId && setNovelData && setCharacterData && setNetworkData && setTitle && setQuoteData && setPlotSummaries && setSentimentValues && setInflectionPoints && setCoverUrl && setCharacterSentimentValues && setChapterData && setChapterNetworkData && setCooccurrenceNetworkData) {
+                await fetchNovelData(novelId, setNovelData, setCharacterData, setNetworkData, setTitle, setQuoteData, setPlotSummaries, setSentimentValues, setInflectionPoints, setCoverUrl, setCharacterSentimentValues, setChapterData, setChapterNetworkData, setCooccurrenceNetworkData);
             }
         };
         fetchData();
-    }, [novelId, setCharacterData, setTitle, setNetworkData, setQuoteData, setSentimentValues, setInflectionPoints, setPlotSummaries, setCoverUrl, setNovelData, setCharacterSentimentValues, setChapterData, setChapterNetworkData]);
+    }, [novelId, setCharacterData, setTitle, setNetworkData, setQuoteData, setSentimentValues, setInflectionPoints, setPlotSummaries, setCoverUrl, setNovelData, setCharacterSentimentValues, setChapterData, setChapterNetworkData, setCooccurrenceNetworkData]);
+
+    useEffect(() => {
+        if (title) {
+            document.title = `Analysis Overview | ${title}`;
+        }
+    }, [title]);
 
     const author = novelData?.author || "Unknown Author";
 
     return (
         <div className="container mx-auto px-4 py-8">
             <Navbar />
-                {/* <Breadcrumbs items={[{ label: "Analysis", url: `/analysis/${novelId}` }]} /> */}
                 <div className="mt-12 flex flex-col gap-10 justify-center">
                     <BookCard 
                         title={title}
@@ -78,7 +83,7 @@ const AnalysisLanding = () => {
                             <AnalysisItem 
                                 analysis_type="Miscellany" 
                                 img={Puzzle} 
-                                url={`/miscellany-analysis/${novelId}`} 
+                                url={`/miscellany/${novelId}`} 
                                 description="View a collection of miscellaneous analyses, including character interactions, thematic elements, and other insights."
                             />
                         </div>

@@ -19,6 +19,7 @@ class Novel(Base):
     characters: Mapped[List["Character"]] = relationship(back_populates="novel")
     analysis: Mapped["Analysis"] = relationship(back_populates="novel")
     chapters: Mapped[List["Chapter"]] = relationship(back_populates="novel")
+    author_details: Mapped["Author"] = relationship(back_populates="novel")
 
     @classmethod
     async def get_from_id(cls, id: uuid.UUID, db: AsyncSession):

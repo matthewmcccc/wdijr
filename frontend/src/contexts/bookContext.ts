@@ -61,6 +61,15 @@ interface BookContextType {
     chapterNetworkData: { links: any[], nodes: any[] },
     chapterLengths: number[] | null,
     setChapterLengths: (data: number[]) => void,
+    cooccurrenceNetworkData: Array<{ source: string; target: string; value: number }>,
+    setCooccurrenceNetworkData: (data: Array<{ source: string; target: string; value: number }>) => void,
+    authorData: {
+        name: string;
+        description: string;
+        image_url: string;
+        novel_id: string;
+    } | null,
+    setAuthorData: (data: { name: string; description: string; image_url: string; novel_id: string }) => void,
 }
 
 export const BookContext = createContext<BookContextType | null>(null);

@@ -15,6 +15,7 @@ interface SelectedEvent {
     description: string;
     category: string;
     characters: string[];
+    headline: string;
 }
 
 const PlotAnalysisLanding = () => {
@@ -37,36 +38,45 @@ const PlotAnalysisLanding = () => {
     const title = bookContext?.title;
     const { containerRef, width: containerWidth, height: containerHeight } = useContainerSize();
     const [selectedEvent, setSelectedEvent] = useState<SelectedEvent | null>(null);
+    const [cooccurrenceNetworkData, setCooccurrenceNetworkData] = useState<any>(null);
 
     useEffect(() => {
         const fetchData = async () => {
             if (hasFetched.current === novelId) return;
             hasFetched.current = novelId ?? null;
 
-            if (setNovelData && setCharacterData && setNetworkData && setTitle && setQuoteData && setPlotSummaries && setSentimentValues && setInflectionPoints && setCoverUrl && setCharacterSentimentValues && setChapterData) {
-                await fetchNovelData(novelId ?? "", setNovelData, setCharacterData, setNetworkData, setTitle, setQuoteData, setPlotSummaries, setSentimentValues, setInflectionPoints, setCoverUrl, setCharacterSentimentValues, setChapterData, setChapterNetworkData);
+            if (setNovelData && setCharacterData && setNetworkData && setTitle && setQuoteData && setPlotSummaries && setSentimentValues && setInflectionPoints && setCoverUrl && setCharacterSentimentValues && setChapterData && setChapterNetworkData && setCooccurrenceNetworkData) {
+                await fetchNovelData(novelId ?? "", setNovelData, setCharacterData, setNetworkData, setTitle, setQuoteData, setPlotSummaries, setSentimentValues, setInflectionPoints, setCoverUrl, setCharacterSentimentValues, setChapterData, setChapterNetworkData, setCooccurrenceNetworkData);
             }
         };
         fetchData();
     }, [novelId]);
 
+    useEffect(() => {
+        if (title) {
+            document.title = `Plot Analysis | ${title}`;
+        }
+    }, [title]);
+
     return (
         <div className="container mx-auto px-4 py-8">
+            <title>{title} | Plot Analysis</title>
             <Navbar />
             <div>
                 <Breadcrumbs items={[{ label: "Analysis", url: `/analysis/${novelId}` }, { label: "Plot Analysis" }]} />
                 <h1 className="text-5xl font-serif">Plot Analysis</h1>
-                <p className="font-dewi mt-4 text-gray-600 text-sm max-w-3xl">
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                <p className="font-dewi mt-4 text-gray-600 text-md max-w-3xl">
+                    View detailed summaries of chapters, key plot events, and how the emotional intensity (sentiment) of the story changes over time.
                 </p>
             </div>
-            <hr className="border-gray-300 my-4"/>
+            <hr className="border-gray-300 my-4 w-full"/>
             <div className="flex flex-row justify-between gap-4 mt-4">
                 <div className="flex-7 min-w-0">
                     <div className="border border-gray-300 rounded-lg p-4">
-                        <h1 className="text-center text-lg font-serif">
+                        <h1 className="text-center text-xl font-serif">
                             {title} | Plot Sentiment & Key Events
                         </h1>
+                        <hr className="border-gray-300 w-1/2 mx-auto my-4" />
                         <div ref={containerRef} className="w-full h-[500px]">
                             {containerWidth > 0 && containerHeight > 0 && (
                                 <PlotAreaChart
@@ -83,6 +93,7 @@ const PlotAnalysisLanding = () => {
                     <div className="flex-3">
                         <PlotEventCard
                             title={selectedEvent.title}
+                            headline={selectedEvent.headline}
                             chapter={selectedEvent.chapter}
                             description={selectedEvent.description}
                             characters={selectedEvent.characters}

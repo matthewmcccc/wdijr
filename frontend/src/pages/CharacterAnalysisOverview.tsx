@@ -11,6 +11,7 @@ import fetchNovelData from "../utils/fetchNovelData";
 import SideCharacterCard from "../components/SideCharacterCard";
 import newTabIcon from "../assets/img/new-tab.png";
 import defaultAvatar from "../assets/img/default-avatar.png";
+import useContainerSize from "../hooks/useContainerSize";
 
 const CharacterAnalysisLanding = () => {
     const characterData = useContext(BookContext)?.characterData;
@@ -39,6 +40,9 @@ const CharacterAnalysisLanding = () => {
     const [sliderValue, setSliderValue] = useState<number>(allValue);
     const selectedChapter = sliderValue === 0 ? null : sliderValue - 1;
     const [cumulative, setCumulative] = useState(true);
+    const cooccurrenceNetworkData = bookContext?.cooccurrenceNetworkData;
+    const setCooccurrenceNetworkData = bookContext?.setCooccurrenceNetworkData;
+    const { containerRef, width: containerWidth, height: containerHeight } = useContainerSize();
 
     useEffect(() => {
         setSliderValue(0);
@@ -47,13 +51,19 @@ const CharacterAnalysisLanding = () => {
     useEffect(() => {
         const fetchCharacterData = async () => {
             if (!novelData || novelData.id !== novelId) {
-                if (setNovelData && setCharacterData && setNetworkData && setTitle && setAssociatedQuotes && setChapterNetworkData) {
-                    await fetchNovelData(novelId ?? "", setNovelData, setCharacterData, setNetworkData, setTitle, setAssociatedQuotes, setPlotSummaries, setSentimentValues, setInflectionPoints, setCoverUrl, setCharacterSentimentValues, setChapterData, setChapterNetworkData);
+                if (setNovelData && setCharacterData && setNetworkData && setTitle && setAssociatedQuotes && setChapterNetworkData && setCooccurrenceNetworkData && setPlotSummaries && setSentimentValues && setInflectionPoints && setCoverUrl && setCharacterSentimentValues && setChapterData) {
+                    await fetchNovelData(novelId ?? "", setNovelData, setCharacterData, setNetworkData, setTitle, setAssociatedQuotes, setPlotSummaries, setSentimentValues, setInflectionPoints, setCoverUrl, setCharacterSentimentValues, setChapterData, setChapterNetworkData, setCooccurrenceNetworkData);
                 }
             }
         };
         fetchCharacterData();
     }, [novelId]);
+
+    useEffect(() => {
+        if (title) {
+            document.title = `Character Analysis | ${title}`;
+        }
+    }, [title]);
 
     return (
         <div className="container mx-auto px-4 py-8">
@@ -61,7 +71,7 @@ const CharacterAnalysisLanding = () => {
             <div>
                 <Breadcrumbs items={[{ label: "Analysis", url: `/analysis/${novelId}` }, { label: "Character Analysis", url: `/character-analysis/${novelId}` }]} />
                 <h1 className="text-5xl font-serif">Character Analysis</h1>
-                <p className="font-dewi mt-4 text-gray-600 text-sm max-w-3xl">
+                <p className="font-dewi mt-4 text-gray-600 text-md max-w-3xl">
                     Browse the analysis of {title} characters. Click on a character to see a summary, their closely related
                     characters, and their sentiment arc throughout the novel. The social network graph below shows the relationships between the characters of the novel.
                 </p>
@@ -69,27 +79,40 @@ const CharacterAnalysisLanding = () => {
             <hr className="border-gray-300 my-4 w-full"/>
             <div className="flex flex-col gap-12 mt-4">
                 <div className="flex flex-row">
-                    <div className="flex flex-col gap-2">
+                    <div className="flex flex-col w-full gap-2">
                         <div className="flex flex-col gap-4 w-full border border-gray-300 rounded-lg p-4">
-                            <h1 className="font-serif text-center text-lg">{title} | Social Network Graph</h1>
-                            <div>
-                                <NetworkGraph 
-                                    key={`${novelId}-${selectedChapter}`}
-                                    id="network-graph-1" 
-                                    height={400}
-                                    width={1250}
-                                    selectedChapter={selectedChapter}
-                                    chapterNetworkData={chapterNetworkData}
-                                    onNodeHover={(node) => {
-                                        const key = Object.keys(characterData).find(
-                                            k => characterData[k].name?.toLowerCase() === node.id
-                                        );
-                                        setShowSideCard(key || null);
-                                    }}
+                            <h1 className="font-serif text-center text-xl">{title} | Social Network Graph</h1>
+                            <hr className="border-gray-300 w-1/2 mx-auto" />
+                            <div ref={containerRef} className="w-full h-[500px]">
+                                {containerWidth > 0 && containerHeight > 0 && (
+                                    <NetworkGraph
+                                        key={`${novelId}-${selectedChapter}`}
+                                        id="network-graph-1" 
+                                        height={containerHeight}
+                                        width={containerWidth}
+                                        selectedChapter={selectedChapter}
+                                        chapterNetworkData={chapterNetworkData}
+                                        onNodeHover={(node) => {
+                                            const key = Object.keys(characterData).find(
+                                                k => characterData[k].name?.toLowerCase() === node.id
+                                            );
+                                            setShowSideCard(key || null);
+                                        }}
                                     cumulative={cumulative}
                                 />
+                                )}
                             </div>
+                        </div>
+                        {showSideCard && characterData && (
+                            <SideCharacterCard 
+                                name={humanize(characterData[showSideCard].name)}
+                                img={characterData[showSideCard].image_url ? `${import.meta.env.VITE_API_URL.replace('/api', '')}${characterData[showSideCard].image_url}` : defaultAvatar}
+                                description={characterData[showSideCard].description ?? "No description available."}
+                                associatedQuotes={associatedQuotes ? associatedQuotes[showSideCard] : []}
+                            />
+                        )}
                             <div className="flex flex-col items-center w-full mt-2">
+                                <hr className="border-gray-300 w-1/2 mx-auto mb-2" />
                                 <div className="flex items-center gap-1 self-end">
                                     <input type="checkbox" id="cumulative" checked={cumulative} onChange={() => setCumulative(!cumulative)} className="accent-[#228B22] mb-2" />
                                     <label htmlFor="cumulative" className="text-sm text-gray-500 font-dewi mb-2">Cumulative</label>
@@ -151,7 +174,6 @@ const CharacterAnalysisLanding = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {
                         characterData && Object.entries(characterData).map(([id, data]) => (
-                            console.log(`data for ${id}:`, data),
                             <Fragment key={id}>
                                 {(!data.name) ? "" : null}
                                 <CharacterCard 
@@ -166,7 +188,6 @@ const CharacterAnalysisLanding = () => {
                     </div>
                 </div>
             </div>
-        </div> 
     )
 }
 

@@ -36,6 +36,12 @@ const ChapterAnalysis = () => {
         fetchData();
     }, [novelId]);
 
+    useEffect(() => {
+        if (chapterData) {
+            document.title = `${chapterData.title} | Chapter Analysis`;
+        }
+    })
+
     const keyCharacters = quoteData
         ?.filter(quote => quote.chapter_number === parseInt(chapterNumber))
         .reduce((acc, quote) => {

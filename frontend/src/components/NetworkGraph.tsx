@@ -76,7 +76,8 @@ const createNetworkGraph = (data: any, containerId: string, height: number = 400
 
     svg.call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(scale));
 
-    const simulation = d3.forceSimulation(nodes)
+    const simulation = d3
+        .forceSimulation(nodes)
         .force("link", d3.forceLink(links)
             .id((d: any) => d.id)
             .distance(150))
@@ -176,8 +177,6 @@ const createNetworkGraph = (data: any, containerId: string, height: number = 400
             .attr("y", (d: any) => d.y);
     });
 
-    
-
     if (showLegend) {
         const legend = svg.append("g")
             .attr("class", "legend")
@@ -253,6 +252,16 @@ const createNetworkGraph = (data: any, containerId: string, height: number = 400
     }
 };
 
+const createCooccurrenceGraph = (data: any, containerId: string, height: number = 400, width: number = 600) => {
+    // const links = data.links.map((d: any) => Object.create(d));
+    // const nodes = data.nodes.map((d: any) => Object.create(d));
+    const links = data || []
+    const nodes = Array.from(new Set(data.flatMap((d: any) => [d.source, d.target])), id => ({ id }));
+    
+    console.log(links)
+    console.log(nodes)
+}
+
 interface NetworkGraphProps {
     id?: string;
     filterCharacter?: string;
@@ -270,6 +279,7 @@ interface NetworkGraphProps {
 const NetworkGraph = ({ id = "network-graph", filterCharacter, height = 400, width = 400, selectedChapter = null, chapterNetworkData, onNodeHover, showLegend = true, cumulative = true }: NetworkGraphProps) => {
     const networkData = useContext(BookContext)?.networkData;
     const characterData = useContext(BookContext)?.characterData;
+    const cooccurrenceNetworkData = useContext(BookContext)?.cooccurrenceNetworkData;
 
     let graphData: { nodes: any[], links: any[] };
 
@@ -296,7 +306,6 @@ const NetworkGraph = ({ id = "network-graph", filterCharacter, height = 400, wid
         };
     }
 
-    // Apply character filter if present
     const filteredData = filterCharacter
         ? (() => {
             const name = filterCharacter.toLowerCase();
@@ -317,10 +326,11 @@ const NetworkGraph = ({ id = "network-graph", filterCharacter, height = 400, wid
         if (filteredData.nodes.length > 0) {
             createNetworkGraph(filteredData, id, height, width, onNodeHover, showLegend);
         }
+        createCooccurrenceGraph(cooccurrenceNetworkData, id, height, width);
         return () => {
             d3.select(`#${id}`).selectAll("*").remove();
         };
-    }, [id, filterCharacter, height, width, networkData, selectedChapter, chapterNetworkData, cumulative, showLegend]);
+    }, [id, filterCharacter, height, width, networkData, selectedChapter, chapterNetworkData, cumulative, showLegend, cooccurrenceNetworkData]);
 
     return (
         <div>

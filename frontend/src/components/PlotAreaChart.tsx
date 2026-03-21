@@ -142,7 +142,8 @@ const createAreaChart = (
                 chapter: chapter ? `Chapter ${chapter.idx + 1}` : '',
                 description: parsedSummaries[i]?.summary || '',
                 category: parsedSummaries[i]?.category || '',
-                characters: parsedSummaries[i]?.characters || []
+                characters: parsedSummaries[i]?.characters || [],
+                headline: parsedSummaries[i]?.headline || ''
             })
         }
     }
