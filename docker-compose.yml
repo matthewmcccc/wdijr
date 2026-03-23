@@ -10,6 +10,7 @@ services:
       - "8000:8000"
     volumes:
       - ./data:/data
+      - uploads_data:/app/uploads
     environment:
       - DB_URL=sqlite+aiosqlite:////data/app.db
       - DATA_DIR=/data
@@ -25,6 +26,7 @@ services:
     command: celery -A app.services.celery_worker worker --loglevel=info
     volumes:
       - ./data:/data
+      - uploads_data:/app/uploads
     environment:
       - DB_URL=sqlite+aiosqlite:////data/app.db
       - DATA_DIR=/data
