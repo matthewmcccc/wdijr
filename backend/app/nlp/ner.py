@@ -4,6 +4,7 @@ import spacy
 import gender_guesser.detector as gender
 import regex as re
 import networkx as nx
+from app.parsers.epub import Epub
 from itertools import combinations
 from networkx.algorithms import community
 from spacy.language import Language
@@ -316,6 +317,34 @@ class EntityExtractor:
         self.male_at = male_at
         self.female_at = female_at
 
+    def character_lexical_richness(self, quotes, window: 100):
+        associated_quotes = self.associate_text_quotes(quotes)
+        associated_quotes_dict = defaultdict(list)
+        for quote_obj in associated_quotes:
+            quote = quote_obj["quote"]
+            speaker = quote_obj["speaker"]
+            if speaker in self.canonical_characters:
+                associated_quotes_dict[speaker].append(quote)
+        mattr_obj = defaultdict(float)
+        for speaker, quotes_list in associated_quotes_dict.items():
+            quote_str = (" ").join(quotes_list)
+            tokens = [w.strip(".,!?;:\"'()") for w in quote_str.lower().split() if w.strip(".,!?;:\"'()")]
+            if len(tokens) < window:
+                ttr  = round(len(set(tokens)) / len(tokens), 3)
+                if ttr != 1.0:
+                    mattr_obj[speaker] = round(len(set(tokens)) / len(tokens), 3)
+            else: 
+                ttrs = []
+                for i in range(len(tokens) - window + 1):
+                    w = tokens[i : i + window]
+                    ttrs.append(len(set(w)) / window)
+                ttr = round(sum(ttrs) / len(ttrs), 3)
+                if ttr != 1.0:
+                    mattr_obj[speaker] = round(sum(ttrs) / len(ttrs), 3)
+        
+        print(mattr_obj)
+        return mattr_obj
+
     def coref_res(self, index: int, pronoun: str) -> str:
         """
         Lightweight coreference resolution that replaces pronouns with
@@ -332,6 +361,16 @@ class EntityExtractor:
             return self.female_at[index]
         if pronoun in ("he", "his", "himself"):
             return self.male_at[index]
+        
+    @staticmethod
+    def compute_mattr(tokens, window):
+        if len(tokens) < window:
+            return len(set(tokens)) / len(tokens)
+        ttrs = []
+        for i in range(len(tokens) - window + 1):
+            w = tokens[i : i + window]
+            ttrs.append(len(set(w)) / window)
+        return sum(ttrs) / len(ttrs)
 
     @staticmethod
     def get_character_quotes(

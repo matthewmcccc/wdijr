@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 from app.schemas.quote import QuoteSchema
 import uuid
 
@@ -13,6 +13,7 @@ class AnalysisSchemaBase(BaseModel):
     plot_summaries: list
     character_sentiment: dict
     chapter_networks: dict
+    motifs: Optional[dict] = None
 
 
 class AnalysisSchemaCreate(AnalysisSchemaBase):

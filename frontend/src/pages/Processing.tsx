@@ -27,6 +27,7 @@ const Processing = () => {
     const setChapterLengths = useContext(BookContext)?.setChapterLengths;
     const setCooccurrenceNetworkData = useContext(BookContext)?.setCooccurrenceNetworkData;
     const setAuthorData = useContext(BookContext)?.setAuthorData;
+    const setMotifData = useContext(BookContext)?.setMotifData;
 
     useEffect(() => {
         if (done) return;
@@ -35,6 +36,7 @@ const Processing = () => {
             const data = await axios.get(`${import.meta.env.VITE_API_URL}/analysis/process/${taskId}`)
             setStatus(data.data.detail || "Processing...");
         if (data.data.status == "complete") {
+                console.log("Analysis complete, fetching data...", data.data.data);
                 setTitle?.(data.data.data.title);
                 setNetworkData?.(data.data.data.conversational_network);
                 setSentimentValues?.(data.data.data.sentiment_values);
@@ -50,6 +52,7 @@ const Processing = () => {
                 setChapterLengths?.(data.data.data.chapter_lengths);
                 setCooccurrenceNetworkData?.(data.data.data.cooccurrence_network);
                 setAuthorData?.(data.data.data.author_details);
+                setMotifData?.(data.data.data.motifs.motif_groups);
                 setDone(true);
             }
         }, 2000);

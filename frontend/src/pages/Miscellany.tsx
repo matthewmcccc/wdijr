@@ -51,7 +51,7 @@ const Miscellany = () => {
         {
             title: "Themes and Motifs",
             description: "Explore the major themes and motifs present in the novel, and how they contribute to the overall narrative.",
-            url: `/themes/${novelId}`,
+            url: `/themes-and-motifs/${novelId}`,
             image: ""
         },
         {
@@ -68,7 +68,7 @@ const Miscellany = () => {
         {
             title: "Themes and Motifs",
             description: "Explore the major themes and motifs present in the novel, and how they contribute to the overall narrative.",
-            url: `/themes/${novelId}`,
+            url: `/themes-and-motifs/${novelId}`,
             image: ""
         },
         {

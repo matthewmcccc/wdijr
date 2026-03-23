@@ -16,10 +16,14 @@ from app.services.book_processor import get_character_thumbnails
 from app.services.book_processor import get_author_data
 
 if __name__ == "__main__":
-    book_path = Path("./app/temp/aaiw.epub")
+    book_path = Path("./app/temp/dracula.epub")
     book = Epub(book_path)
     text = book.get_full_text()
     quotes = book.get_full_text_quotes(text)
     paras = book.get_full_text_paras()
 
-    book.chunk_text_for_motif_analysis()        
+    er: EntityExtractor = EntityExtractor(
+        "en_core_web_trf",
+        text
+    )
+    er.character_lexical_richness(quotes, 100)

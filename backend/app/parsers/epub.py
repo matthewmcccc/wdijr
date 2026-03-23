@@ -265,3 +265,23 @@ class Epub(Book):
     def get_full_word_count(self):
         words = self.get_full_text_word_list()
         return len(words)
+
+    def compute_mattr(self, tokens, window):
+        if len(tokens) < window:
+            return len(set(tokens)) / len(tokens)
+        ttrs = []
+        for i in range(len(tokens) - window + 1):
+            w = tokens[i : i + window]
+            ttrs.append(len(set(w)) / window)
+        return sum(ttrs) / len(ttrs)
+
+
+    def lexical_richness(self):
+        ch_lexical_richness = []
+        for idx, chapter in self.chapters.items():
+            text = self.get_chapter_text(idx)
+            tokens = [w.lower().strip(".,!?;:\"'()") for w in text.split() if w.strip(".,!?;:\"'()")]
+            mattr = self.compute_mattr(tokens, window=100)
+            ch_lexical_richness.append(mattr)
+        return ch_lexical_richness
+    

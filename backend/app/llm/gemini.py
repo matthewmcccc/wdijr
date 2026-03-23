@@ -15,6 +15,8 @@ class PromptInstruction(str, Enum):
     CHAPTER_SUMMARY = "chapter_summary"
     CONSOLIDATE_QUOTES = "consolidate_quotes"
     AUTHOR_SUMMARY = "author_summary"
+    MOTIF_EXTRACTION = "motif_extraction"
+    MOTIF_CONSOLIDATION = "motif_consolidation"
 
 class Gemini:
     def __init__(self):
@@ -202,6 +204,59 @@ class Gemini:
 
         return summaries
     
+    def generate_motif_extraction(
+            self, model, chunks: list, instruction: str
+    ):
+        def send_request(chunk):
+            additional_instruction = self.get_additional_instruction(
+                instruction
+            )
+            prompt = f"{additional_instruction}\n{chunk}"
+            return (
+                self.client.models.generate_content(
+                    model=model, 
+                    contents=prompt, 
+                    config=types.GenerateContentConfig(
+                            response_mime_type="application/json",
+                            response_schema={
+                                "type": "OBJECT",
+                                "properties": {
+                                    "motifs": {
+                                        "type": "ARRAY",
+                                        "items": {"type": "STRING"}
+                                    }                                
+                                },
+                                "required": ["motifs"],
+                            },
+                        )
+                    )
+                .candidates[0]
+                .content.parts[0]
+                .text
+            )
+
+        with ThreadPoolExecutor(max_workers=len(chunks)) as executor:
+            all_motifs = list(executor.map(send_request, chunks))
+
+        return all_motifs
+    
+    def generate_motif_consolidation(
+        self, model, motifs: list, instruction: str
+    ):
+        additional_instruction = self.get_additional_instruction(instruction)
+        prompt = f"{additional_instruction}\n{(", ").join(motifs)}"
+        return (
+            self.client.models.generate_content(
+                model=model,
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    response_mime_type="application/json",
+
+                ),
+            )
+            .candidates[0].content.parts[0].text
+        )
+
     def consolidate_quotes(
         self, model, network: dict, instruction: str
     ):
@@ -248,6 +303,10 @@ class Gemini:
             additional_instruction = self.author_summary_prompt(
                 novel_title
             )
+        if instruction == PromptInstruction.MOTIF_EXTRACTION:
+            additional_instruction = self.motif_analysis_prompt()
+        if instruction == PromptInstruction.MOTIF_CONSOLIDATION:
+            additional_instruction = self.consolidate_motifs_prompt()
         return additional_instruction
 
     @staticmethod
@@ -400,4 +459,45 @@ class Gemini:
 
         Novel Title: {novel_title}
         Below is the extract for summarisation
+        """
+
+    # Some prompt details taken from here:
+    # https://arxiv.org/pdf/2504.21742
+    @staticmethod 
+    def motif_analysis_prompt():
+        return """
+        Identify literary motifs (recurring recognizable and meaningful
+        patterns of meaning) from the provided text, expressed as concise,
+        short phrases. Only extract motifs from the current text, ignoring
+        the preceding context. Do not mention character names, and refrain
+        from providing any additional commentary beyond the list of motifs.
+
+        Rules:
+        - Do NOT acknowledge the prompt. Just identify the motifs from the 
+        provided text
+        - Use only the given provided text, do not use prior context.
+        - Do not mention character names
+        - Provide your response in the following JSON format:
+            "motifs": ["motif one", "motif two", ...]
+        """
+    
+    @staticmethod
+    def consolidate_motifs_prompt():
+        return """  
+        You are an expert in literary analysis.
+        You will be given a list of literary motifs. Your task is to consolidate
+        this list into 5-10 groups of overarching motif categories.
+        You must map the overarching motif category to the motifs you believe
+        best belong to that category.
+
+        Rules:
+        - Do NOT acknowledge the prompt. Just identify the categories of 
+        motifs from the provided list and complete the mapping.
+        - Use only the provided motif list. Use no other context.
+        - Provide your response in the following JSON format:
+            "motif_groups": {
+                "OVERARCHING CATEGORY IN DOUBLE QUOTES": ["motif one", "motif two", ...],
+                "OVERARCHING CATEGORY IN DOUBLE QUOTES": ["motif three", "motif four", ...],
+                ...
+            }
         """

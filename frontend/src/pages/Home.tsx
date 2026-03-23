@@ -62,6 +62,10 @@ const Home = () => {
         return () => clearInterval(pollInterval)
     }, [appState, taskId])
 
+    useEffect(() => {
+        document.title = "What Did I Just Read?"
+    }, [])
+
     return (
         <>
             {appState == "idle" && (

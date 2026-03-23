@@ -148,6 +148,11 @@ def process_text(self, book_path):
         book.author
     )
 
+    motifs = get_motif_data(
+        book,
+        g
+    )
+
     novel_id = save_analysis_to_db(
         title=title,
         author=author,
@@ -169,6 +174,7 @@ def process_text(self, book_path):
         chapter_valence_vals=chapter_valence_vals,
         cooccurrence_frequency_network=cooccurrence_frequency_network,
         author_details=author_details,
+        motifs=motifs,
     )
 
     cover_url = book.write_cover(cover, novel_id)
@@ -187,7 +193,8 @@ def process_text(self, book_path):
         "character_sentiment": character_to_character_sentiment_dict,
         "chapter_network": chapter_nw_nodes,
         "chapter_lengths": [len(ch) for ch in chapter_valence_vals],
-        "author_details": author_details
+        "author_details": author_details,
+        "motifs": motifs,
     }
 
 
@@ -342,3 +349,18 @@ def get_chapter_valence_vals(book: Epub, ps: PlotSentiment) -> list:
         )
         diff_values.append(sorted(first_diff, key=lambda x: abs(x[1]), reverse=True)[:2])
     return chapter_valence_vals
+
+def get_motif_data(book: Epub, g: Gemini):
+    chunks = book.chunk_text_for_motif_analysis()   
+    motifs = g.generate_motif_extraction(
+        "gemini-2.5-flash",
+        chunks,
+        "motif_extraction"
+    )
+    consolidated_motifs = g.generate_motif_consolidation(
+        "gemini-2.5-flash",
+        motifs,
+        "motif_consolidation"
+    )
+
+    return json.loads(consolidated_motifs)

@@ -1,7 +1,7 @@
 import uuid
 from .base import Base
 from typing import List
-from sqlalchemy import String, select, types
+from sqlalchemy import String, select, types, JSON
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -15,6 +15,7 @@ class Novel(Base):
     title: Mapped[str] = mapped_column(String(100))
     author: Mapped[str] = mapped_column(String(50))
     cover_url: Mapped[str] = mapped_column(String(500), nullable=True)
+
     quotes: Mapped[List["Quote"]] = relationship(back_populates="novel")
     characters: Mapped[List["Character"]] = relationship(back_populates="novel")
     analysis: Mapped["Analysis"] = relationship(back_populates="novel")
