@@ -1,3 +1,6 @@
+
+volumes:
+  uploads_data:/app/uploads
 services:
   redis:
     image: redis:alpine
