@@ -294,8 +294,14 @@ def get_author_data(book: Epub, g: Gemini, author: str) -> dict:
     wiki_res = requests.get(
         wiki_url,
         headers={
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36"
+            "User-Agent": "wdijr/1.0 (dissertation project; mattmcconnachie4@gmail.com)"
     })
+
+    print("WIKI STATUS:", wiki_res.status_code)
+    print("WIKI TEXT:", wiki_res.text[:500])
+    if not wiki_res.text:
+        print("Wikipedia returned empty response")
+
 
     wiki_body = wiki_res.json()
     extract = next(iter(wiki_body["query"]["pages"].values()))
@@ -309,7 +315,7 @@ def get_author_data(book: Epub, g: Gemini, author: str) -> dict:
 
     other_works_list = []
 
-    open_lib_url = f"https://openlibrary.org/search.json?author=Lewis+Carroll&limit=10"
+    open_lib_url = f"https://openlibrary.org/search.json?author={("+").join(author.split(" "))}&limit=10"
     open_lib_res = requests.get(
         open_lib_url,
         headers={
@@ -322,7 +328,7 @@ def get_author_data(book: Epub, g: Gemini, author: str) -> dict:
         if book.title not in doc["title"] and author in doc["author_name"]:
             work_obj = {
                 "title": doc["title"],
-                "image_url": f"https://covers.openlibrary.org/b/id/{doc["cover_i"]}-M.jpg",
+                "image_url": f"https://covers.openlibrary.org/b/id/{doc['cover_i']}-M.jpg",
                 "year": doc["first_publish_year"]
             }
             other_works_list.append(work_obj)

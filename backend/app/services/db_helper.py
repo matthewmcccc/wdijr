@@ -1,5 +1,6 @@
 import os
 import json
+from dotenv import load_dotenv
 from app.parsers.epub import Epub
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
@@ -10,9 +11,10 @@ from app.models.analysis import Analysis
 from app.models.chapter import Chapter
 from app.models.author import Author
 
-db_path = os.path.join(os.path.dirname(__file__), "..", "..", "data", "app.db")
-sync_engine = create_engine(f"sqlite:///{db_path}")
+load_dotenv()
 
+db_path = os.getenv("DATA_DIR", os.path.join(os.path.dirname(__file__), "..", "..", "data"))
+sync_engine = create_engine(f"sqlite:///{os.path.join(db_path, 'app.db')}")
 
 def save_analysis_to_db(
     title: str,

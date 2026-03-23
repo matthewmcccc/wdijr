@@ -46,7 +46,7 @@ const Processing = () => {
                 setAssociatedQuotes?.(data.data.data.associated_quotes);
                 setTopRelationships?.(data.data.data.top_relationships);
                 setPlotSummaries?.(data.data.data.plot_summaries); 
-                setCoverUrl?.(data.data.data.cover_url);
+                setCoverUrl?.(`${import.meta.env.VITE_API_URL.replace('/api', '')}${data.data.data.cover_url}`);
                 setCharacterSentimentValues?.(data.data.data.character_sentiment);
                 setChapterNetworkData?.(data.data.data.chapter_network);
                 setChapterLengths?.(data.data.data.chapter_lengths);
