@@ -32,7 +32,7 @@ def init_app(init_db=True):
     server.mount("/data", StaticFiles(directory=data_dir), name="static_data")
     server.add_middleware(
         CORSMiddleware,
-        allow_origins=["http://localhost:5173", "http://localhost"],
+        allow_origins=["http://localhost:5173", "http://localhost", "http://65.108.48.214"],
         allow_methods=["*"],
         allow_headers=["*"],
     )
