@@ -1,6 +1,8 @@
 import json
 import os
 import requests
+import serpapi
+from urllib.parse import urlparse
 from dotenv import load_dotenv
 from collections import defaultdict
 from app.parsers.epub import Epub
@@ -175,6 +177,7 @@ def process_text(self, book_path):
         cooccurrence_frequency_network=cooccurrence_frequency_network,
         author_details=author_details,
         motifs=motifs,
+
     )
 
     cover_url = book.write_cover(cover, novel_id)
@@ -257,34 +260,40 @@ def get_plot_summaries(g: Gemini, summarisation_texts: list[str], characters: li
     )
     return plot_summaries
 
-def get_character_thumbnails(title: str, er: EntityExtractor):
-    wikimedia_api = os.getenv("WIKIMEDIA_API_URL")
-    if not wikimedia_api:
-        raise Exception("Couldn't get wikimedia API URL")
+def get_character_thumbnails(title: str, er: EntityExtractor, novel_id: str):
+    def send_request(character: str, title: str):
+        try:
+            api_key = os.getenv("SERP_API_KEY")
+        except Exception as e:
+            print(f"Couldn't grab api key: {e}")
+        client = serpapi.Client(
+            api_key=api_key
+        )
+        n_title = title.replace("'s", " ")
+        results = client.search({
+            "engine": "google_images",
+            "q": f"{character} {n_title.lower()} illustration",
+            "location": "United Kingdom",
+            "google_domain": "google.com",
+            "hl": "en",
+            "gl": "us",
+            "device": "desktop"
+        })
+
+        data_dir = os.path.join(os.path.dirname(__file__), "..", "data", {novel_id}, "character_thumbnails")
+
+        try:
+            image_results = results["image_results"]
+            image = image_results[0]["thumbnail"]
+            path = urlparse(image).path
+            ext = os.path.splitext(path)[1]
+            with open(f"{data_dir}/{character}{ext}", 'wb') as handler:
+                handler.write(requests.get(image).content)
+        except Exception as e:
+            print(f"Couldn't grab image from results: {e}")
+
     for character in er.canonical_characters:
-        search_url = f"{wikimedia_api}action=query&list=search&srsearch={character}%20{title}&srnamespace=6&srlimit=10&format=json"
-        res = requests.get(
-            search_url,
-            headers={
-                "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
-            }
-        ).json()
-        results = res.get("query", {}).get("search", [])
-        if results:
-            for result in results:
-                title = result["title"]
-                if title.endswith((".pdf", ".djvu")):
-                    continue
-                page_id = results[0]["pageid"]
-                break
-        image_url = f"{wikimedia_api}action=query&pageids={page_id}&prop=imageinfo&iiprop=url&iiurlwidth=400&format=json"
-        image_res = requests.get(
-            image_url,
-            headers={
-                "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
-            }
-        ).json()
-        print(image_res)
+        send_request(character, title)
 
 def get_author_data(book: Epub, g: Gemini, author: str) -> dict:
     author_dict = {}

@@ -1,5 +1,8 @@
 import os
 import json
+import serpapi
+import requests
+from urllib.parse import urlparse
 from dotenv import load_dotenv
 from app.parsers.epub import Epub
 from sqlalchemy import create_engine
@@ -13,7 +16,7 @@ from app.models.author import Author
 
 load_dotenv()
 
-db_path = os.getenv("DATA_DIR", os.path.join(os.path.dirname(__file__), "..", "..", "data"))
+db_path = os.path.join(os.path.dirname(__file__), "..", "..", "data")
 sync_engine = create_engine(f"sqlite:///{os.path.join(db_path, 'app.db')}")
 
 def save_analysis_to_db(
@@ -62,6 +65,41 @@ def save_analysis_to_db(
             if len(top_quotes[name]) > 0:
                 top_quote = top_quotes[name][0]["quote"]
 
+            try:
+                api_key = os.getenv("SERP_API_KEY")
+            except Exception as e:
+                print(f"Couldn't grab api key: {e}")
+            client = serpapi.Client(
+                api_key=api_key
+            )
+            n_title = title.replace("'s", " ")
+            results = client.search({
+                "engine": "google_images",
+                "q": f"{name} {n_title.lower()} illustration",
+                "location": "United Kingdom",
+                "google_domain": "google.com",
+                "hl": "en",
+                "gl": "us",
+                "device": "desktop"
+            })
+
+            data_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "data", str(novel.id), "character_thumbnails")
+            print(f"data dir: {data_dir}")
+            os.makedirs(data_dir, exist_ok=True)
+
+            ext = ""
+            try:
+                image_results = results["images_results"]
+                image = image_results[0]["thumbnail"]
+                path = urlparse(image).path
+                ext = os.path.splitext(path)[1]
+                with open(f"{data_dir}/{name}{ext}", 'wb') as handler:
+                    handler.write(requests.get(image).content)
+            except Exception as e:
+                print(f"Couldn't grab image from results: {e}")
+
+            print(f"ext: {ext}")
+
             session.add(
                 Character(
                     name=name,
@@ -70,6 +108,7 @@ def save_analysis_to_db(
                     novel_id=novel.id,
                     top_relationships=top_relationships.get(name, []),
                     top_quote=top_quote,
+                    image_url=f"/data/{novel.id}/character_thumbnails/{name}{ext}" if ext != "" else None,
                 )
             )
 

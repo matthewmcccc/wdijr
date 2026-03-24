@@ -89,6 +89,7 @@ rich-toolkit==0.18.1
 rignore==0.7.6
 rsa==4.9.1
 sentry-sdk==2.52.0
+serpapi==1.0.2
 setuptools==80.10.2
 shellingham==1.5.4
 six==1.17.0
