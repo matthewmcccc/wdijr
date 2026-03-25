@@ -378,19 +378,23 @@ class Gemini:
                 You will be given a series of quotes from a character from a given story.
                 Each quote is seperated by a newline.
                 The name of the story and the character's name will be provided alongside the quotes.
-                It is your job to generate a summary of this character. The summary should span roughly two
-                paragraphs, approximately 150-200 words. You should also generate a short summary, a sentence at most.
+                It is your job to generate a summary of this character. The summary should span roughly three to four
+                paragraphs, approximately 300-400 words. You should seperate the paragraphs with a newline symbol.
+                If a character is a relatively minor one, then the above instruction regarding summary length need not apply.
+                Side characters can have shorter analyses, whereas major characters demand the full length as described.
+                You should also generate a short summary, a sentence at most.
                 This sentence should describe either their role in the story, i.e. antagonist or protagonist, or
                 their relation to other characters in the story i.e. wife, husband, mother etc.
 
                 Rules:
                 - After the first named reference, exclusively refer to the character by their pronoun.
                 i.e. He, his, himself etc.
-                - Ground your analysis primarily in the provided quotes, using broader literary knowledge
-                only to contextualise. Where appropriate, briefly reference specific moments from the
-                provided quotes to support your characterisation.
-                You must make reference to at least SOME of the quotes provided (pick 2-4).
-                - You make MINIMAL USE of pre-existing knowledge of the text
+                - Ground your analysis in the quotes and any pre-existing knowledge you may have of the character.
+                You should draw on the content and sentiment of the quotes in your analysis, but paraphrase them 
+                as opposed to quoting them directly.
+                - Do NOT directly quote the characters dialogue. Instead, describe what they say and how they say it
+                in your own words.
+                - You may make use of pre-existing knowledge of the text or character.
                 - Address the character's key relationships, their role in the narrative, their emotional
                 arc, and how they relate to the broader themes of the work.
                 - If limited quotes are available, acknowledge the character's smaller role and focus on
@@ -398,7 +402,7 @@ class Gemini:
                 - Write in an accessible but analytically informed tone suitable for undergraduate readers.
                 - Do not use markdown formatting, headers, or bullet points.
                 - Do not make any reference to the prompt whatsoever.
-                - Provide ONLY the character summary.
+                - Provide ONLY the character summary and short description.
                 - The response must be in the following JSON format: 
                 "summary": "LONG SUMMARY",
                 "description": "SHORT DESCRIPTION" 

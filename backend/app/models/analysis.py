@@ -19,6 +19,7 @@ class Analysis(MappedAsDataclass, Base):
     character_sentiment: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     chapter_networks: Mapped[dict] = mapped_column(JSON)
     motifs: Mapped[dict] = mapped_column(JSON, nullable=True)
+    lexical_richness: Mapped[dict] = mapped_column(JSON, nullable=True)
 
     novel: Mapped["Novel"] = relationship(back_populates="analysis", init=False)
 

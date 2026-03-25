@@ -22,38 +22,6 @@ from app.services.book_processor import get_author_data
 
 load_dotenv()
 
-def get_character_thumbnails(author: str, title: str, character: str):
-    client = serpapi.Client(api_key=os.getenv("SERP_API_KEY"))
-    short_title = title.replace("'s Adventures in Wonderland", " in Wonderland")
-    results = client.search({
-        "engine": "google_images",
-        "q": f"{character} {short_title.lower()} illustration",
-        "location": "United Kingdom",
-        "google_domain": "google.com",
-        "hl": "en",
-        "gl": "us",
-        "device": "desktop"
-    })
-
-
-    try:
-        image_results = results["images_results"]
-        image = image_results[0]["thumbnail"]
-        path = urlparse(image).path
-        ext = os.path.splitext(path)[1]
-        data_dir = os.path.join(os.path.dirname(__file__), "..", "data", "character_thumbnails")
-        os.makedirs(data_dir, exist_ok=True)
-        with open(f"{data_dir}/{character}{ext}", "wb") as handler:
-            handler.write(requests.get(image).content)
-    except Exception as e:
-        if "images_results" not in results:
-            print(character)
-            print(f"error: {results['error']}")
-            print(f"keys: {list(results.keys())}")
-            print(f"query was: {character} {title.lower()} illustration")
-            return
-
-
 if __name__ == "__main__":
     book_path = Path("./app/temp/aaiw.epub")
     book = Epub(book_path)
@@ -65,10 +33,9 @@ if __name__ == "__main__":
         "en_core_web_trf", text
     )
 
-    for character in er.canonical_characters:
-        get_character_thumbnails(
-            book.author,
-            book.title,
-            character
-        )
-        break
+    vocab = er.character_lexical_richness(
+        quotes,
+        100
+    )
+
+    print(vocab)

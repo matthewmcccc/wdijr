@@ -14,6 +14,7 @@ import ChapterAnalysis from "./pages/ChapterAnalysis";
 import Miscellany from "./pages/Miscellany";
 import Author from "./pages/Author";
 import ThemesAndMotifs from "./pages/ThemesAndMotifs";
+import Vocabulary from "./pages/Vocabulary";
 
 const App = () => {
   const [characterData, setCharacterData] = useState<Array<{ id: Number, name: string, summary: string, description: string, novel_id: string, image_url: string }>>([])
@@ -94,6 +95,7 @@ const App = () => {
           <Route path="/miscellany/:novelId" element={<Miscellany />} />
           <Route path="/author/:novelId" element={<Author />} />
           <Route path="/themes-and-motifs/:novelId" element={<ThemesAndMotifs />} />
+          <Route path="/vocabulary/:novelId" element={<Vocabulary />} />
         </Routes>
       </BookContext.Provider>
     </BrowserRouter>

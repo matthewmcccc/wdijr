@@ -11,6 +11,7 @@ import NetworkGraph from "../components/NetworkGraph";
 import fetchNovelData from "../utils/fetchNovelData";
 import cumulativeSentiment from "../utils/cumulativeSentiment";
 import CharacterSentimentChart from "../components/CharacterSentimentChart";
+import RelatedCharacterCard from "../components/RelatedCharacterCard";
 
 const smooth = (data: number[], windowSize: number = 10): number[] => {
     return data.map((_, i) => {
@@ -104,7 +105,14 @@ const CharacterAnalysisProfile = () => {
             </div>
         )
     }
-            
+
+    const relatedCharacterImages = topRelationships.map(([relatedCharacter, _strength, _sentiment]) => {
+        const relatedData = Object.values(allCharacterData ?? {}).find(c => c.name.toLowerCase() === relatedCharacter.toLowerCase());
+        return relatedData?.image_url
+    });
+
+    console.log(relatedCharacterImages)
+
     return (
         <div className="container mx-auto px-4 py-8"> 
             <Navbar />
@@ -135,38 +143,39 @@ const CharacterAnalysisProfile = () => {
                         "...{topQuote}..."
                     </div>
                 )}
-                <div className="flex flex-col justify-between mt-8">
-                    <div className="font-serif flex-1 text-2xl">
-                        Character Summary
-                    </div>
-                    <div className="flex-1 flex flex-row mt-8">
+                <div className="flex flex-row justify-between mt-8">
+                    <div className="mt-4 flex flex-1 flex-col gap-4">
+                        <div className="font-serif text-2xl">
+                            Character Summary
+                        </div>
+                        <hr className="my-4 text-gray-300 w-1/2"/>
                         <div className="flex flex-1">
-                            <p className="font-serif text-gray-900">
+                            <p className="font-serif text-gray-900 whitespace-pre-wrap">
                                 {characterData?.summary || "No summary available."}
                             </p>
                         </div>
-                        <div className="justify-end flex flex-1">
-                            {topRelationships.length > 0 && (
-                                <div className="md:w-1/2">
-                                    <div className="font-serif text-lg">
-                                        Closely Related Characters
-                                    </div>
-                                    <hr className="my-2 text-gray-300"/>
-                                    {topRelationships.map(([relatedCharacter, _strength, sentiment], index) => (
-                                        <CharacterCard 
-                                            key={index}
-                                            name={humanize(relatedCharacter)}
-                                            description={""}
-                                            traits={characterData?.traits || []}
-                                            size={"small"}
-                                            sentiment={sentiment}
-                                        />
-                                    ))}
-                                </div>
-                            )}
-                        </div>
                     </div>
-                    <div className="justify-between  flex flex-row mt-12">
+                    <div className="justify-end flex flex-1">
+                        {topRelationships.length > 0 && (
+                            <div className="md:w-1/2">
+                                <div className="font-serif text-lg">
+                                    Closely Related Characters
+                                </div>
+                                <hr className="my-2 text-gray-300"/>
+                                {topRelationships.map(([relatedCharacter, _strength, sentiment], index) => (
+                                    <RelatedCharacterCard
+                                        key={relatedCharacter}
+                                        name={relatedCharacter}
+                                        description={`${humanize(characterName)} and ${humanize(relatedCharacter)} have ${_strength} quotes attributed as being a conversation between each. Their overall sentiment is ${sentiment > 0 ? "positive" : sentiment < 0 ? "negative" : "neutral"}.`}
+                                        sentiment={sentiment}
+                                        image_url={relatedCharacterImages[index] || undefined}
+                                    />
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
+                    <div className="gap-12 flex flex-row mt-12">
                         <div>
                             <h1 className="font-dewi text-md mb-4">
                                 {characterName ? `${humanize(characterName)}'s Sentiment Over Time` : "Sentiment Over Time"}
@@ -219,7 +228,6 @@ const CharacterAnalysisProfile = () => {
                     </div>
                 </div>
             </div>
-        </div>
     )        
 }
 

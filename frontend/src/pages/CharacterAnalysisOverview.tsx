@@ -81,7 +81,7 @@ const CharacterAnalysisLanding = () => {
                 <div className="flex flex-row">
                     <div className="flex flex-col w-full gap-2">
                         <div className="flex flex-col gap-4 w-full border border-gray-300 rounded-lg p-4">
-                            <h1 className="font-serif text-center text-xl">{title} | Social Network Graph</h1>
+                            <h1 className="font-serif text-center text-xl">{title} | Social Network</h1>
                             <hr className="border-gray-300 w-1/2 mx-auto" />
                             <div ref={containerRef} className="w-full h-[500px]">
                                 {containerWidth > 0 && containerHeight > 0 && (
@@ -102,15 +102,6 @@ const CharacterAnalysisLanding = () => {
                                 />
                                 )}
                             </div>
-                        </div>
-                        {showSideCard && characterData && (
-                            <SideCharacterCard 
-                                name={humanize(characterData[showSideCard].name)}
-                                img={characterData[showSideCard].image_url ? `${import.meta.env.VITE_API_URL.replace('/api', '')}${characterData[showSideCard].image_url}` : defaultAvatar}
-                                description={characterData[showSideCard].description ?? "No description available."}
-                                associatedQuotes={associatedQuotes ? associatedQuotes[showSideCard] : []}
-                            />
-                        )}
                             <div className="flex flex-col items-center w-full mt-2">
                                 <hr className="border-gray-300 w-1/2 mx-auto mb-2" />
                                 <div className="flex items-center gap-1 self-end">
@@ -165,7 +156,8 @@ const CharacterAnalysisLanding = () => {
                         </div>
                     </div>   
                 </div>
-                <div className="">
+                </div>
+                <div className="py-18">
                     <div className="justify-between flex flex-row">
                         <h1 className="font-serif text-4xl">Characters</h1>
                         <Dropdown />
@@ -178,7 +170,7 @@ const CharacterAnalysisLanding = () => {
                                 {(!data.name) ? "" : null}
                                 <CharacterCard 
                                     name={humanize(data.name)}
-                                    img={data.image_url ? `${import.meta.env.VITE_API_URL.replace('/api', '')}${data.image_url}` : defaultAvatar}
+                                    image_url={data.image_url ? `${import.meta.env.VITE_API_URL.replace('/api', '')}${data.image_url}` : defaultAvatar}
                                     description={data.description ?? "No description available."}
                                     size={"large"}
                                 />

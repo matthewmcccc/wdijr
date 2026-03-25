@@ -14,6 +14,7 @@ class AnalysisSchemaBase(BaseModel):
     character_sentiment: dict
     chapter_networks: dict
     motifs: Optional[dict] = None
+    lexical_richness: Optional[dict] = None
 
 
 class AnalysisSchemaCreate(AnalysisSchemaBase):

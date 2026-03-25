@@ -6,6 +6,8 @@ import { useParams } from "react-router-dom";
 import Breadcrumbs from "../components/Breadcrumbs";
 import AnalysisItem from "../components/AnalysisItem";
 import Quill from "../assets/img/ink_and_quill.png"
+import Interlock from "../assets/img/interlock.png"
+import OpenBook from "../assets/img/open_book.png"
 
 
 const Miscellany = () => {
@@ -52,30 +54,13 @@ const Miscellany = () => {
             title: "Themes and Motifs",
             description: "Explore the major themes and motifs present in the novel, and how they contribute to the overall narrative.",
             url: `/themes-and-motifs/${novelId}`,
-            image: ""
+            image: Interlock
         },
         {
             title: "Vocabulary Richness",
             description: "Analyze the richness of the novel's vocabulary, including unique words, lexical diversity, and more.",
             url: `/vocabulary/${novelId}`,
-            image: ""
-        },{
-            title: "About the Author",
-            description: "Learn more about the author of the novel, including their background, influences, and other works.",
-            url: `/author/${novelId}`,
-            image: ""
-        },
-        {
-            title: "Themes and Motifs",
-            description: "Explore the major themes and motifs present in the novel, and how they contribute to the overall narrative.",
-            url: `/themes-and-motifs/${novelId}`,
-            image: ""
-        },
-        {
-            title: "Vocabulary Richness",
-            description: "Analyze the richness of the novel's vocabulary, including unique words, lexical diversity, and more.",
-            url: `/vocabulary/${novelId}`,
-            image: ""
+            image: OpenBook
         },
     ]
 
@@ -85,7 +70,7 @@ const Miscellany = () => {
             <div>
                 <Breadcrumbs items={[{ label: "Analysis", url: `/analysis/${novelId}` }, { label: "Miscellany", url: `/miscellany/${novelId}` }]} />
                 <h1 className="text-5xl font-serif mb-4">Miscellany</h1>
-                <p className="text-lg text-gray-700">
+                <p className="text-md text-gray-700">
                     This page is a sandbox for testing out new features, visualizations, and analyses that don't fit into the main categories of character or plot analysis. Check back here for experimental content and previews of upcoming features!
                 </p>
             </div>

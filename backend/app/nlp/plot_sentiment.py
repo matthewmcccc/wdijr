@@ -99,7 +99,7 @@ class PlotSentiment:
 
     @staticmethod
     def get_text_for_summarization(
-        ch_text: str, delta: list[(int, float)], valence_vals_len: int
+        ch_text: str, delta: list[(int, float)], valence_vals_len: int, idx
     ) -> list[str]:
         """
         
@@ -113,7 +113,7 @@ class PlotSentiment:
             if i != 0 and i != valence_vals_len - 1:
                 base_start = max(0, base_start - SLIDE)
                 base_end = min(len(words), base_end + SLIDE)
-            texts.append(" ".join(words[base_start:base_end]))
+            texts.append((" ".join(words[base_start:base_end]), idx))
         return texts
 
     def visualise_sentiment(self, valence_vals: list[float]) -> None:

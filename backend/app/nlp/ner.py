@@ -318,6 +318,9 @@ class EntityExtractor:
         self.female_at = female_at
 
     def character_lexical_richness(self, quotes, window: 100):
+        """
+        
+        """
         associated_quotes = self.associate_text_quotes(quotes)
         associated_quotes_dict = defaultdict(list)
         for quote_obj in associated_quotes:
@@ -341,8 +344,6 @@ class EntityExtractor:
                 ttr = round(sum(ttrs) / len(ttrs), 3)
                 if ttr != 1.0:
                     mattr_obj[speaker] = round(sum(ttrs) / len(ttrs), 3)
-        
-        print(mattr_obj)
         return mattr_obj
 
     def coref_res(self, index: int, pronoun: str) -> str:

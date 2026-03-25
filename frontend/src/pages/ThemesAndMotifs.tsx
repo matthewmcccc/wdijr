@@ -52,7 +52,7 @@ const ThemesAndMotifs = () => {
             </div>
             <hr className="border-gray-300 mb-4" />
             <div className="border border-gray-300 rounded-md mb-8">
-                <h1 className="text-xl font-serif my-4 text-center">{bookTitle} | Motif Tree Graph</h1>
+                <h1 className="text-xl font-serif my-4 text-center">{bookTitle} | Motifs</h1>
                 <hr className="w-1/2 mx-auto border-gray-300" />
                 <MotifTreeGraph motifData={motifData || {}} />
             </div>

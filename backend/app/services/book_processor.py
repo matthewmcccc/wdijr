@@ -1,3 +1,4 @@
+
 import json
 import os
 import requests
@@ -73,7 +74,7 @@ def process_text(self, book_path):
     self.update_state(state="PROCESSING", meta={"status": "Building social network..."})
 
     conversational_network = er.build_conversational_network(associated_quotes)
-    cooccurrence_network, cooccurrence_frequency_network = er.build_cocurrence_network(book.get_full_text_paras())
+    _cooccurrence_network, cooccurrence_frequency_network = er.build_cocurrence_network(book.get_full_text_paras())
     
     conversational_nw_nodes = er.get_nodes_from_network_dict(conversational_network)
 
@@ -105,7 +106,8 @@ def process_text(self, book_path):
         sum_text = ps.get_text_for_summarization(
             book.get_chapter_text(idx),
             diff_values[idx],
-            len(chapter_valence_vals[idx])
+            len(chapter_valence_vals[idx]),
+            idx
         )   
         text_for_summarisation.append(sum_text)
 
@@ -155,6 +157,11 @@ def process_text(self, book_path):
         g
     )
 
+    lexical_richness = er.character_lexical_richness(
+        quotes,
+        100
+    )
+
     novel_id = save_analysis_to_db(
         title=title,
         author=author,
@@ -177,6 +184,7 @@ def process_text(self, book_path):
         cooccurrence_frequency_network=cooccurrence_frequency_network,
         author_details=author_details,
         motifs=motifs,
+        lexical_richness=lexical_richness,
 
     )
 
@@ -191,7 +199,7 @@ def process_text(self, book_path):
         "top_relationships": top_relationships_dict,
         "sentiment_values": [v for ch in chapter_valence_vals for v in ch],
         "inflection_points": global_inflection_points,
-        "plot_summaries": {},
+        "plot_summaries": list(plot_summaries),
         "cover_url": cover_url,
         "character_sentiment": character_to_character_sentiment_dict,
         "chapter_network": chapter_nw_nodes,
@@ -254,11 +262,13 @@ def get_chapter_summaries(g: Gemini, chapters, book_title, book):
     return dict(responses)
 
 
-def get_plot_summaries(g: Gemini, summarisation_texts: list[str], characters: list[str]):
+def get_plot_summaries(g: Gemini, summarisation_texts: list[tuple], characters: list[str]):
+    text_only = [text[0] for text in summarisation_texts]
+    chapter_indices = [text[1] for text in summarisation_texts]
     plot_summaries = g.text_span_summary_mass_prompt(
-        "gemini-2.5-flash", summarisation_texts, "excerpt_summary", characters
+        "gemini-2.5-flash", text_only, "excerpt_summary", characters
     )
-    return plot_summaries
+    return zip(plot_summaries, chapter_indices)
 
 def get_character_thumbnails(title: str, er: EntityExtractor, novel_id: str):
     def send_request(character: str, title: str):

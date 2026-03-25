@@ -40,6 +40,7 @@ def save_analysis_to_db(
     cooccurrence_frequency_network,
     author_details,
     motifs,
+    lexical_richness,
     has_cover=False,
 ):
     with Session(sync_engine) as session:
@@ -84,7 +85,6 @@ def save_analysis_to_db(
             })
 
             data_dir = os.path.join(os.path.dirname(__file__), "..", "..", "..", "data", str(novel.id), "character_thumbnails")
-            print(f"data dir: {data_dir}")
             os.makedirs(data_dir, exist_ok=True)
 
             ext = ""
@@ -97,8 +97,6 @@ def save_analysis_to_db(
                     handler.write(requests.get(image).content)
             except Exception as e:
                 print(f"Couldn't grab image from results: {e}")
-
-            print(f"ext: {ext}")
 
             session.add(
                 Character(
@@ -117,11 +115,12 @@ def save_analysis_to_db(
             conversational_network=network,
             sentiment_values=sentiment_values,
             inflection_points=inflection_points,
-            plot_summaries=plot_summaries,
+            plot_summaries=list(plot_summaries),
             character_sentiment=character_to_character_sentiment,
             chapter_networks=chapter_conversational_networks,
             motifs=motifs,
             cooccurrence_network=[{"source": k[0], "target": k[1], "value": v} for k, v in cooccurrence_frequency_network.items()],
+            lexical_richness=lexical_richness
         )
 
         author_obj = Author(
