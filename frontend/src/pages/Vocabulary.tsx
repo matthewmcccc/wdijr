@@ -3,6 +3,7 @@ import { BookContext } from "../contexts/bookContext";
 import Navbar from "../components/Navbar";
 import Breadcrumbs from "../components/Breadcrumbs";
 import { useParams } from "react-router-dom";
+import RadarComponent from "../components/RadarComponent";
 
 
 
@@ -25,6 +26,9 @@ const Vocabulary = () => {
                 </p>
             </div>
             <hr className="my-4 border-gray-300" />
+            <div>
+                <RadarComponent />
+            </div>
         </div>
     );
 }

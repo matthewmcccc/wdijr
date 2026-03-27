@@ -73,6 +73,8 @@ interface BookContextType {
     setAuthorData: (data: { name: string; description: string; image_url: string; novel_id: string; other_works: Array<{ title: string; year: number; image_url: string }> }) => void,
     motifData: Record<string, string[]>,
     setMotifData: (data: Record<string, string[]>) => void,
+    lexicalRichness: (data: Array<{character: string, confidence: number}>) => void,
+    setLexicalRichness: (data: Array<{character: string, confidence: number}>) => void,
 }
 
 export const BookContext = createContext<BookContextType | null>(null);
