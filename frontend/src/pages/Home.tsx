@@ -72,8 +72,8 @@ const Home = () => {
                 <div>
                     <Navbar />
                     <div className="flex flex-col gap-6 pt-60 items-center min-h-screen overflow-hidden">
-                        <h1 className="text-6xl font-serif text-left">What Did I Just Read?</h1>
-                        <p className="text-lg font-dewi text-brand-50">
+                        <h1 className="font-serif text-center text-4xl md:text-6xl lg:text-6xl">What Did I Just Read?</h1>
+                        <p className="lg:text-lg font-dewi text-brand-50 text-center">
                             Upload your own text or choose from a pre-selected
                             novel corpus for textual analysis.
                         </p>

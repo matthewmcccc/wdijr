@@ -1,7 +1,7 @@
 const BookCard = ({ title, author, coverUrl, description }) => {
     return (
-        <div className="font-serif mx-auto flex items-top flex-row gap-4">
-            <img src={coverUrl} alt="Cover Image" className="w-48 mb-2 border-2 border-gray-300 rounded-md p-2" />
+        <div className="font-serif mx-auto text-center md:text-left flex items-top flex-col md:flex-row gap-4">
+            <img src={coverUrl} alt="Cover Image" className="w-48 mb-2 border-2 border-gray-300 rounded-md p-2 mx-auto md:items-start" />
             <div className="mt-2">
                 <h1 className="text-4xl">{title}</h1>
                 <h2 className="text-2xl text-gray-700">{author}</h2>

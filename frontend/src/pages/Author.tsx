@@ -37,8 +37,8 @@ const Author = () => {
             <Navbar />
             <div>
                 <Breadcrumbs items={[{ label: "Analysis", url: `/analysis/${novelId}` }, { label: "Miscellany", url: `/miscellany/${novelId}` }, { label: "About the Author", url: `/author/${novelId}` }]} />
-                <h1 className="text-5xl font-serif mb-4">About the Author</h1>
-                <p className="text-lg text-gray-700">
+                <h1 className="text-4xl text-center md:text-left md:text-5xl font-serif mb-4">About the Author</h1>
+                <p className="text-lg text-gray-700 text-center md:text-left">
                     This page provides information about the author of the novel. Learn more about their background, other works, and contributions to literature.
                 </p>
             </div>
@@ -46,10 +46,10 @@ const Author = () => {
             <div>
                 {authorData && (
                     <div>
-                        <div>
-                            <img src={authorData.image_url || ""} alt={authorData.name} className="float-left mr-8 mb-4 h-100 w-80 object-cover p-4 border border-gray-400 rounded-md" />
-                            <h2 className="text-3xl font-serif mb-4">{authorData.name}</h2>
-                            <p className="text-lg text-gray-700 whitespace-pre-line">{authorData.description}</p>
+                        <div className="">
+                            <img src={authorData.image_url || ""} alt={authorData.name} className="float-left mr-8 mb-4 md:h-100 md:w-80 object-cover p-4 border border-gray-400 rounded-md" />
+                            <h2 className="text-3xl font-serif mb-4 text-center md:text-left">{authorData.name}</h2>
+                            <p className="text-lg text-gray-700 whitespace-pre-line text-center md:text-left">{authorData.description}</p>
                         </div>
                         {/* // TODO: add section for other works by the author, if data is available */}
                        

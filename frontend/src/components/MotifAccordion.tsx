@@ -12,7 +12,7 @@ const MotifAccordion = ({ motifData }: MotifAccordionProps) => {
     };
 
     return (
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid md:grid-cols-4 gap-4">
             {Object.entries(motifData).map(([group, motifs]) => (
                 <div key={group} className="border border-gray-300 rounded-md">
                     <button

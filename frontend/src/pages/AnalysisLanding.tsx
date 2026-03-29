@@ -65,8 +65,8 @@ const AnalysisLanding = () => {
                     />
                     <hr className="border-gray-300" />
                     <div>
-                        <h1 className="text-3xl font-serif mb-8">Analyses</h1>
-                        <div className="flex flex-row gap-12 mb-20">
+                        <h1 className="text-3xl font-serif mb-8 text-center lg:text-left">Analyses</h1>
+                        <div className="flex flex-col lg:flex-row gap-12 mb-20">
                             <AnalysisItem 
                                 analysis_type="Characters" 
                                 img={TheatreMask} 

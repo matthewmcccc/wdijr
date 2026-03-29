@@ -60,12 +60,11 @@ const PlotAnalysisLanding = () => {
 
     return (
         <div className="container mx-auto px-4 py-8">
-            <title>{title} | Plot Analysis</title>
             <Navbar />
             <div>
                 <Breadcrumbs items={[{ label: "Analysis", url: `/analysis/${novelId}` }, { label: "Plot Analysis" }]} />
-                <h1 className="text-5xl font-serif">Plot Analysis</h1>
-                <p className="font-dewi mt-4 text-gray-600 text-md max-w-3xl">
+                <h1 className="text-4xl text-center md:text-left md:text-5xl font-serif">Plot Analysis</h1>
+                <p className="font-dewi mt-4 text-gray-600 text-center md:text-left text-md max-w-3xl">
                     View detailed summaries of chapters, key plot events, and how the emotional intensity (sentiment) of the story changes over time.
                 </p>
             </div>

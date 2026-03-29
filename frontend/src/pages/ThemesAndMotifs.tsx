@@ -47,8 +47,8 @@ const ThemesAndMotifs = () => {
             <Navbar />
             <div>
                 <Breadcrumbs items={[{ label: "Analysis", url: `/analysis/${novelId}` }, { label: "Miscellany", url: `/miscellany/${novelId}` }]} />
-                <h1 className="text-5xl font-serif mb-4">Themes and Motifs</h1>
-                <p className="text-lg mb-4 text-gray-700">Explore the major themes and motifs present in the novel, and how they contribute to the overall narrative.</p>
+                <h1 className="text-4xl text-center md:text-left md:text-5xl font-serif mb-4">Themes and Motifs</h1>
+                <p className="md:text-lg mb-4 text-gray-700 text-center md:text-left">Explore the major themes and motifs present in the novel, and how they contribute to the overall narrative.</p>
             </div>
             <hr className="border-gray-300 mb-4" />
             <div className="border border-gray-300 rounded-md mb-8">
@@ -56,7 +56,7 @@ const ThemesAndMotifs = () => {
                 <hr className="w-1/2 mx-auto border-gray-300" />
                 <MotifTreeGraph motifData={motifData || {}} />
             </div>
-            <div className="col-span-4">
+            <div className="col-span-3 md:col-span-4">
                 {motifData ? (
                     <MotifAccordion motifData={motifData} />
                 ) : (

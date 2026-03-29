@@ -68,8 +68,6 @@ const ChapterAnalysis = () => {
 
     const keyEvents = plotSummaries?.filter(ps => ps[1] == parseInt(chapterNumber)).map(ps => ps[0]);
 
-    console.log(chapterNumber)
-
     const leftChapter = chapterData && chapterNumber && parseInt(chapterNumber) !== 0  ? allChapterData?.find(chapter => chapter.chapter_number === chapterData.chapter_number - 1) : null;
     const rightChapter = chapterData && chapterNumber ? allChapterData?.find(chapter => chapter.chapter_number === chapterData.chapter_number + 1) : null;
 
@@ -90,30 +88,30 @@ const ChapterAnalysis = () => {
                 <Breadcrumbs items={[{ label: "Analysis", url: `/analysis/${novelId}` }, {label: "Plot Analysis", url: `/plot-analysis/${novelId}`}, { label: "Chapter Analysis" }]} />
                 <div>
                     <div className="font-serif text-center justify-between flex flex-row items-center">
-                        <div className="flex-1 flex justify-start">
+                        <div className="flex-1 flex justify-start absolute left-0">
                             {leftChapter ? <ChapterNavigation id={(parseInt(chapterNumber) - 1).toString()} name={leftChapter.title} position="left" /> : <div style={{ width: "120px" }} />}
                         </div>
-                        <h1 className="text-4xl font-serif text-center">
+                        <h1 className="text-2xl md:text-4xl font-serif text-center flex-1">
                             {chapterData.title}
                         </h1>
-                        <div className="flex-1 flex justify-end">
+                        <div className="flex-1 flex justify-end absolute right-0">
                             {rightChapter ? <ChapterNavigation id={(parseInt(chapterNumber) + 1).toString()} name={rightChapter.title} position="right" /> : <div style={{ width: "120px" }} />}
                         </div>
                     </div>
-                    <div className="flex flex-row font-dewi text-md mt-6 gap-70">
-                        <div className="flex-3">
-                            <h1 className="text-3xl font-serif mb-6">
+                    <div className="flex flex-col md:flex-row font-dewi text-md mt-6 gap-6">
+                        <div className="flex-1 md:flex-3">
+                            <h1 className="text-center md:text-left text-3xl font-serif mb-6">
                                 Summary
                             </h1>
                             <hr className="border-gray-300 my-6"/>
-                            <p className="whitespace-pre-wrap">
+                            <p className="whitespace-pre-wrap text-center md:text-left">
                                 {chapterData.summary}
                             </p>
                             <hr className="border-gray-300 my-6"/>
-                            <h1 className="text-3xl font-serif mb-6">
+                            <h1 className="text-center md:text-left text-3xl font-serif mb-6">
                                 Key Events
                             </h1>
-                            <div className="flex flex-row gap-6">
+                            <div className="flex flex-col items-center md:flex-row gap-6">
                                 {keyEvents?.map((event, idx) => {
                                     event = JSON.parse(event);
                                     console.log(event);
@@ -130,8 +128,8 @@ const ChapterAnalysis = () => {
                                 })}
                             </div>
                         </div>
-                        <div className="flex-1">
-                            <h1 className="text-2xl font-serif mb-4">
+                        <div className="flex-3 md:flex-1">
+                            <h1 className="text-2xl font-serif mb-4 text-center mt-4 md:mt-0 md:text-left">
                                 Key Characters
                             </h1>
                             <hr className="border-gray-300 my-4"/>

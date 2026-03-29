@@ -70,8 +70,8 @@ const CharacterAnalysisLanding = () => {
             <Navbar />
             <div>
                 <Breadcrumbs items={[{ label: "Analysis", url: `/analysis/${novelId}` }, { label: "Character Analysis", url: `/character-analysis/${novelId}` }]} />
-                <h1 className="text-5xl font-serif">Character Analysis</h1>
-                <p className="font-dewi mt-4 text-gray-600 text-md max-w-3xl">
+                <h1 className="text-4xl text-center md:text-left md:text-5xl font-serif">Character Analysis</h1>
+                <p className="font-dewi mt-6 text-center md:text-left md:mt-4 text-gray-600 text-md max-w-3xl">
                     Browse the analysis of {title} characters. Click on a character to see a summary, their closely related
                     characters, and their sentiment arc throughout the novel. The social network graph below shows the relationships between the characters of the novel.
                 </p>
