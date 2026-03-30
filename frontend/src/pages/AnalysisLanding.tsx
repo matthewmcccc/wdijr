@@ -52,7 +52,7 @@ const AnalysisLanding = () => {
     }, [title]);
 
     const author = novelData?.author || "Unknown Author";
-    const novelDescription = novelData?.description
+    const novelDescription = novelData?.description || "No description available.";
 
     return (
         <div className="container mx-auto px-4 py-8 min-h-screen flex flex-col">
@@ -63,7 +63,7 @@ const AnalysisLanding = () => {
                         title={title}
                         author={author} 
                         coverUrl={coverUrl || ""} 
-                        description={novelDescription || "No description available."}
+                        description={novelDescription.replace(/\*/g, "") || "No description available."}
                     />
                     <hr className="border-gray-300" />
                     <div>

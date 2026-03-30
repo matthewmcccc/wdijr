@@ -464,6 +464,7 @@ class Gemini:
                 - Ground your analysis in the quotes and any pre-existing knowledge you may have of the character.
                 You should draw on the content and sentiment of the quotes in your analysis, but paraphrase them 
                 as opposed to quoting them directly.
+                - You MUST make use of newline symbols to break up your summary.
                 - Do NOT directly quote the characters dialogue. Instead, describe what they say and how they say it
                 in your own words.
                 - You may make use of pre-existing knowledge of the text or character.
