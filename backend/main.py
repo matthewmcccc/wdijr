@@ -23,7 +23,7 @@ from app.services.book_processor import get_author_data
 load_dotenv()
 
 if __name__ == "__main__":
-    book: Epub = Epub("./app/temp/pp.epub")
+    book: Epub = Epub("./app/temp/aaiw.epub")
     print(f"chapters: {len(book.chapters)}")
     print(f"text length: {len(book.get_full_text())}")
     for idx, ch in book.chapters.items():
