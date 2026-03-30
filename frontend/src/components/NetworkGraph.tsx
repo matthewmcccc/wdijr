@@ -74,8 +74,6 @@ const createNetworkGraph = (data: any, containerId: string, height: number = 400
     const tx = width / 2 - scale * (xMin + dx / 2);
     const ty = height / 2 - scale * (yMin + dy / 2);
 
-    svg.call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(scale));
-
     const nodeCount = nodes.length;
     const chargeStrength = Math.min(-800, -100 * nodeCount);
     const linkDistance = Math.max(150, 10 * nodeCount);
@@ -86,7 +84,7 @@ const createNetworkGraph = (data: any, containerId: string, height: number = 400
             .id((d: any) => d.id)
             .distance(250))
         .force("charge", d3.forceManyBody()
-            .strength(-1500))
+            .strength(chargeStrength))
         .force("center", d3.forceCenter(width / 2, height / 2))
         .force("collision", d3.forceCollide().radius(60))
         .force("x", d3.forceX((d: any) => {
@@ -180,6 +178,24 @@ const createNetworkGraph = (data: any, containerId: string, height: number = 400
             .attr("x", (d: any) => d.x)
             .attr("y", (d: any) => d.y);
     });
+
+    simulation.on("end", () => {
+        const [xMin, xMax] = d3.extent(nodes, (d: any) => d.x as number);
+        const [yMin, yMax] = d3.extent(nodes, (d: any) => d.y as number);
+        const dx = (xMax ?? width) - (xMin ?? 0);
+        const dy = (yMax ?? height) - (yMin ?? 0);
+        const padding = 60;
+        const scale = Math.min(
+            width / (dx + padding * 2),
+            height / (dy + padding * 2)
+        );
+        const tx = width / 2 - scale * ((xMin ?? 0) + dx / 2);
+        const ty = height / 2 - scale * ((yMin ?? 0) + dy / 2);
+        svg.transition()
+            .duration(500)
+            .call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(scale));
+
+    })
 
     if (showLegend) {
         const legend = svg.append("g")

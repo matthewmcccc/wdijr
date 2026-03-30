@@ -166,6 +166,10 @@ def process_text(self, book_path):
         100
     )
 
+    novel_description = get_novel_description(
+        book, g
+    )
+
     novel_id = save_analysis_to_db(
         title=title,
         author=author,
@@ -189,6 +193,7 @@ def process_text(self, book_path):
         author_details=author_details,
         motifs=motifs,
         lexical_richness=lexical_richness,
+        novel_description=novel_description,
     )
 
     cover_url = book.write_cover(cover, novel_id)
@@ -380,6 +385,17 @@ def get_chapter_valence_vals(book: Epub, ps: PlotSentiment) -> list:
         )
         diff_values.append(sorted(first_diff, key=lambda x: abs(x[1]), reverse=True)[:2])
     return chapter_valence_vals
+
+def get_novel_description(book: Epub, g: Gemini):
+    response = g.generate_novel_description(
+        "gemini-2.5-flash",
+        "novel_description",
+        book.author,
+        book.title,
+    )
+
+    return response
+
 
 def get_motif_data(book: Epub, g: Gemini):
     chunks = book.chunk_text_for_motif_analysis()   

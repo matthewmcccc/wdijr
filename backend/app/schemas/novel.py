@@ -7,6 +7,7 @@ class NovelSchemaBase(BaseModel):
     title: str | None = None
     author: str | None = None
     cover_url: str | None = None
+    description: str | None = None
 
 
 class NovelSchemaCreate(NovelSchemaBase):

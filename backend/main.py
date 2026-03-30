@@ -24,8 +24,11 @@ load_dotenv()
 
 if __name__ == "__main__":
     book: Epub = Epub("./app/temp/aaiw.epub")
-    print(f"chapters: {len(book.chapters)}")
-    print(f"text length: {len(book.get_full_text())}")
-    for idx, ch in book.chapters.items():
-        words = book.get_chapter_word_list(idx)
-        print(f"{idx}: {ch.title} - {len(words)} words")
+    g: Gemini = Gemini()
+    response = g.generate_novel_description(
+        "gemini-2.5-flash",
+        "novel_description",
+        book.author,
+        book.title,
+    )
+    print(response)

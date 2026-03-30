@@ -52,16 +52,18 @@ const AnalysisLanding = () => {
     }, [title]);
 
     const author = novelData?.author || "Unknown Author";
+    const novelDescription = novelData?.description
 
     return (
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 py-8 min-h-screen flex flex-col">
             <Navbar />
-                <div className="mt-12 flex flex-col gap-10 justify-center">
+            <div className="min-h-[calc(100vh-120px)] flex items-center justify-center">
+                <div className="flex flex-col gap-10 w-full">
                     <BookCard 
                         title={title}
                         author={author} 
                         coverUrl={coverUrl || ""} 
-                        description="Alice's Adventures in Wonderland (1865) is a novel by Lewis Carroll, the pen name of Oxford mathematician Charles Lutwidge Dodgson. It follows young Alice as she falls down a rabbit hole into a fantastical underground world populated by eccentric characters — the Cheshire Cat, the Mad Hatter, the Queen of Hearts — and navigates a series of absurd encounters that play with logic, language, and the conventions of Victorian society. Originally written to entertain Alice Liddell, the daughter of a colleague, the book became one of the most influential works of literary nonsense and remains widely read across all ages."
+                        description={novelDescription || "No description available."}
                     />
                     <hr className="border-gray-300" />
                     <div>
@@ -89,6 +91,7 @@ const AnalysisLanding = () => {
                         </div>
                     </div>
                 </div>
+            </div>
         </div>
     )
 }

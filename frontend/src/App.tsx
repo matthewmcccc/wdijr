@@ -19,7 +19,7 @@ import Vocabulary from "./pages/Vocabulary";
 const App = () => {
   const [characterData, setCharacterData] = useState<Array<{ id: Number, name: string, summary: string, description: string, novel_id: string, image_url: string }>>([])
   const [networkData, setNetworkData] = useState<{ links: any[], nodes: any[] }>({ links: [], nodes: [] })
-  const [novelData, setNovelData] = useState<{ author: string; id: string; title: string } | null>(null);
+  const [novelData, setNovelData] = useState<{ author: string; id: string; title: string; description: string; } | null>(null);
   const [associatedQuotes, setAssociatedQuotes] = useState<Record<string, { quote: string, sentiment: number }[]> | undefined>(undefined);
   const [topCharacterRelationships, setTopCharacterRelationships] = useState<Record<string, [string, number][]>>();
   const [title, setTitle] = useState("");

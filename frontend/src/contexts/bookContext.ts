@@ -25,6 +25,7 @@ interface BookContextType {
         author: string;
         id: string;
         title: string;
+        description: string;
     }
     setNovelData: (data: { author: string; id: string; title: string }) => void,
     setTitle: (title: string) => void,

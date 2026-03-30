@@ -41,10 +41,11 @@ def save_analysis_to_db(
     author_details,
     motifs,
     lexical_richness,
+    novel_description,
     has_cover=False,
 ):
     with Session(sync_engine) as session:
-        novel = Novel(title=title, author=author)
+        novel = Novel(title=title, author=author, description=novel_description if novel_description else None)
         session.add(novel)
         session.flush()
         if has_cover:

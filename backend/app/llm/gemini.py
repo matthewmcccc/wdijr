@@ -17,6 +17,7 @@ class PromptInstruction(str, Enum):
     AUTHOR_SUMMARY = "author_summary"
     MOTIF_EXTRACTION = "motif_extraction"
     MOTIF_CONSOLIDATION = "motif_consolidation"
+    NOVEL_DESCRIPTION = "novel_description"
 
 class Gemini:
     def __init__(self):
@@ -38,6 +39,25 @@ class Gemini:
 
         response = self.client.models.generate_content(
             model=model, contents=additional_instruction + "\nQuotes\n:" + prompt
+        )
+
+        return response.text
+    
+    def generate_novel_description(
+        self, 
+        model,
+        instruction: str,
+        author: str,
+        title: str,
+    ):
+        additional_instruction = self.get_additional_instruction(
+            instruction=instruction,
+            author=author, 
+            novel_title=title
+        )
+
+        response = self.client.models.generate_content(
+            model=model, contents=additional_instruction
         )
 
         return response.text
@@ -301,7 +321,8 @@ class Gemini:
         character_name: str = "",
         novel_title: str = "",
         chapter_title: str = "",
-        characters: list[str] = []
+        characters: list[str] = [],
+        author: str = ""
     ) -> str:
         additional_instruction = ""
         if instruction == PromptInstruction.EXCERPT_SUMMARY:
@@ -326,6 +347,10 @@ class Gemini:
             additional_instruction = self.motif_analysis_prompt()
         if instruction == PromptInstruction.MOTIF_CONSOLIDATION:
             additional_instruction = self.consolidate_motifs_prompt()
+        if instruction == PromptInstruction.NOVEL_DESCRIPTION:
+            additional_instruction = self.novel_description_prompt(
+                author=author, novel_title=novel_title
+            )
         return additional_instruction
 
     @staticmethod
@@ -346,6 +371,34 @@ class Gemini:
                 Title: {novel_title}
                 Here are the quotes to consolidate:
                 """
+    
+    @staticmethod
+    def novel_description_prompt(author: str, novel_title: str):
+        return f"""You are an expert in literary analysis.
+        You will be given the title and author of a novel.
+        Your task is to generate a concise description of the novel suitable
+        for a landing page or book card.
+        Be specific, name characters and locations rather than describing them
+        generally.
+        Your description should include the year of publication and any well
+        known context behind the novel's creation.
+
+        The description should cover the premise, setting, and general tone
+        of the novel in 6-7 sentences, approximately 100-120 words.
+
+        Rules:
+        - Do NOT acknowledge the prompt. Just generate the description.
+        - Do NOT include spoilers or reveal major plot twists.
+        - Write in an accessible, informative tone suitable for readers
+        who may not have read the novel.
+        - Do NOT use markdown formatting, headers, or bullet points.
+        - Reference the author by surname after the first mention.
+        - Ground the description in the novel's content, not its
+        literary reception or cultural impact.
+
+        Novel title: {novel_title}
+        Author: {author}
+        """
 
     @staticmethod
     def excerpt_summary_prompt(characters):
