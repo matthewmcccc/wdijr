@@ -43,20 +43,43 @@ class Epub(Book):
         idx = 0
         chapters = {}
         for item in self.book.toc:
-            href = item.href.split("#")[0]
+            full_href = item.href
+            href = full_href.split("#")[0]
+            fragment = full_href.split("#")[1] if "#" in full_href else None
+
             ch_title = item.title
+            match = re.search(r'(chapter\s*[IVXLC\d]+\.?)', ch_title, re.IGNORECASE)
+            if match:
+                ch_title = match.group(1)
             if not self.check_valid_ch_title(ch_title):
                 continue
-            ch: Chapter = Chapter(
-                index=idx, title=ch_title, item=self.book.get_item_with_href(href)
-            )
-            soup = BeautifulSoup(ch.item.get_body_content(), "html.parser")
-            words = " ".join(p.get_text() for p in soup.find_all("p")).split()
+
+            epub_item = self.book.get_item_with_href(href)
+            soup = BeautifulSoup(epub_item.get_body_content(), "html.parser")
+
+            if fragment:
+                anchor = soup.find(id=fragment)
+                if anchor:
+                    parts = []
+                    for sibling in anchor.find_next_siblings():
+                        if sibling.name in ("h1", "h2", "h3") or sibling.get("id"):
+                            break
+                        parts.append(sibling.get_text())
+                    text = "\n".join(parts)
+                else:
+                    text = "\n".join(p.get_text() for p in soup.find_all("p"))
+            else:
+                text = "\n".join(p.get_text() for p in soup.find_all("p"))
+
+            words = text.split()
             if len(words) < MIN_CHAPTER_WORD_LEN:
                 continue
+
+            ch = Chapter(index=idx, title=ch_title, item=epub_item, text=text)
             chapters[idx] = ch
             idx += 1
         return chapters
+
 
     def check_valid_ch_title(self, ch_title: str) -> bool:
         valid = True
@@ -90,11 +113,7 @@ class Epub(Book):
         return paras
 
     def get_full_text(self) -> str:
-        text = []
-        for chapter in self.chapters.values():
-            soup = BeautifulSoup(chapter.item.get_body_content(), "html.parser")
-            text.extend([para.get_text() for para in soup.find_all("p")])
-        return "\n\n".join(text)
+        return "\n\n".join(ch.text for ch in self.chapters.values())
 
     def get_chapter_text(self, index) -> str:
         """
@@ -102,10 +121,7 @@ class Epub(Book):
 
         index: chapter index / number
         """
-        chapter = self.chapters[index]
-        soup = BeautifulSoup(chapter.item.get_body_content(), "html.parser")
-        text = [para.get_text() for para in soup.find_all("p")]
-        return "\n".join(text)
+        return self.chapters[index].text
 
     def get_full_text_word_list(self) -> list[str]:
         """
@@ -129,12 +145,7 @@ class Epub(Book):
         :rtype list[str]
         :return A list of all words from a given chapter
         """
-        chapter = self.chapters[index]
-        soup = BeautifulSoup(chapter.item.get_body_content(), "html.parser")
-        text = [para.get_text() for para in soup.find_all("p")]
-        text_str = "\n".join(text)
-        words = text_str.split()
-        return words
+        return self.chapters[index].text.split()
 
     def chunk_text_for_motif_analysis(self) -> list[str]:
         text_chunks = []

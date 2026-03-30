@@ -341,11 +341,13 @@ def get_author_data(book: Epub, g: Gemini, author: str) -> dict:
     open_lib_body = open_lib_res.json()
     for doc in open_lib_body["docs"]:
         if book.title not in doc["title"] and author in doc["author_name"]:
-            print(f"doc: {doc}")
+            image_url = f"https://covers.openlibrary.org/b/id/{doc['cover_i']}-M.jpg" if "cover_i" in doc else ""
+            title = doc["title"] if "title" in doc else ""
+            year = doc["first_publish_year"] if "first_publish_year" in doc else ""
             work_obj = {
-                "title": doc["title"],
-                "image_url": f"https://covers.openlibrary.org/b/id/{doc['cover_i']}-M.jpg",
-                "year": doc["first_publish_year"]
+                "title": title,
+                "image_url": image_url,
+                "year": year
             }
             other_works_list.append(work_obj)
 

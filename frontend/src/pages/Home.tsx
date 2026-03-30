@@ -107,10 +107,9 @@ const Home = () => {
                                 invert brightness-150" />
                                     Upload a Book
                             </button>
-                            <button onClick={() => { setShowModal(true); setBlur(true); }} className="bg-white border-black-500 border text-black font-dewi py-2 px-4 rounded-4xl cursor-pointer hover:bg-black hover:text-white
+                            <button onClick={() => { setShowModal(true); setBlur(true); }} className="flex flex-row gap-2 bg-white border-black-500 border text-black font-dewi py-2 px-4 rounded-4xl cursor-pointer hover:bg-black hover:text-white
                                 duration-300 transition-all">
-                                    <img src={bookIcon} alt="Book Icon" className="inline-block w-5 h-5 mr-3 mb-1 fill-white" />
-                                    Choose from Corpus  
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 20" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-book-open-icon lucide-book-open"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>                                    Choose from Corpus  
                             </button>
                         </div>
                     </div>

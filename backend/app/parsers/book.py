@@ -16,10 +16,11 @@ class Book(ABC):
 
 
 class Chapter:
-    def __init__(self, index, title, item):
+    def __init__(self, index, title, item, text=""):
         self.index: int = index
         self.title: str = title
         self.item: str = item
+        self.text: str = text
 
     def get_title(self) -> str:
         return self.title
