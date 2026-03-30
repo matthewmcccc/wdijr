@@ -18,6 +18,8 @@ interface SelectedEvent {
     headline: string;
 }
 
+const CHAPTERS_PER_PAGE = 12;
+
 const PlotAnalysisLanding = () => {
     const novelId = useParams<{ novelId: string }>().novelId;
     const bookContext = useContext(BookContext);
@@ -36,9 +38,14 @@ const PlotAnalysisLanding = () => {
     const setChapterNetworkData = bookContext?.setChapterNetworkData;
     const hasFetched = useRef<string | null>(null);
     const title = bookContext?.title;
+    const chapterData = bookContext?.chapterData;
     const { containerRef, width: containerWidth, height: containerHeight } = useContainerSize();
     const [selectedEvent, setSelectedEvent] = useState<SelectedEvent | null>(null);
     const [cooccurrenceNetworkData, setCooccurrenceNetworkData] = useState<any>(null);
+    const [chapterPage, setChapterPage] = useState(0);
+
+    const totalPages = chapterData ? Math.ceil(chapterData.length / CHAPTERS_PER_PAGE) : 1;
+    const paginatedChapters = chapterData ? chapterData.slice(chapterPage * CHAPTERS_PER_PAGE, (chapterPage + 1) * CHAPTERS_PER_PAGE) : [];
 
     useEffect(() => {
         const fetchData = async () => {
@@ -111,7 +118,7 @@ const PlotAnalysisLanding = () => {
                 </h1>
                 <hr className="border-gray-300 my-4"/>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {bookContext?.chapterData?.map(chapter => (
+                    {paginatedChapters.map(chapter => (
                         <ChapterCard
                             key={chapter.id}
                             id={chapter.id}
@@ -121,6 +128,27 @@ const PlotAnalysisLanding = () => {
                         />
                     ))}
                 </div>
+                {totalPages > 1 && (
+                    <div className="flex justify-center items-center gap-4 mt-4">
+                        <button
+                            onClick={() => setChapterPage(p => Math.max(0, p - 1))}
+                            disabled={chapterPage === 0}
+                            className="px-3 py-1 border rounded disabled:opacity-30 cursor-pointer"
+                        >
+                            ‹ Prev
+                        </button>
+                        <span className="text-sm text-gray-500 font-dewi">
+                            {chapterPage + 1} of {totalPages}
+                        </span>
+                        <button
+                            onClick={() => setChapterPage(p => Math.min(totalPages - 1, p + 1))}
+                            disabled={chapterPage === totalPages - 1}
+                            className="px-3 py-1 border rounded disabled:opacity-30 cursor-pointer"
+                        >
+                            Next ›
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     )

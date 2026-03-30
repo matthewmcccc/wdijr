@@ -76,15 +76,19 @@ const createNetworkGraph = (data: any, containerId: string, height: number = 400
 
     svg.call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(scale));
 
+    const nodeCount = nodes.length;
+    const chargeStrength = Math.min(-800, -100 * nodeCount);
+    const linkDistance = Math.max(150, 10 * nodeCount);
+
     const simulation = d3
         .forceSimulation(nodes)
         .force("link", d3.forceLink(links)
             .id((d: any) => d.id)
-            .distance(150))
+            .distance(250))
         .force("charge", d3.forceManyBody()
-            .strength(-600))
+            .strength(-1500))
         .force("center", d3.forceCenter(width / 2, height / 2))
-        .force("collision", d3.forceCollide().radius(40))
+        .force("collision", d3.forceCollide().radius(60))
         .force("x", d3.forceX((d: any) => {
             if (d.group === 0) return width * 0.3;
             if (d.group === 1) return width * 0.7;
@@ -125,7 +129,7 @@ const createNetworkGraph = (data: any, containerId: string, height: number = 400
             if (l.target.id === hoveredNode.id) connectedNodeIds.add(l.source.id);
         });
         
-        node.attr("opacity", (d: any) => connectedNodeIds.has(d.id) ? 1 : 0.4);
+        node.attr("opacity", (d: any) => connectedNodeIds.has(d.id) ? 1 : 0.2);
         link.attr("opacity", (d: any) =>
             d.source.id === hoveredNode.id || d.target.id === hoveredNode.id ? 0.9 : 0.4
         );

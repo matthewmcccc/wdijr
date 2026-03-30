@@ -181,7 +181,7 @@ def process_text(self, book_path):
         has_cover=cover is not None,
         character_to_character_sentiment=character_to_character_sentiment_dict,
         chapters=chapters,
-        chapter_conversational_networks=chapter_conversational_networks,
+        chapter_conversational_networks=chapter_nw_nodes,
         chapter_summaries=chapter_summaries,
         chapter_valence_vals=chapter_valence_vals,
         cooccurrence_frequency_network=cooccurrence_frequency_network,

@@ -113,44 +113,40 @@ const CharacterAnalysisLanding = () => {
                                         ? "Showing full network" 
                                         : 
                                         <div className="flex items-center gap-1 cursor-pointer" onClick={() => window.open(`/${novelId}/chapter/${selectedChapter}`, "_blank")}>
-                                            {chapterData[selectedChapter]?.title || ""}
+                                            {chapterData[selectedChapter]?.title || `Chapter ${selectedChapter + 1}`}
                                             <img src={newTabIcon} className="ml-1 w-4 h-4" />
                                         </div>
                                     }
                                 </span>
-                                <input 
-                                    type="range" 
-                                    min={0} 
-                                    max={allValue} 
-                                    step={1} 
-                                    value={sliderValue}
-                                    onChange={(e) => setSliderValue(Number(e.target.value))}
-                                    className="accent-[#228B22] w-3/4" 
-                                />
-                                <div className="flex justify-between w-3/4 mt-1">
-                                <span 
-                                        className={`text-xs cursor-pointer ${
-                                            selectedChapter === null
-                                                ? "text-gray-700 font-medium" 
-                                                : "text-gray-400"
-                                        }`}
-                                        onClick={() => setSliderValue(0)}
+                                <div className="flex items-center gap-3 w-3/4">
+                                    <button 
+                                        onClick={() => setSliderValue(Math.max(0, sliderValue - 1))}
+                                        className="text-gray-500 hover:text-black text-lg font-bold px-2 cursor-pointer"
                                     >
-                                        All
+                                        ‹
+                                    </button>
+                                    <input 
+                                        type="range" 
+                                        min={0} 
+                                        max={allValue} 
+                                        step={1} 
+                                        value={sliderValue}
+                                        onChange={(e) => setSliderValue(Number(e.target.value))}
+                                        className="accent-[#228B22] flex-1" 
+                                    />
+                                    <button 
+                                        onClick={() => setSliderValue(Math.min(allValue, sliderValue + 1))}
+                                        className="text-gray-500 hover:text-black text-lg font-bold px-2 cursor-pointer"
+                                    >
+                                        ›
+                                    </button>
+                                </div>
+                                <div className="flex justify-between w-3/4 mt-1">
+                                    <span className="text-xs text-gray-400">All</span>
+                                    <span className="text-xs text-gray-400">
+                                        {selectedChapter === null ? "" : `Chapter ${selectedChapter + 1} of ${chapterData.length}`}
                                     </span>
-                                    {chapterData.map((_chapter, index) => (
-                                        <span 
-                                            key={index} 
-                                            className={`text-xs cursor-pointer ${
-                                                selectedChapter !== null && index <= selectedChapter
-                                                    ? "text-gray-700 font-medium" 
-                                                    : "text-gray-400"
-                                            }`}
-                                            onClick={() => setSliderValue(index + 1)}
-                                        >
-                                            {index + 1}
-                                        </span>
-                                    ))}
+                                    <span className="text-xs text-gray-400">{chapterData.length}</span>
                                 </div>
                             </div>
                         </div>
