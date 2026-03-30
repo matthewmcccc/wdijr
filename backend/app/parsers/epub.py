@@ -13,6 +13,7 @@ PRIOR_SPAN_WINDOW = 75
 POST_SPAN_WINDOW = 50
 QUOTE_SPAN_WINDOW = 400
 CHUNK_SPAN_WINDOW = 500
+MIN_CHAPTER_WORD_LEN = 150
 
 
 class Epub(Book):
@@ -49,6 +50,10 @@ class Epub(Book):
             ch: Chapter = Chapter(
                 index=idx, title=ch_title, item=self.book.get_item_with_href(href)
             )
+            soup = BeautifulSoup(ch.item.get_body_content(), "html.parser")
+            words = " ".join(p.get_text() for p in soup.find_all("p")).split()
+            if len(words) < MIN_CHAPTER_WORD_LEN:
+                continue
             chapters[idx] = ch
             idx += 1
         return chapters

@@ -23,14 +23,6 @@ from app.services.book_processor import get_author_data
 load_dotenv()
 
 if __name__ == "__main__":
-    pg_url = "https://project-gutenberg-free-books-api1.p.rapidapi.com/books/1342"
-    pg_api_key = "fc5ee54257mshe0e09c6049b3e2dp19bdfbjsn084d413df665"
-    res = requests.get(pg_url, headers={
-        "Content-Type": "application/json",
-        "x-rapidapi-host": "project-gutenberg-free-books-api1.p.rapidapi.com",
-        "x-rapidapi-key": pg_api_key,
-    })
-    parsed = res.json()
-    print(parsed["results"][0]["formats"]["application/epub+zip"])
-    epub_res = requests.get("https://www.gutenberg.org/ebooks/1342.epub3.images")
-    print(epub_res.json())
+    book: Epub = Epub("./app/temp/frankenstein.epub")
+    for idx, chapter in book.chapters.items():
+        print(chapter)

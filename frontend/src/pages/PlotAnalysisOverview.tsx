@@ -90,7 +90,6 @@ const PlotAnalysisLanding = () => {
                 {selectedEvent && (() => {
                     const parsed = JSON.parse(selectedEvent.description[0]);
                     const ch_index = selectedEvent.description[1];
-                    console.log(parsed);
                     return (
                         <div className="flex-3">
                             <PlotEventCard
