@@ -90,10 +90,13 @@ def process_text(self, book_path):
     chapter_valence_vals: list = []
     for idx, chapter in book.chapters.items():
         word_list = book.get_chapter_word_list(idx)
-        sentiment_values = ps.get_section_valence(
-            word_list
-        )
-        chapter_valence_vals.append(sentiment_values)
+        try:
+            sentiment_values = ps.get_section_valence(
+                word_list
+            )
+            chapter_valence_vals.append(sentiment_values)
+        except ValueError:
+            chapter_valence_vals.append([])
     diff_values = []
     for idx, valence_vals in enumerate(chapter_valence_vals):
         first_diff = ps.first_difference(
@@ -178,14 +181,13 @@ def process_text(self, book_path):
         has_cover=cover is not None,
         character_to_character_sentiment=character_to_character_sentiment_dict,
         chapters=chapters,
-        chapter_conversational_networks=chapter_nw_nodes,
+        chapter_conversational_networks=chapter_conversational_networks,
         chapter_summaries=chapter_summaries,
         chapter_valence_vals=chapter_valence_vals,
         cooccurrence_frequency_network=cooccurrence_frequency_network,
         author_details=author_details,
         motifs=motifs,
         lexical_richness=lexical_richness,
-
     )
 
     cover_url = book.write_cover(cover, novel_id)
@@ -199,10 +201,10 @@ def process_text(self, book_path):
         "top_relationships": top_relationships_dict,
         "sentiment_values": [v for ch in chapter_valence_vals for v in ch],
         "inflection_points": global_inflection_points,
-        "plot_summaries": list(plot_summaries),
+        "plot_summaries": list({}),
         "cover_url": cover_url,
         "character_sentiment": character_to_character_sentiment_dict,
-        "chapter_network": chapter_nw_nodes,
+        "chapter_network": {},
         "chapter_lengths": [len(ch) for ch in chapter_valence_vals],
         "author_details": author_details,
         "motifs": motifs,
@@ -316,12 +318,6 @@ def get_author_data(book: Epub, g: Gemini, author: str) -> dict:
             "User-Agent": "wdijr/1.0 (dissertation project; mattmcconnachie4@gmail.com)"
     })
 
-    print("WIKI STATUS:", wiki_res.status_code)
-    print("WIKI TEXT:", wiki_res.text[:500])
-    if not wiki_res.text:
-        print("Wikipedia returned empty response")
-
-
     wiki_body = wiki_res.json()
     extract = next(iter(wiki_body["query"]["pages"].values()))
 
@@ -345,6 +341,7 @@ def get_author_data(book: Epub, g: Gemini, author: str) -> dict:
     open_lib_body = open_lib_res.json()
     for doc in open_lib_body["docs"]:
         if book.title not in doc["title"] and author in doc["author_name"]:
+            print(f"doc: {doc}")
             work_obj = {
                 "title": doc["title"],
                 "image_url": f"https://covers.openlibrary.org/b/id/{doc['cover_i']}-M.jpg",
@@ -353,7 +350,10 @@ def get_author_data(book: Epub, g: Gemini, author: str) -> dict:
             other_works_list.append(work_obj)
 
     author_dict["name"] = author
-    author_dict["image_url"] = extract["thumbnail"]["source"]
+    try:
+        author_dict["image_url"] = extract["thumbnail"]["source"]
+    except:
+        author_dict["image_url"] = ""
     author_dict["description"] = json.loads(author_summary)["summary"]
     author_dict["other_works"] = other_works_list
 
@@ -363,10 +363,13 @@ def get_chapter_valence_vals(book: Epub, ps: PlotSentiment) -> list:
     chapter_valence_vals: list = []
     for idx, chapter in book.chapters.items():
         word_list = book.get_chapter_word_list(idx)
-        sentiment_values = ps.get_section_valence(
-            word_list
-        )
-        chapter_valence_vals.append(sentiment_values)
+        try: 
+            sentiment_values = ps.get_section_valence(
+                word_list
+            )
+            chapter_valence_vals.append(sentiment_values)
+        except ValueError:
+            chapter_valence_vals.append([])
     diff_values = []
     for idx, valence_vals in enumerate(chapter_valence_vals):
         first_diff = ps.first_difference(

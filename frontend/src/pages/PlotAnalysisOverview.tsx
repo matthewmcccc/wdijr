@@ -87,20 +87,24 @@ const PlotAnalysisLanding = () => {
                         </div>
                     </div>
                 </div>
-                {selectedEvent && (
-                    console.log(selectedEvent),
-                    <div className="flex-3">
-                        <PlotEventCard
-                            title={selectedEvent.title}
-                            headline={selectedEvent.headline}
-                            chapter={selectedEvent.chapter}
-                            description={selectedEvent.description}
-                            characters={selectedEvent.characters}
-                            eventType={selectedEvent.category as any}
-                            onClose={() => setSelectedEvent(null)}
-                        />
-                    </div>
-                )}
+                {selectedEvent && (() => {
+                    const parsed = JSON.parse(selectedEvent.description[0]);
+                    const ch_index = selectedEvent.description[1];
+                    console.log(parsed);
+                    return (
+                        <div className="flex-3">
+                            <PlotEventCard
+                                title={selectedEvent.title}
+                                headline={parsed.headline}
+                                chapter={`Chapter: ${ch_index}`}
+                                description={parsed.summary}
+                                characters={parsed.characters}
+                                eventType={parsed.category}
+                                onClose={() => setSelectedEvent(null)}
+                            />
+                        </div>
+                    );
+                })()}
             </div>
             <div className="flex flex-col gap-4 mt-4">
                 <h1 className="font-serif text-4xl">

@@ -222,7 +222,7 @@ const createAreaChart = (
             .style('align-items', 'center')
             .style('justify-content', 'center')
             .html((d, i) => {
-                const category = parsedSummaries[i]?.category || ''
+                const category = JSON.parse(parsedSummaries[i]["summary"][0])?.category || ''
                 return makeIcon(category)
             })
     }

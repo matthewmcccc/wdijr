@@ -54,7 +54,7 @@ const PlotEventCard = ({ title, chapter, description, characters, eventType, onC
                     <div className="w-6 h-6 rounded-full border border-gray-400" />
                 )}
                 <div className="border-l border-black h-6" />
-                <h2 className="text-2xl font-serif">{headline}</h2>
+                <h2 className="text-xl font-serif w-64">{headline}</h2>
             </div>
             <p className="mb-2 text-md text-black">{chapter}</p>
             <hr className="border-gray-300 mb-2" />
