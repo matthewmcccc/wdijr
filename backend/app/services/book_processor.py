@@ -148,6 +148,7 @@ def process_text(self, book_path):
             global_x = offset + pos * (chapter_point_count - 1)
             global_inflection_points.append((global_x, delta))
         offset += chapter_point_count
+    global_inflection_points.sort(key=lambda p: p[0])
 
     author_details = get_author_data(
         book,
@@ -392,5 +393,7 @@ def get_motif_data(book: Epub, g: Gemini):
         motifs,
         "motif_consolidation"
     )
+    parsed = json.loads(consolidated_motifs)
+    result = {group["category"]: group["motifs"] for group in parsed["motif_groups"]}
 
-    return json.loads(consolidated_motifs)
+    return {"motif_groups": result}

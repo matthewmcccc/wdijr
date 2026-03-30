@@ -28,7 +28,7 @@ const ChapterPageEventCard = ({ title, eventType, description, characters, chara
     const bookContext = useContext(BookContext);
 
     return (
-        <div className="border border-gray-300 rounded-lg p-4 h-92 w-92 relative flex flex-col">
+        <div className="border border-gray-300 rounded-lg p-4 relative flex flex-col">
             <div className="flex flex-row items-center gap-2 mb-2">
                 {eventType && eventIcons[eventType] ? (
                     <div

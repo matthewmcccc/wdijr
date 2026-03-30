@@ -13,6 +13,8 @@ import newTabIcon from "../assets/img/new-tab.png";
 import defaultAvatar from "../assets/img/default-avatar.png";
 import useContainerSize from "../hooks/useContainerSize";
 
+const CHARACTERS_PER_PAGE = 12;
+
 const CharacterAnalysisLanding = () => {
     const characterData = useContext(BookContext)?.characterData;
     const title = useContext(BookContext)?.title || "";
@@ -43,6 +45,14 @@ const CharacterAnalysisLanding = () => {
     const cooccurrenceNetworkData = bookContext?.cooccurrenceNetworkData;
     const setCooccurrenceNetworkData = bookContext?.setCooccurrenceNetworkData;
     const { containerRef, width: containerWidth, height: containerHeight } = useContainerSize();
+    const [characterPage, setCharacterPage] = useState(0);
+
+    const characterEntries = characterData ? Object.entries(characterData) : [];
+    const totalCharacterPages = Math.ceil(characterEntries.length / CHARACTERS_PER_PAGE);
+    const paginatedCharacters = characterEntries.slice(
+        characterPage * CHARACTERS_PER_PAGE,
+        (characterPage + 1) * CHARACTERS_PER_PAGE
+    );
 
     useEffect(() => {
         setSliderValue(0);
@@ -161,7 +171,7 @@ const CharacterAnalysisLanding = () => {
                     <hr className="border-gray-300 my-4" />
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {
-                        characterData && Object.entries(characterData).map(([id, data]) => (
+                        paginatedCharacters.map(([id, data]) => (
                             <Fragment key={id}>
                                 {(!data.name) ? "" : null}
                                 <CharacterCard 
@@ -174,6 +184,27 @@ const CharacterAnalysisLanding = () => {
                         ))
                     }
                     </div>
+                    {totalCharacterPages > 1 && (
+                        <div className="flex justify-center items-center gap-4 mt-4">
+                            <button
+                                onClick={() => setCharacterPage(p => Math.max(0, p - 1))}
+                                disabled={characterPage === 0}
+                                className="px-3 py-1 border rounded disabled:opacity-30 cursor-pointer"
+                            >
+                                ‹ Prev
+                            </button>
+                            <span className="text-sm text-gray-500 font-dewi">
+                                {characterPage + 1} of {totalCharacterPages}
+                            </span>
+                            <button
+                                onClick={() => setCharacterPage(p => Math.min(totalCharacterPages - 1, p + 1))}
+                                disabled={characterPage === totalCharacterPages - 1}
+                                className="px-3 py-1 border rounded disabled:opacity-30 cursor-pointer"
+                            >
+                                Next ›
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
     )

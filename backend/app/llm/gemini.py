@@ -251,7 +251,26 @@ class Gemini:
                 contents=prompt,
                 config=types.GenerateContentConfig(
                     response_mime_type="application/json",
-
+                    response_schema={
+                        "type": "OBJECT",
+                        "properties": {
+                            "motif_groups": {
+                                "type": "ARRAY",
+                                "items": {
+                                    "type": "OBJECT",
+                                    "properties": {
+                                        "category": {"type": "STRING"},
+                                        "motifs": {
+                                            "type": "ARRAY",
+                                            "items": {"type": "STRING"}
+                                        }
+                                    },
+                                    "required": ["category", "motifs"]
+                                }
+                            }
+                        },
+                        "required": ["motif_groups"],
+                    }
                 ),
             )
             .candidates[0].content.parts[0].text
@@ -416,8 +435,8 @@ class Gemini:
     def chapter_summary_prompt(chapter_title: str, novel_title: str = ""):
         return f"""You are an expert in literary analysis and summarisation.
         You will be given a full chapter from a novel, and its title.
-        It is your job to generate a summary that spans 2-3 paragraphs
-        for this chapter. You will also generate a short overview of the 
+        It is your job to generate a summary that spans 3-4 paragraphs
+        or approximately 250-350 words for this chapter. You will also generate a short overview of the 
         chapter that spans 1-2 sentences.
         You may make use of pre-existing knowledge of the novel if you possess it.
 
@@ -499,9 +518,9 @@ class Gemini:
         motifs from the provided list and complete the mapping.
         - Use only the provided motif list. Use no other context.
         - Provide your response in the following JSON format:
-            "motif_groups": {
-                "OVERARCHING CATEGORY IN DOUBLE QUOTES": ["motif one", "motif two", ...],
-                "OVERARCHING CATEGORY IN DOUBLE QUOTES": ["motif three", "motif four", ...],
+            "motif_groups": [
+                {"category": "OVERARCHING CATEGORY", "motifs": ["motif one", "motif two", ...]},
+                {"category": "OVERARCHING CATEGORY", "motifs": ["motif three", "motif four", ...]},
                 ...
-            }
+            ]
         """

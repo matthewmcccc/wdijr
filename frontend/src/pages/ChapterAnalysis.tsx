@@ -66,8 +66,10 @@ const ChapterAnalysis = () => {
             return acc;
         }, {} as Record<string, string>);
 
-    const keyEvents = plotSummaries?.filter(ps => ps[1] == parseInt(chapterNumber)).map(ps => ps[0]);
-
+    console.log(plotSummaries);
+    const keyEvents = plotSummaries
+        ?.filter(summary => summary.chapter_number === parseInt(chapterNumber))
+        .map(summary => summary.summary);
     const leftChapter = chapterData && chapterNumber && parseInt(chapterNumber) !== 0  ? allChapterData?.find(chapter => chapter.chapter_number === chapterData.chapter_number - 1) : null;
     const rightChapter = chapterData && chapterNumber ? allChapterData?.find(chapter => chapter.chapter_number === chapterData.chapter_number + 1) : null;
 
@@ -103,30 +105,33 @@ const ChapterAnalysis = () => {
                             <h1 className="text-center md:text-left text-3xl font-serif mb-6">
                                 Summary
                             </h1>
-                            <hr className="border-gray-300 my-6"/>
-                            <p className="whitespace-pre-wrap text-center md:text-left">
+                            <hr className="border-gray-300 my-6 w-3/4"/>
+                            <p className="whitespace-pre-wrap text-center md:text-left w-3/4">
                                 {chapterData.summary}
                             </p>
-                            <hr className="border-gray-300 my-6"/>
-                            <h1 className="text-center md:text-left text-3xl font-serif mb-6">
-                                Key Events
-                            </h1>
-                            <div className="flex flex-col items-center md:flex-row gap-6">
-                                {keyEvents?.map((event, idx) => {
-                                    event = JSON.parse(event);
-                                    console.log(event);
-                                    return (
-                                        <ChapterPageEventCard
-                                            key={idx}
-                                            title={event.headline}
-                                            eventType={event.category}
-                                            description={event.summary}
-                                            characters={event.characters}
-                                            characterData={characterData ?? []}
-                                        />
-                                    );
-                                })}
+                            {keyEvents && keyEvents.length > 0 && (
+                            <div>
+                                <hr className="border-gray-300 my-6 w-3/4"/>
+                                <h1 className="text-center md:text-left text-3xl font-serif mb-6">
+                                    Key Events
+                                </h1>
+                                <div className="flex flex-col items-center md:flex-row gap-6">
+                                    {keyEvents?.map((event, idx) => {
+                                        event = JSON.parse(event);
+                                        return (
+                                            <ChapterPageEventCard
+                                                key={idx}
+                                                title={event.headline}
+                                                eventType={event.category}
+                                                description={event.summary}
+                                                characters={event.characters}
+                                                characterData={characterData ?? []}
+                                            />
+                                        );
+                                    })}
+                                </div>
                             </div>
+                            )}
                         </div>
                         <div className="flex-3 md:flex-1">
                             <h1 className="text-2xl font-serif mb-4 text-center mt-4 md:mt-0 md:text-left">

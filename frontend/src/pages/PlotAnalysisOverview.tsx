@@ -96,13 +96,12 @@ const PlotAnalysisLanding = () => {
                 </div>
                 {selectedEvent && (() => {
                     const parsed = JSON.parse(selectedEvent.description[0]);
-                    const ch_index = selectedEvent.description[1];
                     return (
                         <div className="flex-3">
                             <PlotEventCard
                                 title={selectedEvent.title}
                                 headline={parsed.headline}
-                                chapter={`Chapter: ${ch_index}`}
+                                chapter={selectedEvent.chapter}
                                 description={parsed.summary}
                                 characters={parsed.characters}
                                 eventType={parsed.category}

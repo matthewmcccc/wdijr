@@ -129,14 +129,14 @@ const createNetworkGraph = (data: any, containerId: string, height: number = 400
             if (l.target.id === hoveredNode.id) connectedNodeIds.add(l.source.id);
         });
         
-        node.attr("opacity", (d: any) => connectedNodeIds.has(d.id) ? 1 : 0.2);
+        node.attr("opacity", (d: any) => connectedNodeIds.has(d.id) ? 1 : 0.1);
         link.attr("opacity", (d: any) =>
-            d.source.id === hoveredNode.id || d.target.id === hoveredNode.id ? 0.9 : 0.4
+            d.source.id === hoveredNode.id || d.target.id === hoveredNode.id ? 0.9 : 0.1
         );
-        labels.attr("opacity", (d: any) => connectedNodeIds.has(d.id) ? 1 : 0.4);
+        labels.attr("opacity", (d: any) => connectedNodeIds.has(d.id) ? 1 : 0.1);
     })
     .on("mouseleave", () => {
-        node.attr("opacity", (d: any) => connectedNodes.has(d.id) ? 1 : 0.4);
+        node.attr("opacity", (d: any) => connectedNodes.has(d.id) ? 1 : 0.1);
         link.attr("opacity", 0.7);
         labels.attr("opacity", 1);
     });

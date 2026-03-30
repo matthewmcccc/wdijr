@@ -36,6 +36,7 @@ const createAreaChart = (
     const margin = { top: 40, right: 5, bottom: 10, left: 5 }
     const innerWidth = width - margin.left - margin.right
     const innerHeight = height - margin.top - margin.bottom - contextHeight - gap
+    console.log(peakPoints)
 
     const parsedSummaries = peakPointsTooltips.map(s => {
         try { return JSON.parse(s) }
@@ -222,7 +223,7 @@ const createAreaChart = (
             .style('align-items', 'center')
             .style('justify-content', 'center')
             .html((d, i) => {
-                const category = JSON.parse(parsedSummaries[i]["summary"][0])?.category || ''
+                const category = parsedSummaries[i]?.category || ''
                 return makeIcon(category)
             })
     }
