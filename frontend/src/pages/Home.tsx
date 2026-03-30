@@ -3,6 +3,7 @@ import uploadIcon from "../assets/img/upload_icon.png"
 import bookIcon from "../assets/img/book_icon.png"
 import axios from "axios"
 import Navbar from "../components/Navbar"
+import Modal from "../components/Modal"
 import { Navigate, useNavigate } from "react-router-dom"
 
 type AppState = "idle" | "processing" | "done"
@@ -12,6 +13,9 @@ const Home = () => {
     const [file, setFile] = useState<File | null>(null)
     const [appState, setAppState] = useState<AppState>("idle")
     const [status, setStatus] = useState<string>("")
+    const [showModal, setShowModal] = useState<boolean>(false)
+    const [blur, setBlur] = useState<boolean>(false)
+    const [bookId, setBookId] = useState<string>("")
 
     const navigate = useNavigate();
 
@@ -66,12 +70,29 @@ const Home = () => {
         document.title = "What Did I Just Read?"
     }, [])
 
+    useEffect(() => {
+        const downloadBookAndProcess = async (id: string) => {
+            setAppState("processing")
+            try {
+                const res = await axios.post(`${import.meta.env.VITE_API_URL}/analysis/download/${id}`)
+                navigate(`/processing/${res.data.task_id}`)
+            } catch (error) {
+                console.error("Error downloading and processing book:", error)
+                setAppState("idle")
+            }
+        }
+        if (bookId) {
+            downloadBookAndProcess(bookId)
+        }
+    }, [bookId, navigate])
+
     return (
         <>
             {appState == "idle" && (
-                <div>
+            <div>
+                <div className={`relative h-screen overflow-hidden ${blur ? "blur-[2px]" : ""}`}>
                     <Navbar />
-                    <div className="flex flex-col gap-6 pt-60 items-center min-h-screen overflow-hidden">
+                    <div className="flex flex-col gap-6 pt-60 items-center h-screen overflow-hidden">
                         <h1 className="font-serif text-center text-4xl md:text-6xl lg:text-6xl">What Did I Just Read?</h1>
                         <p className="lg:text-lg font-dewi text-brand-50 text-center">
                             Upload your own text or choose from a pre-selected
@@ -86,7 +107,7 @@ const Home = () => {
                                 invert brightness-150" />
                                     Upload a Book
                             </button>
-                            <button className="bg-white border-black-500 border text-black font-dewi py-2 px-4 rounded-4xl cursor-pointer hover:bg-black hover:text-white
+                            <button onClick={() => { setShowModal(true); setBlur(true); }} className="bg-white border-black-500 border text-black font-dewi py-2 px-4 rounded-4xl cursor-pointer hover:bg-black hover:text-white
                                 duration-300 transition-all">
                                     <img src={bookIcon} alt="Book Icon" className="inline-block w-5 h-5 mr-3 mb-1 fill-white" />
                                     Choose from Corpus  
@@ -94,7 +115,8 @@ const Home = () => {
                         </div>
                     </div>
                 </div>
-                
+                <Modal setBlur={setBlur} showModal={showModal} setShowModal={setShowModal} setBookId={setBookId} />
+            </div>
             )}
         </>
     )

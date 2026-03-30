@@ -23,19 +23,14 @@ from app.services.book_processor import get_author_data
 load_dotenv()
 
 if __name__ == "__main__":
-    book_path = Path("./app/temp/aaiw.epub")
-    book = Epub(book_path)
-    text = book.get_full_text()
-    quotes = book.get_full_text_quotes(text)
-    paras = book.get_full_text_paras()
-
-    er: EntityExtractor = EntityExtractor(
-        "en_core_web_trf", text
-    )
-
-    vocab = er.character_lexical_richness(
-        quotes,
-        100
-    )
-
-    print(vocab)
+    pg_url = "https://project-gutenberg-free-books-api1.p.rapidapi.com/books/1342"
+    pg_api_key = "fc5ee54257mshe0e09c6049b3e2dp19bdfbjsn084d413df665"
+    res = requests.get(pg_url, headers={
+        "Content-Type": "application/json",
+        "x-rapidapi-host": "project-gutenberg-free-books-api1.p.rapidapi.com",
+        "x-rapidapi-key": pg_api_key,
+    })
+    parsed = res.json()
+    print(parsed["results"][0]["formats"]["application/epub+zip"])
+    epub_res = requests.get("https://www.gutenberg.org/ebooks/1342.epub3.images")
+    print(epub_res.json())

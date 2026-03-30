@@ -1,5 +1,7 @@
 import tempfile
+import requests
 import os
+from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List
@@ -11,7 +13,7 @@ from app.services.book_processor import process_text
 from app.db import get_db
 
 router = APIRouter(prefix="/analysis", tags=["analysis"])
-
+load_dotenv()
 
 @router.post("/", response_model=AnalysisSchema)
 async def create_analysis(
@@ -53,4 +55,18 @@ async def get_analysis(file: UploadFile, db: AsyncSession = Depends(get_db)):
         temp_file.write(content)
 
     task = process_text.delay(temp_file_path)
+    return {"task_id": task.id}
+
+@router.post("/download/{book_id}")
+async def download_epub(book_id: int):
+    epub_res = requests.get(f"https://www.gutenberg.org/ebooks/{book_id}.epub3.images")
+
+    upload_dir = os.path.join(os.getcwd(), "uploads")
+    os.makedirs(upload_dir, exist_ok=True)
+
+    file_path = os.path.join(upload_dir, f"{book_id}.epub")
+    with open(file_path, "wb") as f:
+        f.write(epub_res.content)
+
+    task = process_text.delay(file_path)
     return {"task_id": task.id}
