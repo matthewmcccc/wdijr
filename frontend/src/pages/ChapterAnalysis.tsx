@@ -90,6 +90,9 @@ const ChapterAnalysis = () => {
         sentiment: val,
     }));
 
+    const chapterHasNetworkData = chapterNetworkData && chapterNetworkData.nodes && chapterNetworkData.nodes.length > 0;
+    const chapterHasSentimentData = chapterSentimentData && chapterSentimentData.length > 0;
+
     return (
         <div className="container mx-auto px-4 py-8">
             <Navbar />
@@ -163,7 +166,7 @@ const ChapterAnalysis = () => {
             </div>
             <hr className="border-gray-300 my-12 w-full"/>
                 <div className="flex flex-col md:flex-row gap-6 justify-between">
-                    {chapterSentimentData.length > 0 && (
+                    {chapterHasSentimentData && (
                         <div className="">
                             <div className="border border-gray-300 rounded-lg p-4 w-fit">
                                 <h1 className="text-lg font-serif mb-4 text-center">Chapter Sentiment</h1>
@@ -177,20 +180,22 @@ const ChapterAnalysis = () => {
                             </div>
                         </div>
                     )}
-                    <div className="border border-gray-300 rounded-lg p-4 w-fit">
-                        <h1 className="text-lg font-serif mb-4 text-center">Chapter Network</h1>
-                        <hr className="border-gray-300 my-4 w-1/2 mx-auto"/>
-                        <NetworkGraph
-                            key={`chapter-network-${chapterNumber}`}
-                            id={`chapter-network-${chapterNumber}`}
+                    {chapterHasNetworkData && (
+                        <div className="border border-gray-300 rounded-lg p-4 w-fit">
+                            <h1 className="text-lg font-serif mb-4 text-center">Chapter Network</h1>
+                            <hr className="border-gray-300 my-4 w-1/2 mx-auto"/>
+                            <NetworkGraph
+                                key={`chapter-network-${chapterNumber}`}
+                                    id={`chapter-network-${chapterNumber}`}
                                 height={250}
                                 width={550}
                                 selectedChapter={parseInt(chapterNumber)}
                                 chapterNetworkData={chapterNetworkData}
                                 cumulative={false}
-                                showLegend={false}
+                            showLegend={false}
                             />
-                    </div>
+                        </div>
+                    )}
                 </div>
             </div>
     )   
