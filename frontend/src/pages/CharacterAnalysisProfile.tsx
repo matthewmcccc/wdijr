@@ -115,6 +115,7 @@ const CharacterAnalysisProfile = () => {
 
     const notableQuotes = characterQuotes
         .filter((q: any) => q.content !== topQuote)
+        .filter((q: any) => q.content.length < 300)
         .sort((a: any, b: any) => Math.abs(b.sentiment) - Math.abs(a.sentiment))
         .slice(0, 5);
 
