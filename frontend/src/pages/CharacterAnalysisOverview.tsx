@@ -12,6 +12,9 @@ import SideCharacterCard from "../components/SideCharacterCard";
 import newTabIcon from "../assets/img/new-tab.png";
 import defaultAvatar from "../assets/img/default-avatar.png";
 import useContainerSize from "../hooks/useContainerSize";
+import TooltipComponent from "../components/Tooltip";
+import * as Select from "@radix-ui/react-select";
+
 
 const CHARACTERS_PER_PAGE = 12;
 
@@ -36,7 +39,7 @@ const CharacterAnalysisLanding = () => {
     const associatedQuotes = bookContext?.associatedQuotes;
     const setChapterNetworkData = bookContext?.setChapterNetworkData;
     const chapterNetworkData = bookContext?.chapterNetworkData;
-    const [showSideCard, setShowSideCard] = useState(false);
+    const [showSideCard, setShowSideCard] = useState<string | null>(null);
     const maxChapter = chapterData.length > 0 ? chapterData.length - 1 : 0;
     const allValue = maxChapter + 1;
     const [sliderValue, setSliderValue] = useState<number>(allValue);
@@ -46,6 +49,7 @@ const CharacterAnalysisLanding = () => {
     const setCooccurrenceNetworkData = bookContext?.setCooccurrenceNetworkData;
     const { containerRef, width: containerWidth, height: containerHeight } = useContainerSize();
     const [characterPage, setCharacterPage] = useState(0);
+    const [networkMode, setNetworkMode] = useState<"conversational" | "cooccurrence">("conversational");
 
     const characterEntries = characterData ? Object.entries(characterData) : [];
     const totalCharacterPages = Math.ceil(characterEntries.length / CHARACTERS_PER_PAGE);
@@ -91,12 +95,43 @@ const CharacterAnalysisLanding = () => {
                 <div className="flex flex-row">
                     <div className="flex flex-col w-full gap-2">
                         <div className="flex flex-col gap-4 w-full border border-gray-300 rounded-lg p-4">
-                            <h1 className="font-serif text-center text-xl">{title} | Social Network</h1>
+                            <div className="flex items-center justify-center relative">
+                                <h1 className="font-serif text-center text-xl mr-1">{title} | </h1>
+                                <div className="border border-gray-300 rounded px-2 py-[2px]">
+                                    <Select.Root value={networkMode} onValueChange={setNetworkMode}>
+                                        <Select.Trigger asChild>
+                                            <div className="flex items-center gap-2 cursor-pointer">
+                                                <h1 className="font-serif text-center text-black text-lg cursor-pointer">
+                                                    <Select.Value />
+                                                </h1>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down-icon lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>
+                                            </div>
+                                        </Select.Trigger>
+                                        <Select.Portal>
+                                            <Select.Content position="popper" side="bottom" sideOffset={8} className="border border-gray-300 text-black bg-white p-1 rounded z-50 min-w-[280px]">
+                                                <Select.Viewport>
+                                                    <Select.Item value="conversational" className="px-3 py-2 cursor-pointer outline-none hover:bg-gray-100 rounded">
+                                                        <Select.ItemText>Conversational Network</Select.ItemText>
+                                                        <p className="text-xs text-gray-400 mt-0.5">Edges based on dialogue exchanges between characters.</p>
+                                                    </Select.Item>
+                                                    <Select.Item value="cooccurrence" className="px-3 py-2 cursor-pointer outline-none hover:bg-gray-100 rounded">
+                                                        <Select.ItemText>Co-occurrence Network</Select.ItemText>
+                                                        <p className="text-xs text-gray-400 mt-0.5">Edges based on characters appearing in the same passages.</p>
+                                                    </Select.Item>
+                                                </Select.Viewport>
+                                            </Select.Content>
+                                        </Select.Portal>
+                                    </Select.Root>
+                                </div>
+                                <div className="absolute right-2">
+                                    <TooltipComponent content={"Each node represents a character, and edges represent interactions between characters. \n\n The size of the node indicates the prominence of the character in the story.\n\n An interaction is defined as two back and forth conversations between two characters within a certain window of text."} />
+                                </div>
+                            </div>
                             <hr className="border-gray-300 w-1/2 mx-auto" />
                             <div ref={containerRef} className="w-full h-[500px]">
                                 {containerWidth > 0 && containerHeight > 0 && (
                                     <NetworkGraph
-                                        key={`${novelId}-${selectedChapter}`}
+                                        key={`${novelId}-${selectedChapter}-${networkMode}`}
                                         id="network-graph-1" 
                                         height={containerHeight}
                                         width={containerWidth}
@@ -108,9 +143,9 @@ const CharacterAnalysisLanding = () => {
                                             );
                                             setShowSideCard(key || null);
                                         }}
-                                    cumulative={cumulative}
-                                />
-                                )}
+                                        cumulative={cumulative}
+                                        networkMode={networkMode}
+                                    />                                )}
                             </div>
                             <div className="flex flex-col items-center w-full mt-2">
                                 <hr className="border-gray-300 w-1/2 mx-auto mb-2" />
@@ -162,51 +197,51 @@ const CharacterAnalysisLanding = () => {
                         </div>
                     </div>   
                 </div>
-                </div>
-                <div className="py-18">
-                    <div className="justify-between flex flex-row">
-                        <h1 className="font-serif text-4xl">Characters</h1>
-                        <Dropdown />
-                    </div>
-                    <hr className="border-gray-300 my-4" />
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {
-                        paginatedCharacters.map(([id, data]) => (
-                            <Fragment key={id}>
-                                {(!data.name) ? "" : null}
-                                <CharacterCard 
-                                    name={humanize(data.name)}
-                                    image_url={data.image_url ? `${import.meta.env.VITE_API_URL.replace('/api', '')}${data.image_url}` : defaultAvatar}
-                                    description={data.description ?? "No description available."}
-                                    size={"large"}
-                                />
-                            </Fragment>
-                        ))
-                    }
-                    </div>
-                    {totalCharacterPages > 1 && (
-                        <div className="flex justify-center items-center gap-4 mt-4">
-                            <button
-                                onClick={() => setCharacterPage(p => Math.max(0, p - 1))}
-                                disabled={characterPage === 0}
-                                className="px-3 py-1 border rounded disabled:opacity-30 cursor-pointer"
-                            >
-                                ‹ Prev
-                            </button>
-                            <span className="text-sm text-gray-500 font-dewi">
-                                {characterPage + 1} of {totalCharacterPages}
-                            </span>
-                            <button
-                                onClick={() => setCharacterPage(p => Math.min(totalCharacterPages - 1, p + 1))}
-                                disabled={characterPage === totalCharacterPages - 1}
-                                className="px-3 py-1 border rounded disabled:opacity-30 cursor-pointer"
-                            >
-                                Next ›
-                            </button>
-                        </div>
-                    )}
-                </div>
             </div>
+            <div className="py-18">
+                <div className="justify-between flex flex-row">
+                    <h1 className="font-serif text-4xl">Characters</h1>
+                    <Dropdown />
+                </div>
+                <hr className="border-gray-300 my-4" />
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {
+                    paginatedCharacters.map(([id, data]) => (
+                        <Fragment key={id}>
+                            {(!data.name) ? "" : null}
+                            <CharacterCard 
+                                name={humanize(data.name)}
+                                image_url={data.image_url ? `${import.meta.env.VITE_API_URL.replace('/api', '')}${data.image_url}` : defaultAvatar}
+                                description={data.description ?? "No description available."}
+                                size={"large"}
+                            />
+                        </Fragment>
+                    ))
+                }
+                </div>
+                {totalCharacterPages > 1 && (
+                    <div className="flex justify-center items-center gap-4 mt-4">
+                        <button
+                            onClick={() => setCharacterPage(p => Math.max(0, p - 1))}
+                            disabled={characterPage === 0}
+                            className="px-3 py-1 border rounded disabled:opacity-30 cursor-pointer"
+                        >
+                            ‹ Prev
+                        </button>
+                        <span className="text-sm text-gray-500 font-dewi">
+                            {characterPage + 1} of {totalCharacterPages}
+                        </span>
+                        <button
+                            onClick={() => setCharacterPage(p => Math.min(totalCharacterPages - 1, p + 1))}
+                            disabled={characterPage === totalCharacterPages - 1}
+                            className="px-3 py-1 border rounded disabled:opacity-30 cursor-pointer"
+                        >
+                            Next ›
+                        </button>
+                    </div>
+                )}
+            </div>
+        </div>
     )
 }
 

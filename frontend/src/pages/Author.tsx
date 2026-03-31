@@ -47,9 +47,9 @@ const Author = () => {
                 {authorData && (
                     <div>
                         <div className="">
-                            <img src={authorData.image_url || ""} alt={authorData.name} className="float-left mr-8 mb-4 md:h-100 md:w-80 object-cover p-4 border border-gray-400 rounded-md" />
+                            <img src={authorData.image_url || ""} alt={authorData.name} className="float-left mr-8 mb-4 md:h-80 md:w-60 object-cover p-4 border border-gray-400 rounded-md" />
                             <h2 className="text-3xl font-serif mb-4 text-center md:text-left">{authorData.name}</h2>
-                            <p className="text-lg text-gray-700 whitespace-pre-line text-center md:text-left">{authorData.description}</p>
+                            <p className="text-md text-gray-700 whitespace-pre-line text-center md:text-left">{authorData.description}</p>
                         </div>
                         {/* // TODO: add section for other works by the author, if data is available */}
                        

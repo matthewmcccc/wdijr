@@ -8,6 +8,8 @@ import { BookContext } from "../contexts/bookContext"
 import fetchNovelData from "../utils/fetchNovelData"
 import PlotEventCard from "../components/PlotEventCard"
 import useContainerSize from "../hooks/useContainerSize"
+import { Tooltip } from "recharts"
+import TooltipComponent from "../components/Tooltip"
 
 interface SelectedEvent {
     title: string;
@@ -79,9 +81,15 @@ const PlotAnalysisLanding = () => {
             <div className="flex flex-row justify-between gap-4 mt-4">
                 <div className="flex-7 min-w-0">
                     <div className="border border-gray-300 rounded-lg p-4">
-                        <h1 className="text-center text-xl font-serif">
-                            {title} | Plot Sentiment & Key Events
-                        </h1>
+                        <div className="flex flex-row justify-between items-center">
+                            <h1></h1>
+                            <h1 className="text-center text-xl font-serif">
+                                {title} | Plot Sentiment & Key Events
+                            </h1>
+                            <TooltipComponent
+                                content={"The line chart shows the overall sentiment of the plot across the chapters. \n\n Key plot events are marked as points on the line. \n\n Click on a point to see more details about that event."}
+                            />
+                        </div>
                         <hr className="border-gray-300 w-1/2 mx-auto my-4" />
                         <div ref={containerRef} className="w-full h-[500px]">
                             {containerWidth > 0 && containerHeight > 0 && (

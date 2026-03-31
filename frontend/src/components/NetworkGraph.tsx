@@ -1,6 +1,7 @@
 import * as d3 from "d3"
 import { useContext, useEffect } from "react";
 import { BookContext } from "../contexts/bookContext";
+import TooltipComponent from "./Tooltip";
 
 
 const getColor = (group: number): string => {
@@ -38,7 +39,15 @@ const mergeChapterNetworks = (chapterNetworkData: Record<string, { nodes: any[],
     };
 };
 
-const createNetworkGraph = (data: any, containerId: string, height: number = 400, width: number = 600, onNodeHover?: (node: any) => void, showLegend: boolean = true) => {
+const createNetworkGraph = (
+    data: any,
+    containerId: string,
+    height: number = 400,
+    width: number = 600,
+    onNodeHover?: (node: any) => void,
+    showLegend: boolean = true,
+    mode: "conversational" | "cooccurrence" = "conversational"
+) => {
     const links = data.links.map((d: any) => Object.create(d));
     const nodes = data.nodes.map((d: any) => Object.create(d));
 
@@ -49,6 +58,12 @@ const createNetworkGraph = (data: any, containerId: string, height: number = 400
         connectedNodes.add(d.source);
         connectedNodes.add(d.target);
     });
+
+    // For co-occurrence, compute max value for scaling thickness
+    let maxCooccurrence = 1;
+    if (mode === "cooccurrence") {
+        maxCooccurrence = d3.max(links, (d: any) => d.value as number) || 1;
+    }
     
     const svg = d3.select(`#${containerId}`)
         .append("svg")
@@ -64,15 +79,6 @@ const createNetworkGraph = (data: any, containerId: string, height: number = 400
         });
 
     svg.call(zoom);
-
-    const [xMin = 0, xMax = width] = d3.extent(nodes, (d: any) => d.x as number);
-    const [yMin = 0, yMax = height] = d3.extent(nodes, (d: any) => d.y as number);
-    const dx = xMax - xMin;
-    const dy = yMax - yMin;
-    const padding = 40;
-    const scale = Math.min(width / (dx + padding * 2), height / (dy + padding * 2));
-    const tx = width / 2 - scale * (xMin + dx / 2);
-    const ty = height / 2 - scale * (yMin + dy / 2);
 
     const nodeCount = nodes.length;
     const chargeStrength = Math.min(-800, -100 * nodeCount);
@@ -103,8 +109,14 @@ const createNetworkGraph = (data: any, containerId: string, height: number = 400
         .selectAll("line")
         .data(links)
         .enter().append("line")
-        .attr("stroke-width", (d: any) => Math.max(1, Math.abs(d.value) * 2))
+        .attr("stroke-width", (d: any) => {
+            if (mode === "cooccurrence") {
+                return Math.max(1, (d.value / maxCooccurrence) * 8);
+            }
+            return Math.max(1, Math.abs(d.value) * 2);
+        })
         .attr("stroke", (d: any) => {
+            if (mode === "cooccurrence") return "#888";
             if (d.value > 0.2) return "#2ecc71";
             if (d.value < -0.2) return "#e74c3c";
             return "#555";
@@ -194,7 +206,6 @@ const createNetworkGraph = (data: any, containerId: string, height: number = 400
         svg.transition()
             .duration(500)
             .call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(scale));
-
     })
 
     if (showLegend) {
@@ -204,7 +215,7 @@ const createNetworkGraph = (data: any, containerId: string, height: number = 400
     
         legend.append("rect")
             .attr("width", 160)
-            .attr("height", 130)
+            .attr("height", mode === "cooccurrence" ? 60 : 130)
             .attr("rx", 5)
             .attr("fill", "#000000")
             .attr("stroke", "#444")
@@ -218,69 +229,68 @@ const createNetworkGraph = (data: any, containerId: string, height: number = 400
             .attr("font-family", "sans-serif")
             .attr("fill", "white")
             .text("Legend");
-        
-        const sentimentData = [
-            { label: "Positive Sentiment", color: "#2ecc71", y: 40 },
-            { label: "Neutral Sentiment",  color: "#555",    y: 58 },
-            { label: "Negative Sentiment", color: "#e74c3c", y: 76 },
-        ];
-        
-        sentimentData.forEach(({ label, color, y }) => {
-            legend.append("line")
-                .attr("x1", 10).attr("y1", y)
-                .attr("x2", 22).attr("y2", y)
-                .attr("stroke", color)
-                .attr("stroke-width", 2);
+
+        if (mode === "conversational") {
+            const sentimentData = [
+                { label: "Positive Sentiment", color: "#2ecc71", y: 40 },
+                { label: "Neutral Sentiment",  color: "#555",    y: 58 },
+                { label: "Negative Sentiment", color: "#e74c3c", y: 76 },
+            ];
+            
+            sentimentData.forEach(({ label, color, y }) => {
+                legend.append("line")
+                    .attr("x1", 10).attr("y1", y)
+                    .attr("x2", 22).attr("y2", y)
+                    .attr("stroke", color)
+                    .attr("stroke-width", 2);
+
+                legend.append("text")
+                    .attr("x", 28).attr("y", y + 4)
+                    .attr("font-size", "12px")
+                    .attr("fill", "#f3f3f3")
+                    .text(label);
+            });
 
             legend.append("text")
-                .attr("x", 28).attr("y", y + 4)
-                .attr("font-size", "12px")
-                .attr("fill", "#f3f3f3")
-                .text(label);
-        });
+                .attr("x", 12)
+                .attr("y", 100)
+                .attr("fill", "#ededed")
+                .attr("font-size", 9)
+                .text("Thickness = dialogue volume");
 
-        legend.append("text")
-            .attr("x", 12)
-            .attr("y", 100)
-            .attr("fill", "#ededed")
-            .attr("font-size", 9)
-            .text("Thickness = dialogue volume");
+            legend.append("line")
+                .attr("x1", 16).attr("y1", 115)
+                .attr("x2", 45).attr("y2", 115)
+                .attr("stroke", "#888")
+                .attr("stroke-width", 1);
 
-        legend.append("line")
-            .attr("x1", 16).attr("y1", 115)
-            .attr("x2", 45).attr("y2", 115)
-            .attr("stroke", "#888")
-            .attr("stroke-width", 1);
+            legend.append("text")
+                .attr("x", 50).attr("y", 118)
+                .attr("fill", "#777")
+                .attr("font-size", 9)
+                .text("less");
 
-        legend.append("text")
-            .attr("x", 50).attr("y", 118)
-            .attr("fill", "#777")
-            .attr("font-size", 9)
-            .text("less");
+            legend.append("line")
+                .attr("x1", 90).attr("y1", 115)
+                .attr("x2", 119).attr("y2", 115)
+                .attr("stroke", "#888")
+                .attr("stroke-width", 5);
 
-        legend.append("line")
-            .attr("x1", 90).attr("y1", 115)
-            .attr("x2", 119).attr("y2", 115)
-            .attr("stroke", "#888")
-            .attr("stroke-width", 5);
-
-        legend.append("text")
-            .attr("x", 124).attr("y", 118)
-            .attr("fill", "#777")
-            .attr("font-size", 9)
-            .text("more");
+            legend.append("text")
+                .attr("x", 124).attr("y", 118)
+                .attr("fill", "#777")
+                .attr("font-size", 9)
+                .text("more");
+        } else {
+            legend.append("text")
+                .attr("x", 12)
+                .attr("y", 42)
+                .attr("fill", "#ededed")
+                .attr("font-size", 9)
+                .text("Thickness = co-occurrence count");
+        }
     }
 };
-
-const createCooccurrenceGraph = (data: any, containerId: string, height: number = 400, width: number = 600) => {
-    // const links = data.links.map((d: any) => Object.create(d));
-    // const nodes = data.nodes.map((d: any) => Object.create(d));
-    const links = data || []
-    const nodes = Array.from(new Set(data.flatMap((d: any) => [d.source, d.target])), id => ({ id }));
-    
-    console.log(links)
-    console.log(nodes)
-}
 
 interface NetworkGraphProps {
     id?: string;
@@ -294,63 +304,76 @@ interface NetworkGraphProps {
     setShowSideCard?: (node: any) => void;
     cumulative?: boolean;
     showLegend?: boolean;
+    networkMode?: "conversational" | "cooccurrence";
 }
 
-const NetworkGraph = ({ id = "network-graph", filterCharacter, height = 400, width = 400, selectedChapter = null, chapterNetworkData, onNodeHover, showLegend = true, cumulative = true }: NetworkGraphProps) => {
+const NetworkGraph = ({ id = "network-graph", filterCharacter, height = 400, width = 400, selectedChapter = null, chapterNetworkData, onNodeHover, showLegend = true, cumulative = true, networkMode = "conversational" }: NetworkGraphProps) => {
     const networkData = useContext(BookContext)?.networkData;
     const characterData = useContext(BookContext)?.characterData;
     const cooccurrenceNetworkData = useContext(BookContext)?.cooccurrenceNetworkData;
 
-    let graphData: { nodes: any[], links: any[] };
-
-    if (selectedChapter !== null && chapterNetworkData) {
-        if (cumulative) {
-            graphData = mergeChapterNetworks(chapterNetworkData, selectedChapter);
-        } else {
-            graphData = chapterNetworkData[String(selectedChapter)] || { nodes: [], links: [] };
-        }
-    } else {
-        const edgeMap = new Map();
-        networkData?.links.forEach(l => {
-            const key = [l.source, l.target].sort().join("--");
-            if (edgeMap.has(key)) {
-                edgeMap.get(key).value += l.value;
-            } else {
-                edgeMap.set(key, { ...l });
-            }
-        });
-
-        graphData = {
-            nodes: networkData?.nodes.filter(n => !characterData?.[n.name]) || [],
-            links: Array.from(edgeMap.values())
-        };
-    }
-
-    const filteredData = filterCharacter
-        ? (() => {
-            const name = filterCharacter.toLowerCase();
-            const filteredLinks = graphData.links.filter(
-                l => l.source === name || l.target === name
-            );
-            const connectedIds = new Set(
-                filteredLinks.flatMap(l => [l.source, l.target])
-            );
-            return {
-                nodes: graphData.nodes.filter(n => connectedIds.has(n.id)),
-                links: filteredLinks,
-            };
-        })()
-        : graphData;
-
     useEffect(() => {
-        if (filteredData.nodes.length > 0) {
-            createNetworkGraph(filteredData, id, height, width, onNodeHover, showLegend);
+        let graphData: { nodes: any[], links: any[] };
+
+        if (networkMode === "cooccurrence") {
+            // Derive nodes from the flat edge list
+            const edges = cooccurrenceNetworkData || [];
+            const nodeIds = new Set<string>();
+            edges.forEach((e: any) => {
+                nodeIds.add(e.source);
+                nodeIds.add(e.target);
+            });
+            graphData = {
+                nodes: Array.from(nodeIds).map(id => ({ id, group: 0 })),
+                links: edges.map((e: any) => ({ ...e })),
+            };
+        } else if (selectedChapter !== null && chapterNetworkData) {
+            if (cumulative) {
+                graphData = mergeChapterNetworks(chapterNetworkData, selectedChapter);
+            } else {
+                graphData = chapterNetworkData[String(selectedChapter)] || { nodes: [], links: [] };
+            }
+        } else {
+            const edgeMap = new Map();
+            networkData?.links.forEach(l => {
+                const key = [l.source, l.target].sort().join("--");
+                if (edgeMap.has(key)) {
+                    edgeMap.get(key).value += l.value;
+                } else {
+                    edgeMap.set(key, { ...l });
+                }
+            });
+
+            graphData = {
+                nodes: networkData?.nodes.filter(n => !characterData?.[n.name]) || [],
+                links: Array.from(edgeMap.values())
+            };
         }
-        createCooccurrenceGraph(cooccurrenceNetworkData, id, height, width);
+
+        const filteredData = filterCharacter
+            ? (() => {
+                const name = filterCharacter.toLowerCase();
+                const filteredLinks = graphData.links.filter(
+                    l => l.source === name || l.target === name
+                );
+                const connectedIds = new Set(
+                    filteredLinks.flatMap(l => [l.source, l.target])
+                );
+                return {
+                    nodes: graphData.nodes.filter(n => connectedIds.has(n.id)),
+                    links: filteredLinks,
+                };
+            })()
+            : graphData;
+
+        if (filteredData.nodes.length > 0) {
+            createNetworkGraph(filteredData, id, height, width, onNodeHover, showLegend, networkMode);
+        }
+
         return () => {
             d3.select(`#${id}`).selectAll("*").remove();
         };
-    }, [id, filterCharacter, height, width, networkData, selectedChapter, chapterNetworkData, cumulative, showLegend, cooccurrenceNetworkData]);
+    }, [id, filterCharacter, height, width, networkData, selectedChapter, chapterNetworkData, cumulative, showLegend, cooccurrenceNetworkData, networkMode]);
 
     return (
         <div>
