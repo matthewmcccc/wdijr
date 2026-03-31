@@ -124,7 +124,7 @@ const CharacterAnalysisLanding = () => {
                                     </Select.Root>
                                 </div>
                                 <div className="absolute right-2">
-                                    <TooltipComponent content={"Each node represents a character, and edges represent interactions between characters. \n\n The size of the node indicates the prominence of the character in the story.\n\n An interaction is defined as two back and forth conversations between two characters within a certain window of text."} />
+                                    <TooltipComponent content={networkMode === "conversational" ? `Each node represents a character, and edges represent interactions between characters. \n\n The size of the node indicates the prominence of the character in the story.\n\n An interaction is defined as two back and forth conversations between two characters within a certain window of text.` : `Each node represents a character, and edges represent co-occurrences of characters in the same passages. \n\n The size of the node indicates the prominence of the character in the story.\n\n A co-occurrence is defined as two characters appearing in the same passage.`} />
                                 </div>
                             </div>
                             <hr className="border-gray-300 w-1/2 mx-auto" />
@@ -147,53 +147,55 @@ const CharacterAnalysisLanding = () => {
                                         networkMode={networkMode}
                                     />                                )}
                             </div>
-                            <div className="flex flex-col items-center w-full mt-2">
-                                <hr className="border-gray-300 w-1/2 mx-auto mb-2" />
-                                <div className="flex items-center gap-1 self-end">
-                                    <input type="checkbox" id="cumulative" checked={cumulative} onChange={() => setCumulative(!cumulative)} className="accent-[#228B22] mb-2" />
-                                    <label htmlFor="cumulative" className="text-sm text-gray-500 font-dewi mb-2">Cumulative</label>
-                                </div>
-                                <span className="text-sm text-black font-dewi mb-4 border border-gray-500 px-4 py-1 rounded-md">
-                                    {selectedChapter === null 
-                                        ? "Showing full network" 
-                                        : 
-                                        <div className="flex items-center gap-1 cursor-pointer" onClick={() => window.open(`/${novelId}/chapter/${selectedChapter}`, "_blank")}>
-                                            {chapterData[selectedChapter]?.title || `Chapter ${selectedChapter + 1}`}
-                                            <img src={newTabIcon} className="ml-1 w-4 h-4" />
-                                        </div>
-                                    }
-                                </span>
-                                <div className="flex items-center gap-3 w-3/4">
-                                    <button 
-                                        onClick={() => setSliderValue(Math.max(0, sliderValue - 1))}
-                                        className="text-gray-500 hover:text-black text-lg font-bold px-2 cursor-pointer"
-                                    >
-                                        ‹
-                                    </button>
-                                    <input 
-                                        type="range" 
-                                        min={0} 
-                                        max={allValue} 
-                                        step={1} 
-                                        value={sliderValue}
-                                        onChange={(e) => setSliderValue(Number(e.target.value))}
-                                        className="accent-[#228B22] flex-1" 
-                                    />
-                                    <button 
-                                        onClick={() => setSliderValue(Math.min(allValue, sliderValue + 1))}
-                                        className="text-gray-500 hover:text-black text-lg font-bold px-2 cursor-pointer"
-                                    >
-                                        ›
-                                    </button>
-                                </div>
-                                <div className="flex justify-between w-3/4 mt-1">
-                                    <span className="text-xs text-gray-400">All</span>
-                                    <span className="text-xs text-gray-400">
-                                        {selectedChapter === null ? "" : `Chapter ${selectedChapter + 1} of ${chapterData.length}`}
+                            {networkMode == "conversational" && (
+                                <div className="flex flex-col items-center w-full mt-2">
+                                    <hr className="border-gray-300 w-1/2 mx-auto mb-2" />
+                                    <div className="flex items-center gap-1 self-end">
+                                        <input type="checkbox" id="cumulative" checked={cumulative} onChange={() => setCumulative(!cumulative)} className="accent-[#228B22] mb-2" />
+                                        <label htmlFor="cumulative" className="text-sm text-gray-500 font-dewi mb-2">Cumulative</label>
+                                    </div>
+                                    <span className="text-sm text-black font-dewi mb-4 border border-gray-500 px-4 py-1 rounded-md">
+                                        {selectedChapter === null 
+                                            ? "Showing full network" 
+                                            : 
+                                            <div className="flex items-center gap-1 cursor-pointer" onClick={() => window.open(`/${novelId}/chapter/${selectedChapter}`, "_blank")}>
+                                                {chapterData[selectedChapter]?.title || `Chapter ${selectedChapter + 1}`}
+                                                <img src={newTabIcon} className="ml-1 w-4 h-4" />
+                                            </div>
+                                        }
                                     </span>
-                                    <span className="text-xs text-gray-400">{chapterData.length}</span>
+                                    <div className="flex items-center gap-3 w-3/4">
+                                        <button 
+                                            onClick={() => setSliderValue(Math.max(0, sliderValue - 1))}
+                                            className="text-gray-500 hover:text-black text-lg font-bold px-2 cursor-pointer"
+                                        >
+                                            ‹
+                                        </button>
+                                        <input 
+                                            type="range" 
+                                            min={0} 
+                                            max={allValue} 
+                                            step={1} 
+                                            value={sliderValue}
+                                            onChange={(e) => setSliderValue(Number(e.target.value))}
+                                            className="accent-[#228B22] flex-1" 
+                                        />
+                                        <button 
+                                            onClick={() => setSliderValue(Math.min(allValue, sliderValue + 1))}
+                                            className="text-gray-500 hover:text-black text-lg font-bold px-2 cursor-pointer"
+                                        >
+                                            ›
+                                        </button>
+                                    </div>
+                                    <div className="flex justify-between w-3/4 mt-1">
+                                        <span className="text-xs text-gray-400">All</span>
+                                        <span className="text-xs text-gray-400">
+                                            {selectedChapter === null ? "" : `Chapter ${selectedChapter + 1} of ${chapterData.length}`}
+                                        </span>
+                                        <span className="text-xs text-gray-400">{chapterData.length}</span>
+                                    </div>
                                 </div>
-                            </div>
+                            )}
                         </div>
                     </div>   
                 </div>

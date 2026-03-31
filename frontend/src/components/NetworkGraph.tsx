@@ -214,7 +214,7 @@ const createNetworkGraph = (
             .attr("transform", `translate(20, 20)`);
     
         legend.append("rect")
-            .attr("width", 160)
+            .attr("width", mode === "cooccurrence" ? 180 : 160)
             .attr("height", mode === "cooccurrence" ? 60 : 130)
             .attr("rx", 5)
             .attr("fill", "#000000")
