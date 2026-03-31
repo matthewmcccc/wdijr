@@ -59,7 +59,6 @@ const createNetworkGraph = (
         connectedNodes.add(d.target);
     });
 
-    // For co-occurrence, compute max value for scaling thickness
     let maxCooccurrence = 1;
     if (mode === "cooccurrence") {
         maxCooccurrence = d3.max(links, (d: any) => d.value as number) || 1;
@@ -218,7 +217,7 @@ const createNetworkGraph = (
             .attr("height", mode === "cooccurrence" ? 60 : 130)
             .attr("rx", 5)
             .attr("fill", "#000000")
-            .attr("stroke", "#444")
+            .attr("stroke", "#444444")
             .attr("stroke-width", 0.5)
             .attr("opacity", 0.8);
 
@@ -371,7 +370,7 @@ const NetworkGraph = ({ id = "network-graph", filterCharacter, height = 400, wid
 
     return (
         <div>
-            <div className="" id={id}></div>
+            <div className="rounded-lg w-full overflow-hidden" id={id}></div>
         </div>
     );
 };

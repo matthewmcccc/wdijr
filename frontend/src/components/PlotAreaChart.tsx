@@ -39,8 +39,12 @@ const createAreaChart = (
     console.log(peakPoints)
 
     const parsedSummaries = peakPointsTooltips.map(s => {
-        try { return JSON.parse(s) }
-        catch { return { summary: s, category: '', characters: [] } }
+        try {
+            const raw = Array.isArray(s) ? s[0] : s;
+            return JSON.parse(raw);
+        } catch {
+            return { summary: String(s), category: '', characters: [], headline: '' };
+        }
     })
 
     let chOffset = 0
@@ -229,7 +233,6 @@ const createAreaChart = (
     }
 
     drawFocus()
-
 
     const brush = d3.brushX()
         .extent([[0, 0], [innerWidth, contextHeight]])

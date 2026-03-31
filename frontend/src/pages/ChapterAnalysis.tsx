@@ -66,13 +66,13 @@ const ChapterAnalysis = () => {
             return acc;
         }, {} as Record<string, string>);
 
-    console.log(plotSummaries);
+    console.log("chapter 0 summaries:", plotSummaries?.filter(item => item[1] === 0));
+
     const keyEvents = plotSummaries
-        ?.filter(summary => summary.chapter_number === parseInt(chapterNumber))
-        .map(summary => summary.summary);
+        ?.filter(item => item[1] === parseInt(chapterNumber))
+        .map(item => item[0]);
     const leftChapter = chapterData && chapterNumber && parseInt(chapterNumber) !== 0  ? allChapterData?.find(chapter => chapter.chapter_number === chapterData.chapter_number - 1) : null;
     const rightChapter = chapterData && chapterNumber ? allChapterData?.find(chapter => chapter.chapter_number === chapterData.chapter_number + 1) : null;
-
 
     if (!chapterData) {
         return (

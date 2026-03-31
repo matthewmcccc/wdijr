@@ -15,7 +15,6 @@ QUOTE_SPAN_WINDOW = 400
 CHUNK_SPAN_WINDOW = 500
 MIN_CHAPTER_WORD_LEN = 150
 
-
 class Epub(Book):
     def __init__(self, book_path):
         self.book: epub.EpubBook = epub.read_epub(book_path)
@@ -49,9 +48,14 @@ class Epub(Book):
 
             ch_title = item.title
             print(f"title: '{ch_title}' valid: {self.check_valid_ch_title(ch_title)}")
-            match = re.search(r'(chapter\s*[IVXLC\d]+\.?)', ch_title, re.IGNORECASE)
+            match = re.match(r'CHAPTER\s+([IVXLC\d]+)\.?\s*(.*)', ch_title, re.IGNORECASE)
             if match:
-                ch_title = match.group(1)
+                numeral = match.group(1).upper()
+                subtitle = match.group(2).strip()
+                if subtitle:
+                    ch_title = f"Chapter {numeral}. {subtitle}"
+                else:
+                    ch_title = f"Chapter {numeral}"
             if not self.check_valid_ch_title(ch_title):
                 continue
 

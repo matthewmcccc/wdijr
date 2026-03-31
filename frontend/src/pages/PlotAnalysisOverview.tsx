@@ -87,6 +87,7 @@ const PlotAnalysisLanding = () => {
                                 {title} | Plot Sentiment & Key Events
                             </h1>
                             <TooltipComponent
+                                title={"Plot Sentiment & Key Events"}
                                 content={"The line chart shows the overall sentiment of the plot across the chapters. \n\n Key plot events are marked as points on the line. \n\n Click on a point to see more details about that event."}
                             />
                         </div>
@@ -102,22 +103,19 @@ const PlotAnalysisLanding = () => {
                         </div>
                     </div>
                 </div>
-                {selectedEvent && (() => {
-                    const parsed = JSON.parse(selectedEvent.description[0]);
-                    return (
-                        <div className="flex-3">
-                            <PlotEventCard
-                                title={selectedEvent.title}
-                                headline={parsed.headline}
-                                chapter={selectedEvent.chapter}
-                                description={parsed.summary}
-                                characters={parsed.characters}
-                                eventType={parsed.category}
-                                onClose={() => setSelectedEvent(null)}
-                            />
-                        </div>
-                    );
-                })()}
+               {selectedEvent && (
+                    <div className="flex-3">
+                        <PlotEventCard
+                            title={selectedEvent.title}
+                            headline={selectedEvent.headline}
+                            chapter={chapterData?.find(c => c.chapter_number === parseInt(selectedEvent.chapter?.split(" ")[1]) - 1)?.title || selectedEvent.chapter}
+                            description={selectedEvent.description}
+                            characters={selectedEvent.characters}
+                            eventType={selectedEvent.category}
+                            onClose={() => setSelectedEvent(null)}
+                        />
+                    </div>
+                )}
             </div>
             <div className="flex flex-col gap-4 mt-4">
                 <h1 className="font-serif text-4xl">

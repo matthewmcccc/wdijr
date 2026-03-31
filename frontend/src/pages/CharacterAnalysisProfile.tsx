@@ -1,37 +1,22 @@
 import Navbar from "../components/Navbar";
+import useContainerSize from "../hooks/useContainerSize";
 import { useParams } from "react-router-dom";
 import humanize from "../utils/humanize";
 import Breadcrumbs from "../components/Breadcrumbs";
 import CharacterNavigation from "../components/CharacterNavigation";
-import { useState, useContext, useEffect } from "react";
+import { useContext, useEffect } from "react";
 import { BookContext } from "../contexts/bookContext";
-import CharacterCard from "../components/CharacterCard";
 import SentimentAreaChart from "../components/SentimentAreaChart";
 import NetworkGraph from "../components/NetworkGraph";
 import fetchNovelData from "../utils/fetchNovelData";
-import cumulativeSentiment from "../utils/cumulativeSentiment";
-import CharacterSentimentChart from "../components/CharacterSentimentChart";
 import RelatedCharacterCard from "../components/RelatedCharacterCard";
-
-const smooth = (data: number[], windowSize: number = 10): number[] => {
-    return data.map((_, i) => {
-        const start = Math.max(0, i - Math.floor(windowSize / 2));
-        const end = Math.min(data.length, i + Math.floor(windowSize / 2) + 1);
-        const window = data.slice(start, end);
-        return window.reduce((sum, v) => sum + v, 0) / window.length;
-    });
-};
-
+import TooltipComponent from "../components/Tooltip";
 
 const CharacterAnalysisProfile = () => {
     const characterName = useParams<{ name: string }>().name;
     const allCharacterData = useContext(BookContext)?.characterData;
     const characterData = Object.values(allCharacterData ?? {})
         .find(c => c.name.toLowerCase() === humanize(characterName ?? "").toLowerCase());
-    const characterNavigationDict = allCharacterData ? Object.fromEntries(Object.values(allCharacterData).map(c => [humanize(c.name).toLowerCase(), {
-        left: Object.values(allCharacterData).find(other => other.name !== c.name && other.name.toLowerCase() < c.name.toLowerCase())?.name || "",
-        right: Object.values(allCharacterData).find(other => other.name !== c.name && other.name.toLowerCase() > c.name.toLowerCase())?.name || "",
-    }])) : null;
     const setNetworkData = useContext(BookContext)?.setNetworkData;
     const novelId = useParams<{ novelId: string }>().novelId;
     const novelData = useContext(BookContext)?.novelData;
@@ -50,21 +35,19 @@ const CharacterAnalysisProfile = () => {
     const setCoverUrl = useContext(BookContext)?.setCoverUrl;
     const setChapterData = useContext(BookContext)?.setChapterData;
     const setChapterNetworkData = useContext(BookContext)?.setChapterNetworkData;
+    const chapterData = useContext(BookContext)?.chapterData || [];
     const currentChar = humanize(characterName ?? "").toLowerCase();
-    const targetOptions = Object.keys(characterSentimentValues?.[currentChar] || {})
-    .filter(t => (characterSentimentValues?.[currentChar]?.[t]?.length ?? 0) > 2);
-    const [selectedTarget, setSelectedTarget] = useState<string>("");
     const characterImageUrl = characterData?.image_url ? `${import.meta.env.VITE_API_URL.replace('/api', '')}${characterData.image_url}` : null;
+    const { containerRef: leftChartRef, width: leftChartWidth } = useContainerSize();
+    const { containerRef: rightChartRef, width: rightChartWidth } = useContainerSize();
 
-    const sortedCharacters = Object.values(allCharacterData ?? {})
-    .map(c => c.name)
-
-    const currentIndex = sortedCharacters.findIndex(
-        n => n.toLowerCase() === currentChar
-    );
-
+    const sortedCharacters = Object.values(allCharacterData ?? {}).map(c => c.name);
+    const currentIndex = sortedCharacters.findIndex(n => n.toLowerCase() === currentChar);
     const leftCharacter = currentIndex > 0 ? sortedCharacters[currentIndex - 1] : "";
     const rightCharacter = currentIndex < sortedCharacters.length - 1 ? sortedCharacters[currentIndex + 1] : "";
+
+    const sentimentChartWidth = leftChartWidth > 0 ? leftChartWidth : 725;
+    const networkChartWidth = rightChartWidth > 0 ? rightChartWidth : 725;
 
     useEffect(() => {
         const fetchCharacterData = async () => {
@@ -78,14 +61,8 @@ const CharacterAnalysisProfile = () => {
     }, [novelId]);
 
     useEffect(() => {
-        if (targetOptions.length > 0 && !selectedTarget) {
-            setSelectedTarget(targetOptions[0]);
-        }
-    }, [targetOptions]);
-
-    useEffect(() => {
         window.scrollTo(0, 0);
-    }, [])
+    }, []);
 
     useEffect(() => {
         if (characterName) {
@@ -93,34 +70,62 @@ const CharacterAnalysisProfile = () => {
         }
     }, [characterName]);
 
-
     const characterQuotes = quoteData
         ? Object.values(quoteData).filter((q: any) => q.speaker?.toLowerCase() === humanize(characterName ?? "").toLowerCase())
         : [];
 
     if (!characterData || !quoteData) {
-        return (
-            <div>
-                Loading...
-            </div>
-        )
+        return <div>Loading...</div>;
     }
 
-    const relatedCharacterImages = topRelationships.map(([relatedCharacter, _strength, _sentiment]) => {
-        const relatedData = Object.values(allCharacterData ?? {}).find(c => c.name.toLowerCase() === relatedCharacter.toLowerCase());
-        return relatedData?.image_url
+    const totalChapters = chapterData.length || 1;
+    const chapterGroups: Record<number, any[]> = {};
+    characterQuotes.forEach((q: any) => {
+        const chapterNum = q.chapter_number;
+        if (!chapterGroups[chapterNum]) chapterGroups[chapterNum] = [];
+        chapterGroups[chapterNum].push(q);
     });
 
-    console.log(relatedCharacterImages)
+    const positionedSentiment: { x: number; sentiment: number }[] = [];
+    Object.entries(chapterGroups).forEach(([ch, quotes]) => {
+        const chNum = Number(ch);
+        const chStart = chNum / totalChapters;
+        const chEnd = (chNum + 1) / totalChapters;
+        quotes.forEach((q, i) => {
+            const x = chStart + (i / quotes.length) * (chEnd - chStart);
+            positionedSentiment.push({ x, sentiment: q.sentiment });
+        });
+    });
+    positionedSentiment.sort((a, b) => a.x - b.x);
+
+    const smoothPositioned = (data: { x: number; sentiment: number }[], windowSize: number = 10) => {
+        return data.map((d, i) => {
+            const start = Math.max(0, i - Math.floor(windowSize / 2));
+            const end = Math.min(data.length, i + Math.floor(windowSize / 2) + 1);
+            const window = data.slice(start, end);
+            const avg = window.reduce((sum, v) => sum + v.sentiment, 0) / window.length;
+            return { x: d.x, sentiment: avg };
+        });
+    };
+
+    const relatedCharacterImages = topRelationships.map(([relatedCharacter]) => {
+        const relatedData = Object.values(allCharacterData ?? {}).find(c => c.name.toLowerCase() === relatedCharacter.toLowerCase());
+        return relatedData?.image_url;
+    });
+
+    const notableQuotes = characterQuotes
+        .filter((q: any) => q.content !== topQuote)
+        .sort((a: any, b: any) => Math.abs(b.sentiment) - Math.abs(a.sentiment))
+        .slice(0, 5);
 
     return (
-        <div className="container mx-auto px-4 py-8"> 
+        <div className="container mx-auto px-4 py-8">
             <Navbar />
-            <div className="">
+            <div>
                 <Breadcrumbs items={[{ label: "Analysis", url: `/analysis/${novelId}` }, { label: "Character Analysis", url: `/character-analysis/${novelId}` }, { label: characterName ? humanize(characterName) : "Character Details" }]} />
                 <div className="font-serif text-center justify-between flex flex-row items-center">
                     <div className="flex-1 flex justify-left">
-                        <CharacterNavigation 
+                        <CharacterNavigation
                             name={humanize(leftCharacter)}
                             position={leftCharacter ? "left" : "none"}
                         />
@@ -128,11 +133,11 @@ const CharacterAnalysisProfile = () => {
                     <div>
                         {characterImageUrl && <img src={characterImageUrl} alt={characterName ? humanize(characterName) : "Character Analysis"} className="border border-gray-300 p-1 mx-auto mb-4 rounded-lg w-36 h-36 object-cover" />}
                         <h1 className="text-4xl flex-1 text-center">
-                        {characterName ? humanize(characterName) : "Character Analysis"}
-                    </h1>
+                            {characterName ? humanize(characterName) : "Character Analysis"}
+                        </h1>
                     </div>
                     <div className="flex-1 flex justify-end">
-                        <CharacterNavigation 
+                        <CharacterNavigation
                             name={humanize(rightCharacter)}
                             position={rightCharacter ? "right" : "none"}
                         />
@@ -143,93 +148,89 @@ const CharacterAnalysisProfile = () => {
                         "...{topQuote}..."
                     </div>
                 )}
-                <div className="flex flex-row justify-between mt-8">
-                    <div className="mt-4 flex flex-1 flex-col gap-4">
-                        <div className="font-serif text-2xl">
-                            Character Summary
-                        </div>
+                <div className="flex flex-row gap-24 mt-8">
+                    <div className="flex flex-col gap-4 flex-[2]">
+                        <div className="font-serif text-2xl">Character Summary</div>
                         <hr className="my-4 text-gray-300 w-1/2"/>
-                        <div className="flex flex-1">
-                            <p className="font-serif text-gray-900 whitespace-pre-wrap">
-                                {characterData?.summary || "No summary available."}
-                            </p>
-                        </div>
+                        <p className="font-serif text-gray-900 whitespace-pre-wrap">
+                            {characterData?.summary || "No summary available."}
+                        </p>
                     </div>
-                    <div className="justify-end flex flex-1">
+                    <div className="flex-1 flex-col min-w-[280px]">
                         {topRelationships.length > 0 && (
-                            <div className="md:w-1/2">
-                                <div className="font-serif text-lg">
-                                    Closely Related Characters
+                            <div className="border border-gray-300 rounded-lg p-4">
+                                <div className="flex justify-between items-center">
+                                    <h1></h1>
+                                    <h1 className="font-serif text-lg text-center">Closely Related Characters</h1>
+                                    <TooltipComponent
+                                        title={"Closely Related Characters"}
+                                        content={"These characters have the strongest relationships with the current character based on their interactions in the novel. \n\n The strength of the relationship is indicated by the number of exchanges they have, and the sentiment gives insight into whether their interactions are generally positive, negative, or neutral."}
+                                    />
                                 </div>
-                                <hr className="my-2 text-gray-300"/>
-                                {topRelationships.map(([relatedCharacter, _strength, sentiment], index) => (
+                                <hr className="my-4 text-gray-300"/>
+                                {topRelationships.map(([relatedCharacter, strength, sentiment], index) => (
                                     <RelatedCharacterCard
                                         key={relatedCharacter}
                                         name={relatedCharacter}
-                                        description={`${humanize(characterName)} and ${humanize(relatedCharacter)} have ${_strength} quotes attributed as being a conversation between each. Their overall sentiment is ${sentiment > 0 ? "positive" : sentiment < 0 ? "negative" : "neutral"}.`}
+                                        quoteCount={strength}
                                         sentiment={sentiment}
                                         image_url={relatedCharacterImages[index] || undefined}
                                     />
                                 ))}
                             </div>
                         )}
-                    </div>
-                </div>
-                    <div className="gap-12 flex flex-row mt-12">
-                        <div>
-                            <h1 className="font-dewi text-md mb-4">
-                                {characterName ? `${humanize(characterName)}'s Sentiment Over Time` : "Sentiment Over Time"}
-                            </h1>
-                            <SentimentAreaChart 
-                                data={smooth(characterQuotes.map(q => q.sentiment))}
-                                width={550}
-                                height={350}
-                            />
-                        </div>
-                        <div>
-                            <h1 className="font-dewi text-md mb-4">
-                                {characterName ? `${humanize(characterName)}'s Social Network` : "Social Network"}
-                            </h1>
-                            <div className="border border-gray-300 rounded-lg p-1">
-                                <NetworkGraph 
-                                    key={characterName}
-                                    id={`network-${characterName}`} 
-                                    filterCharacter={characterName} 
-                                    height={350}
-                                    width={550}
-                                    showLegend={false}
-                                />    
+                        <div className="mt-16 border border-gray-300 rounded-lg p-4">
+                            <div className="flex justify-between items-center">
+                                <h1></h1>
+                                <h1 className="font-serif text-center text-lg mt-2">Notable Quotes</h1>
+                                <TooltipComponent 
+                                    title={"Notable Quotes"}
+                                    content={"These quotes are selected based on their sentiment strength and relevance to the character. \n\n They may provide insights into the character's personality, motivations, or key moments in the story.\n\n The sentiment of each quote is indicated by the color of the border: green for positive, red for negative."}
+                                />
+                            </div>
+                            <hr className="my-4 text-gray-300"/>
+                            <div className="max-h-[400px] overflow-y-auto pr-2">
+                                {notableQuotes.map((q: any, index: number) => (
+                                    <div key={index} className={`mb-4 p-3 border border-gray-200 rounded-lg border-l-4 ${q.sentiment >= 0 ? "border-l-green-500" : "border-l-red-500"}`}>
+                                        <p className="italic text-sm text-gray-800">"{q.content}"</p>
+                                        <p className="text-sm text-gray-500 mt-1">{chapterData[q.chapter_number]?.title}</p>
+                                    </div>
+                                ))}
                             </div>
                         </div>
-                        {/* <div>
-                            <h1 className="font-dewi text-md mb-4">
-                                Character-to-Character Sentiment
-                            </h1>
-                            <select 
-                                value={selectedTarget}
-                                onChange={(e) => setSelectedTarget(e.target.value)}
-                                className="mb-4 border border-gray-300 rounded px-2 py-1 font-serif text-sm"
-                            >
-                                {targetOptions.map(t => (
-                                    <option key={t} value={t}>{humanize(t)}</option>
-                                ))}
-                                        </select>
-                                        {selectedTarget && (
-                                            <CharacterSentimentChart
-                                                speakerName={humanize(currentChar)}
-                                                targetName={humanize(selectedTarget)}
-                                                speakerToTarget={characterSentimentValues?.[currentChar]?.[selectedTarget] || []}
-                                                targetToSpeaker={characterSentimentValues?.[selectedTarget]?.[currentChar] || []}
-                                                width={550}
-                                                height={350}
-                                            />
-                                        )}
-                         </div> */}
+                    </div>
+                </div>
+                <hr className="border-gray-300 w-1/2 mx-auto my-12" />
+                <div className="grid grid-cols-2 gap-8 mt-12">
+                    <div ref={leftChartRef} className="overflow-hidden border border-gray-300 rounded-lg p-4">
+                        <h1 className="font-serif text-md mb-4 text-center text-lg">
+                            {characterName ? `${humanize(characterName)}'s Sentiment Over Time` : "Sentiment Over Time"}
+                        </h1>
+                        <hr className="border-gray-300 w-1/2 mx-auto" />
+                        <SentimentAreaChart
+                            data={smoothPositioned(positionedSentiment)}
+                            width={sentimentChartWidth}
+                            height={300}
+                        />
+                    </div>
+                    <div ref={rightChartRef} className="overflow-hidden border border-gray-300 rounded-lg p-4">
+                        <h1 className="font-serif text-md mb-4 text-center text-lg">
+                            {characterName ? `${humanize(characterName)}'s Social Network` : "Social Network"}
+                        </h1>
+                        <hr className="border-gray-300 w-1/2 mx-auto" />
+                        <NetworkGraph
+                            key={characterName}
+                            id={`network-${characterName}`}
+                            filterCharacter={characterName}
+                            height={300}
+                            width={networkChartWidth}
+                            showLegend={false}
+                        />
                     </div>
                 </div>
             </div>
-    )        
-}
+        </div>
+    );
+};
 
 export default CharacterAnalysisProfile;
-

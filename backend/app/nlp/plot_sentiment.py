@@ -124,8 +124,10 @@ class PlotSentiment:
                 merged.append((start, end, val))
 
         texts = []
-        for start, end, _ in merged:
-            texts.append((" ".join(words[start:end]), idx))
+        for start, end, val in merged:
+            mid_word = (start + end) / 2
+            mid_pos = mid_word / len(words) if len(words) > 0 else 0
+            texts.append((" ".join(words[start:end]), idx, mid_pos, val))
         return texts
 
     def visualise_sentiment(self, valence_vals: list[float]) -> None:

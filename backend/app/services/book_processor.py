@@ -126,12 +126,13 @@ def process_text(self, book_path):
 
     top_relationships_dict = {}
     top_quotes = {}
-    for character in characters:
+    for character in characters: 
         name = character["name"]
         top_relationships_dict[name] = er.get_top_relationships(conversational_network, name)
         top_quotes[name] = er.get_character_quotes(conversational_network, name)
 
     flat_texts = [text for chapter_texts in text_for_summarisation for text in chapter_texts]
+    print(f"length of flat texts: {len(flat_texts)}")
     character_summaries = get_character_summaries(er, characters, conversational_network, g, book.title)
     plot_summaries = get_plot_summaries(g, flat_texts, er.canonical_characters)
     chapter_summaries = get_chapter_summaries(g, chapters, title, book)
@@ -142,10 +143,11 @@ def process_text(self, book_path):
 
     offset = 0
     global_inflection_points = []
-    for idx, diff in enumerate(diff_values):
-        chapter_point_count = len(chapter_valence_vals[idx])
-        for pos, delta in diff:
-            global_x = offset + pos * (chapter_point_count - 1)
+    for idx, valence_vals in enumerate(chapter_valence_vals):
+        chapter_point_count = len(valence_vals)
+        for item in text_for_summarisation[idx]:
+            text, chapter_idx, mid_pos, delta = item
+            global_x = offset + mid_pos * (chapter_point_count - 1)
             global_inflection_points.append((global_x, delta))
         offset += chapter_point_count
     global_inflection_points.sort(key=lambda p: p[0])

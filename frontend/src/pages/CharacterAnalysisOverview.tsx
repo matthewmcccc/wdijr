@@ -16,7 +16,7 @@ import TooltipComponent from "../components/Tooltip";
 import * as Select from "@radix-ui/react-select";
 
 
-const CHARACTERS_PER_PAGE = 12;
+const CHARACTERS_PER_PAGE = 16;
 
 const CharacterAnalysisLanding = () => {
     const characterData = useContext(BookContext)?.characterData;
@@ -84,8 +84,8 @@ const CharacterAnalysisLanding = () => {
             <Navbar />
             <div>
                 <Breadcrumbs items={[{ label: "Analysis", url: `/analysis/${novelId}` }, { label: "Character Analysis", url: `/character-analysis/${novelId}` }]} />
-                <h1 className="text-4xl text-center md:text-left md:text-5xl font-serif">Character Analysis</h1>
-                <p className="font-dewi mt-6 text-center md:text-left md:mt-4 text-gray-600 text-md max-w-3xl">
+                <h1 className="text-3xl text-center md:text-left md:text-4xl font-serif">Character Analysis</h1>
+                <p className="font-dewi mt-6 text-center md:text-left md:mt-4 text-gray-600 text-sm max-w-3xl">
                     Browse the analysis of {title} characters. Click on a character to see a summary, their closely related
                     characters, and their sentiment arc throughout the novel. The social network graph below shows the relationships between the characters of the novel.
                 </p>
@@ -128,7 +128,7 @@ const CharacterAnalysisLanding = () => {
                                 </div>
                             </div>
                             <hr className="border-gray-300 w-1/2 mx-auto" />
-                            <div ref={containerRef} className="w-full h-[500px]">
+                            <div ref={containerRef} className="w-full h-[400px]">
                                 {containerWidth > 0 && containerHeight > 0 && (
                                     <NetworkGraph
                                         key={`${novelId}-${selectedChapter}-${networkMode}`}
@@ -213,9 +213,10 @@ const CharacterAnalysisLanding = () => {
                             {(!data.name) ? "" : null}
                             <CharacterCard 
                                 name={humanize(data.name)}
-                                image_url={data.image_url ? `${import.meta.env.VITE_API_URL.replace('/api', '')}${data.image_url}` : defaultAvatar}
+                                image_url="https://upload.wikimedia.org/wikipedia/commons/6/63/Alice_par_John_Tenniel_04.png"
+                                // image_url={data.image_url ? `${import.meta.env.VITE_API_URL.replace('/api', '')}${data.image_url}` : defaultAvatar}
                                 description={data.description ?? "No description available."}
-                                size={"large"}
+                                // size={"large"}
                             />
                         </Fragment>
                     ))
