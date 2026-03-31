@@ -120,7 +120,7 @@ def save_analysis_to_db(
             character_sentiment=character_to_character_sentiment,
             chapter_networks=chapter_conversational_networks,
             motifs=motifs,
-            cooccurrence_network=[{"source": k[0], "target": k[1], "value": v} for k, v in cooccurrence_frequency_network.items()],
+            cooccurrence_network=cooccurrence_frequency_network,
             lexical_richness=lexical_richness
         )
 

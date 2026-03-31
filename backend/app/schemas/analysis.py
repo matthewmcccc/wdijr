@@ -7,7 +7,7 @@ import uuid
 class AnalysisSchemaBase(BaseModel):
     novel_id: uuid.UUID
     conversational_network: dict
-    cooccurrence_network: list
+    cooccurrence_network: dict
     sentiment_values: list
     inflection_points: list
     plot_summaries: list

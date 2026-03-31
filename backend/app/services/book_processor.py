@@ -74,7 +74,7 @@ def process_text(self, book_path):
     self.update_state(state="PROCESSING", meta={"status": "Building social network..."})
 
     conversational_network = er.build_conversational_network(associated_quotes)
-    _cooccurrence_network, cooccurrence_frequency_network = er.build_cocurrence_network(book.get_full_text_paras())
+    cooccurrence_network_data = er.build_cooccurrence_network(book.get_full_text_paras())
     
     conversational_nw_nodes = er.get_nodes_from_network_dict(conversational_network)
 
@@ -189,7 +189,7 @@ def process_text(self, book_path):
         chapter_conversational_networks=chapter_nw_nodes,
         chapter_summaries=chapter_summaries,
         chapter_valence_vals=chapter_valence_vals,
-        cooccurrence_frequency_network=cooccurrence_frequency_network,
+        cooccurrence_frequency_network=cooccurrence_network_data,
         author_details=author_details,
         motifs=motifs,
         lexical_richness=lexical_richness,

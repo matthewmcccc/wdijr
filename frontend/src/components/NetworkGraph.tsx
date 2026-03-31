@@ -316,16 +316,10 @@ const NetworkGraph = ({ id = "network-graph", filterCharacter, height = 400, wid
         let graphData: { nodes: any[], links: any[] };
 
         if (networkMode === "cooccurrence") {
-            // Derive nodes from the flat edge list
-            const edges = cooccurrenceNetworkData || [];
-            const nodeIds = new Set<string>();
-            edges.forEach((e: any) => {
-                nodeIds.add(e.source);
-                nodeIds.add(e.target);
-            });
+            const coData = cooccurrenceNetworkData || { nodes: [], links: [] };
             graphData = {
-                nodes: Array.from(nodeIds).map(id => ({ id, group: 0 })),
-                links: edges.map((e: any) => ({ ...e })),
+                nodes: coData.nodes.map((n: any) => ({ ...n })),
+                links: coData.links.map((e: any) => ({ ...e })),
             };
         } else if (selectedChapter !== null && chapterNetworkData) {
             if (cumulative) {

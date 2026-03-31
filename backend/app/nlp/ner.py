@@ -134,7 +134,7 @@ class EntityExtractor:
             mapping[person] = i
         return mapping
     
-    def build_cocurrence_network(self, paras: list[str]) -> tuple[dict, dict]:
+    def build_cooccurrence_network(self, paras: list[str]) -> dict:
         cooccurrence_dict = defaultdict(list)
         persons_dict = self.build_persons_dict()
         for para in paras:
@@ -146,10 +146,31 @@ class EntityExtractor:
             for char_a, char_b in combinations(seen, 2):
                 key = tuple(sorted([char_a, char_b]))
                 cooccurrence_dict[key].append(1)
+
         cooccurrence_frequency_dict = defaultdict(int)
         for pair, frequency_list in cooccurrence_dict.items():
-            cooccurrence_frequency_dict[pair] = sum(frequency_list)        
-        return (cooccurrence_dict, cooccurrence_frequency_dict)
+            cooccurrence_frequency_dict[pair] = sum(frequency_list)
+
+        graph = nx.Graph()
+        for (char_a, char_b), weight in cooccurrence_frequency_dict.items():
+            graph.add_edge(char_a, char_b, weight=weight)
+
+        communities = nx.community.greedy_modularity_communities(graph, weight="weight")
+        group_map = {}
+        for group_idx, community in enumerate(communities):
+            for character in community:
+                group_map[character] = group_idx
+
+        all_characters = set()
+        for (a, b) in cooccurrence_frequency_dict:
+            all_characters.add(a)
+            all_characters.add(b)
+
+        nodes = [{"id": char, "group": group_map.get(char, 0)} for char in all_characters]
+        links = [{"source": a, "target": b, "value": v} for (a, b), v in cooccurrence_frequency_dict.items()]
+
+        return {"nodes": nodes, "links": links}
+
 
 
     def build_persons_dict(self) -> dict:
