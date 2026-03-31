@@ -12,10 +12,6 @@ const RelatedCharacterCard = ({ name, image_url, quoteCount, sentiment }: { name
         ? sentiment > 0 ? "border-l-green-500" : sentiment < 0 ? "border-l-red-500" : "border-l-gray-400"
         : "border-l-gray-300";
 
-    const dotColor = sentiment !== undefined
-        ? sentiment > 0 ? "bg-green-500" : sentiment < 0 ? "bg-red-500" : "bg-gray-400"
-        : "bg-gray-300";
-
     return (
         <div 
             onClick={() => navigate(`/character/${novelId}/${name.toLowerCase().replace(/\s+/g, '-')}`)}
@@ -33,7 +29,7 @@ const RelatedCharacterCard = ({ name, image_url, quoteCount, sentiment }: { name
                     <h2 className="text-base font-serif">{humanize(name)}</h2>
                 </div>
                 <div className="flex items-center gap-3 text-sm text-gray-500">
-                    <span>{quoteCount} exchanges</span>
+                    <span>{quoteCount ? `${quoteCount} exchanges` : ""}</span>
                 </div>
             </div>
         </div>

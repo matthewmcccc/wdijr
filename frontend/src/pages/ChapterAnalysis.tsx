@@ -10,6 +10,7 @@ import RelatedCharacterCard from "../components/RelatedCharacterCard";
 import PlotEventCard from "../components/PlotEventCard";
 import ChapterPageEventCard from "../components/ChapterPageEventCard";
 import ChapterNavigation from "../components/ChapterNavigation";
+import SentimentAreaChart from "../components/SentimentAreaChart";
 
 
 const ChapterAnalysis = () => {
@@ -66,7 +67,6 @@ const ChapterAnalysis = () => {
             return acc;
         }, {} as Record<string, string>);
 
-    console.log("chapter 0 summaries:", plotSummaries?.filter(item => item[1] === 0));
 
     const keyEvents = plotSummaries
         ?.filter(item => item[1] === parseInt(chapterNumber))
@@ -82,6 +82,11 @@ const ChapterAnalysis = () => {
             </div>
         )
     }
+
+    const chapterSentimentData = (chapterData.sentiment || []).map((val, i, arr) => ({
+        x: arr.length > 1 ? i / (arr.length - 1) : 0,
+        sentiment: val,
+    }));
 
     return (
         <div className="container mx-auto px-4 py-8">
@@ -109,49 +114,64 @@ const ChapterAnalysis = () => {
                             <p className="whitespace-pre-wrap text-center md:text-left w-3/4">
                                 {chapterData.summary}
                             </p>
-                            {keyEvents && keyEvents.length > 0 && (
-                            <div>
-                                <hr className="border-gray-300 my-6 w-3/4"/>
-                                <h1 className="text-center md:text-left text-3xl font-serif mb-6">
-                                    Key Events
-                                </h1>
-                                <div className="flex flex-col items-center md:flex-row gap-6">
-                                    {keyEvents?.map((event, idx) => {
-                                        event = JSON.parse(event);
-                                        return (
-                                            <ChapterPageEventCard
-                                                key={idx}
-                                                title={event.headline}
-                                                eventType={event.category}
-                                                description={event.summary}
-                                                characters={event.characters}
-                                                characterData={characterData ?? []}
-                                            />
-                                        );
-                                    })}
-                                </div>
-                            </div>
-                            )}
                         </div>
                         <div className="flex-3 md:flex-1">
-                            <h1 className="text-2xl font-serif mb-4 text-center mt-4 md:mt-0 md:text-left">
-                                Key Characters
-                            </h1>
-                            <hr className="border-gray-300 my-4"/>
-                            <ul className="list-disc list-inside">
-                                {topCharacters.map(character => (
-                                    <RelatedCharacterCard 
-                                        name={humanize(character)}
-                                        image_url={characterImages[character] ?? ""}
-                                        description=""
-                                    />
-                                ))}
-                            </ul>
+                            <div className="border border-gray-300 rounded-lg p-4 w-full">
+                                <h1 className="text-xl font-serif mb-4 text-center mt-4 md:mt-0 md:text-center">
+                                    Key Characters
+                                </h1>
+                                <hr className="border-gray-300 my-4 w-full"/>
+                                <ul className="list-disc list-inside">
+                                    {topCharacters.map(character => (
+                                        <RelatedCharacterCard 
+                                            name={humanize(character)}
+                                            image_url={characterImages[character] ?? ""}
+                                            description=""
+                                        />
+                                    ))}
+                                </ul>
+                            </div>
+                                {keyEvents && keyEvents.length > 0 && (
+                                    <div className="border border-gray-300 rounded-lg p-4 mt-6">
+                                        <h1 className="text-center md:text-center text-xl font-serif mb-2">
+                                            Key Events
+                                        </h1>
+                                        <hr className="border-gray-300 my-4 w-full"/>
+                                        <div className="flex flex-col items-center md:flex-row gap-6">
+                                            {keyEvents?.map((event, idx) => {
+                                                event = JSON.parse(event);
+                                                return (
+                                                    <ChapterPageEventCard
+                                                        key={idx}
+                                                        title={event.headline}
+                                                        eventType={event.category}
+                                                        description={event.summary}
+                                                        characters={event.characters}
+                                                        characterData={characterData ?? []}
+                                                        onChapterPage={true}
+                                                    />
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                )}
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+            <hr className="border-gray-300 my-12 w-full"/>
+            {chapterSentimentData.length > 0 && (
+                <div className="mt-8">
+                    <h1 className="text-xl font-serif mb-4">Chapter Sentiment</h1>
+                    <SentimentAreaChart
+                        data={chapterSentimentData}
+                        width={500}
+                        height={250}
+                        onChapterPage={true}
+                    />
+                </div>
+            )}
+            </div>
     )   
 }
 

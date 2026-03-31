@@ -9,6 +9,7 @@ interface ChapterPageEventCardProps {
     description: string;
     characters: string[]; 
     characterData: { name: string; image_url?: string }[];
+    onChapterPage?: boolean;
 }
 
 const eventIcons: Record<string, string> = {
@@ -24,11 +25,11 @@ const eventIcons: Record<string, string> = {
         'Resolution': `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#228B22" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 13V2l8 4-8 4"/><path d="M20.561 10.222a9 9 0 1 1-12.55-5.29"/><path d="M8.002 9.997a5 5 0 1 0 8.9 2.02"/></svg>`
 };
 
-const ChapterPageEventCard = ({ title, eventType, description, characters, characterData }: ChapterPageEventCardProps) => {
+const ChapterPageEventCard = ({ title, eventType, description, characters, characterData, onChapterPage }: ChapterPageEventCardProps) => {
     const bookContext = useContext(BookContext);
 
     return (
-        <div className="border border-gray-300 rounded-lg p-4 relative flex flex-col">
+        <div className="rounded-lg relative flex flex-col">
             <div className="flex flex-row items-center gap-2 mb-2">
                 {eventType && eventIcons[eventType] ? (
                     <div
@@ -38,7 +39,7 @@ const ChapterPageEventCard = ({ title, eventType, description, characters, chara
                 ) : (
                     <div className="w-6 h-6 rounded-full border border-gray-400" />
                 )}
-                <div className="border-l border-black h-6" />
+                <div className="h-6" />
                 <h2 className="text-xl font-serif">{title}</h2>
             </div>
 

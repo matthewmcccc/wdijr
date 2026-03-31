@@ -3,7 +3,7 @@ import { useEffect } from 'react'
 
 type SentimentPoint = { x: number; sentiment: number };
 
-const createAreaChart = (containerId: string, data: SentimentPoint[], width: number, height: number) => {
+const createAreaChart = (containerId: string, data: SentimentPoint[], width: number, height: number, onChapterPage?: boolean) => {
     const margin = { top: 20, right: 30, bottom: 50, left: 40 };
     const innerWidth = width - margin.left - margin.right;
     const innerHeight = height - margin.top - margin.bottom;
@@ -38,7 +38,7 @@ const createAreaChart = (containerId: string, data: SentimentPoint[], width: num
         .attr("font-size", "12px")
         .attr("x", innerWidth / 2 + 75)
         .attr("y", innerHeight + 40)
-        .text("Progression through the novel →");
+        .text(onChapterPage ? "Progression through the chapter →" : "Progression through the novel →");
 
     const areaPos = d3.area<SentimentPoint>()
         .x(d => x(d.x))
@@ -63,15 +63,15 @@ const createAreaChart = (containerId: string, data: SentimentPoint[], width: num
         .attr('d', areaNeg);
 };
 
-const SentimentAreaChart = ({ data, width, height }: { data: SentimentPoint[], width: number, height: number }) => {
+const SentimentAreaChart = ({ data, width, height, onChapterPage }: { data: SentimentPoint[], width: number, height: number, onChapterPage?: boolean }) => {
     useEffect(() => {
         if (data.length === 0) return;
-        createAreaChart('sentimentAreaChartContainer', data, width, height);
+        createAreaChart('sentimentAreaChartContainer', data, width, height, onChapterPage);
 
         return () => {
             d3.select('#sentimentAreaChartContainer').selectAll("*").remove();
         };
-    }, [data, width, height]);
+    }, [data, width, height, onChapterPage]);
 
     return (
         <div id="sentimentAreaChartContainer" className="w-full"></div>
