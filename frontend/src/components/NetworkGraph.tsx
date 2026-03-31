@@ -85,6 +85,7 @@ const createNetworkGraph = (
 
     const simulation = d3
         .forceSimulation(nodes)
+        .alphaDecay(0.05)
         .force("link", d3.forceLink(links)
             .id((d: any) => d.id)
             .distance(250))
