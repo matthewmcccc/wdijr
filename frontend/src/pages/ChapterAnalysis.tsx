@@ -11,6 +11,7 @@ import PlotEventCard from "../components/PlotEventCard";
 import ChapterPageEventCard from "../components/ChapterPageEventCard";
 import ChapterNavigation from "../components/ChapterNavigation";
 import SentimentAreaChart from "../components/SentimentAreaChart";
+import NetworkGraph from "../components/NetworkGraph";
 
 
 const ChapterAnalysis = () => {
@@ -29,6 +30,7 @@ const ChapterAnalysis = () => {
     const setCharacterSentimentValues = useContext(BookContext)?.setCharacterSentimentValues;
     const setChapterData = useContext(BookContext)?.setChapterData;
     const setChapterNetworkData = useContext(BookContext)?.setChapterNetworkData;
+    const chapterNetworkData = useContext(BookContext)?.chapterNetworkData;
     const novelId = useParams<{ novelId: string }>().novelId;
     const quoteData = useContext(BookContext)?.quoteData;
     const characterData = useContext(BookContext)?.characterData;
@@ -160,17 +162,36 @@ const ChapterAnalysis = () => {
                 </div>
             </div>
             <hr className="border-gray-300 my-12 w-full"/>
-            {chapterSentimentData.length > 0 && (
-                <div className="mt-8">
-                    <h1 className="text-xl font-serif mb-4">Chapter Sentiment</h1>
-                    <SentimentAreaChart
-                        data={chapterSentimentData}
-                        width={500}
-                        height={250}
-                        onChapterPage={true}
-                    />
+                <div className="flex flex-col md:flex-row gap-6 justify-between">
+                    {chapterSentimentData.length > 0 && (
+                        <div className="">
+                            <div className="border border-gray-300 rounded-lg p-4 w-fit">
+                                <h1 className="text-lg font-serif mb-4 text-center">Chapter Sentiment</h1>
+                                <hr className="border-gray-300 my-4 w-1/2 mx-auto"/>
+                                <SentimentAreaChart
+                                    data={chapterSentimentData}
+                                    width={550}
+                                    height={250}
+                                    onChapterPage={true}
+                                />
+                            </div>
+                        </div>
+                    )}
+                    <div className="border border-gray-300 rounded-lg p-4 w-fit">
+                        <h1 className="text-lg font-serif mb-4 text-center">Chapter Network</h1>
+                        <hr className="border-gray-300 my-4 w-1/2 mx-auto"/>
+                        <NetworkGraph
+                            key={`chapter-network-${chapterNumber}`}
+                            id={`chapter-network-${chapterNumber}`}
+                                height={250}
+                                width={550}
+                                selectedChapter={parseInt(chapterNumber)}
+                                chapterNetworkData={chapterNetworkData}
+                                cumulative={false}
+                                showLegend={false}
+                            />
+                    </div>
                 </div>
-            )}
             </div>
     )   
 }

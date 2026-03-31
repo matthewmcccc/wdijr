@@ -74,7 +74,7 @@ const SentimentAreaChart = ({ data, width, height, onChapterPage }: { data: Sent
     }, [data, width, height, onChapterPage]);
 
     return (
-        <div id="sentimentAreaChartContainer" className="w-full"></div>
+        <div id="sentimentAreaChartContainer" className=""></div>
     );
 };
 
