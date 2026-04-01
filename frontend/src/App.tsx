@@ -37,6 +37,8 @@ const App = () => {
   const [cooccurrenceNetworkData, setCooccurrenceNetworkData] = useState<Array<{ source: string; target: string; value: number }>>([]);
   const [authorData, setAuthorData] = useState<any>(null);
   const [motifData, setMotifData] = useState<Array<{ name: string; description: string }>>([]);
+  const [lexicalRichness, setLexicalRichness] = useState<Array<{ character: string; data: Record<string, any> }>>([]);
+
   const contextValue = useMemo(() => ({
       characterData,
       setCharacterData,
@@ -77,7 +79,9 @@ const App = () => {
       setAuthorData,
       motifData,
       setMotifData,
-  }), [characterData, networkData, novelData, associatedQuotes, topCharacterRelationships, title, topCharacterQuotes, attributedQuotes, quoteData, sentimentValues, inflectionPoints, plotSummaries, coverUrl, characterSentimentValues, chapterData, chapterNetworkData, chapterLengths, cooccurrenceNetworkData, authorData, setCharacterData, setNetworkData, setNovelData, setAssociatedQuotes, setTopCharacterRelationships, setTitle, setTopCharacterQuotes, setAttributedQuotes, setQuoteData, setSentimentValues, setInflectionPoints, setPlotSummaries, setCoverUrl, setCharacterSentimentValues, setChapterData, setChapterNetworkData, setChapterLengths, setCooccurrenceNetworkData, setAuthorData, setMotifData]);
+      lexicalRichness,
+      setLexicalRichness
+  }), [characterData, networkData, novelData, associatedQuotes, topCharacterRelationships, title, topCharacterQuotes, attributedQuotes, quoteData, sentimentValues, inflectionPoints, plotSummaries, coverUrl, characterSentimentValues, chapterData, chapterNetworkData, chapterLengths, cooccurrenceNetworkData, authorData, setCharacterData, setNetworkData, setNovelData, setAssociatedQuotes, setTopCharacterRelationships, setTitle, setTopCharacterQuotes, setAttributedQuotes, setQuoteData, setSentimentValues, setInflectionPoints, setPlotSummaries, setCoverUrl, setCharacterSentimentValues, setChapterData, setChapterNetworkData, setChapterLengths, setCooccurrenceNetworkData, setAuthorData, setMotifData, lexicalRichness, setLexicalRichness]);
 
   return (
     <BrowserRouter>

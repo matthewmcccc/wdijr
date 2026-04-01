@@ -356,7 +356,7 @@ class EntityExtractor:
             if len(tokens) < window:
                 ttr  = round(len(set(tokens)) / len(tokens), 3)
                 if ttr != 1.0:
-                    mattr_obj[speaker] = round(len(set(tokens)) / len(tokens), 3)
+                    mattr_obj[speaker] = {"mattr": round(len(set(tokens)) / len(tokens), 3), "word_count": len(tokens)}
             else: 
                 ttrs = []
                 for i in range(len(tokens) - window + 1):
@@ -364,7 +364,7 @@ class EntityExtractor:
                     ttrs.append(len(set(w)) / window)
                 ttr = round(sum(ttrs) / len(ttrs), 3)
                 if ttr != 1.0:
-                    mattr_obj[speaker] = round(sum(ttrs) / len(ttrs), 3)
+                    mattr_obj[speaker] = {"mattr": round(sum(ttrs) / len(ttrs), 3), "word_count": len(tokens)}
         return mattr_obj
 
     def coref_res(self, index: int, pronoun: str) -> str:

@@ -16,7 +16,7 @@ import TooltipComponent from "../components/Tooltip";
 import * as Select from "@radix-ui/react-select";
 
 
-const CHARACTERS_PER_PAGE = 16;
+const CHARACTERS_PER_PAGE = 18;
 
 const CharacterAnalysisLanding = () => {
     const characterData = useContext(BookContext)?.characterData;

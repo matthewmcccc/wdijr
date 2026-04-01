@@ -8,6 +8,7 @@ class QuoteSchemaBase(BaseModel):
     speaker: str
     sentiment: float
     chapter_number: int
+    recipient: str | None = None
     novel_id: uuid.UUID | None = None
 
 

@@ -28,6 +28,7 @@ const Processing = () => {
     const setCooccurrenceNetworkData = useContext(BookContext)?.setCooccurrenceNetworkData;
     const setAuthorData = useContext(BookContext)?.setAuthorData;
     const setMotifData = useContext(BookContext)?.setMotifData;
+    const setLexicalRichness = useContext(BookContext)?.lexicalRichness;
 
     useEffect(() => {
         if (done) return;

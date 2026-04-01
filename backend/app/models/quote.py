@@ -3,7 +3,7 @@ from .base import Base
 from sqlalchemy import String, ForeignKey, select, Float, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 
 class Quote(Base):
@@ -11,6 +11,7 @@ class Quote(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     speaker: Mapped[str] = mapped_column(String(500))
+    recipient: Mapped[Optional[str]] = mapped_column(String(500))
     content: Mapped[str] = mapped_column(String(500))
     sentiment: Mapped[float] = mapped_column(Float)
     chapter_number: Mapped[int] = mapped_column(Integer)

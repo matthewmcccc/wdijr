@@ -192,6 +192,7 @@ const CharacterAnalysisProfile = () => {
                             <hr className="my-4 text-gray-300"/>
                             <div className="max-h-[400px] overflow-y-auto pr-2">
                                 {notableQuotes.map((q: any, index: number) => (
+                                    console.log(q),
                                     <div key={index} className={`mb-4 p-3 border border-gray-200 rounded-lg border-l-4 ${q.sentiment >= 0 ? "border-l-green-500" : "border-l-red-500"}`}>
                                         <p className="italic text-sm text-gray-800">"{q.content}"</p>
                                         <p className="text-sm text-gray-500 mt-1">{chapterData[q.chapter_number]?.title}</p>

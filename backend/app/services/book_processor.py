@@ -216,6 +216,7 @@ def process_text(self, book_path):
         "chapter_lengths": [len(ch) for ch in chapter_valence_vals],
         "author_details": author_details,
         "motifs": motifs,
+        "lexical_richness": lexical_richness,
     }
 
 
@@ -316,7 +317,12 @@ def get_character_thumbnails(title: str, er: EntityExtractor, novel_id: str):
         send_request(character, title)
 
 def get_author_data(book: Epub, g: Gemini, author: str) -> dict:
-    author_dict = {}
+    author_dict = {
+        "name": author,
+        "image_url": "",
+        "description": "",
+        "other_works": [],
+    }
     
     author_normalized = ("_").join(author.split(" "))
     wiki_url = f"https://en.wikipedia.org/w/api.php?action=query&titles={author_normalized}&prop=extracts|pageimages&explaintext=true&pithumbsize=400&format=json"
@@ -345,29 +351,32 @@ def get_author_data(book: Epub, g: Gemini, author: str) -> dict:
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36"
         }
     )
+    if open_lib_res.ok and open_lib_res.text:
+        open_lib_body = open_lib_res.json()
+        for doc in open_lib_body["docs"]:
+            if book.title not in doc["title"] and author in doc["author_name"]:
+                image_url = f"https://covers.openlibrary.org/b/id/{doc['cover_i']}-M.jpg" if "cover_i" in doc else ""
+                title = doc["title"] if "title" in doc else ""
+                year = doc["first_publish_year"] if "first_publish_year" in doc else ""
+                work_obj = {
+                    "title": title,
+                    "image_url": image_url,
+                    "year": year
+                }
+                other_works_list.append(work_obj)
+        author_dict["name"] = author
+        try:
+            author_dict["image_url"] = extract["thumbnail"]["source"]
+        except:
+            author_dict["image_url"] = ""
+        author_dict["description"] = json.loads(author_summary)["summary"]
+        author_dict["other_works"] = other_works_list
 
-    open_lib_body = open_lib_res.json()
-    for doc in open_lib_body["docs"]:
-        if book.title not in doc["title"] and author in doc["author_name"]:
-            image_url = f"https://covers.openlibrary.org/b/id/{doc['cover_i']}-M.jpg" if "cover_i" in doc else ""
-            title = doc["title"] if "title" in doc else ""
-            year = doc["first_publish_year"] if "first_publish_year" in doc else ""
-            work_obj = {
-                "title": title,
-                "image_url": image_url,
-                "year": year
-            }
-            other_works_list.append(work_obj)
-
-    author_dict["name"] = author
-    try:
-        author_dict["image_url"] = extract["thumbnail"]["source"]
-    except:
-        author_dict["image_url"] = ""
-    author_dict["description"] = json.loads(author_summary)["summary"]
-    author_dict["other_works"] = other_works_list
-
+    else:
+        print(f"Open library request failed: {open_lib_res.status_code}")
+    
     return author_dict
+
 
 def get_chapter_valence_vals(book: Epub, ps: PlotSentiment) -> list:
     chapter_valence_vals: list = []

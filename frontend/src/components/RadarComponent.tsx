@@ -1,14 +1,16 @@
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis } from 'recharts';
+import { BookContext } from '../contexts/bookContext';
+import { useContext, useEffect } from 'react';
+import fetchNovelData from '../utils/fetchNovelData';
 
 interface RadarData {
-    name: string;
+    character: string;
     confidence: number;
 }
 
 const MAX = 100;
 
 const RadarComponent = ({ data }: { data: RadarData[] }) => {
-
     return (
         <RadarChart
             cx={300}
@@ -17,8 +19,8 @@ const RadarComponent = ({ data }: { data: RadarData[] }) => {
             width={600}
             height={500}
             data={data.map((d) => ({
-                subject: d.name,
-                confidence: Math.min(d.confidence, MAX)
+                subject: d.character,
+                confidence: Math.min(d.confidence * 100, MAX)
             }))
             }
         >
