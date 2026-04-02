@@ -36,7 +36,7 @@ const App = () => {
   const [chapterLengths, setChapterLengths] = useState<number[] | null>(null);
   const [cooccurrenceNetworkData, setCooccurrenceNetworkData] = useState<Array<{ source: string; target: string; value: number }>>([]);
   const [authorData, setAuthorData] = useState<any>(null);
-  const [motifData, setMotifData] = useState<Array<{ name: string; description: string; summary: string }>>([]);
+  const [motifData, setMotifData] = useState<Array<{ category: string; motifs: string[]; summary: string }>>([]);
   const [lexicalRichness, setLexicalRichness] = useState<Array<{ character: string; data: Record<string, any> }>>([]);
 
   const contextValue = useMemo(() => ({

@@ -6,7 +6,7 @@ import Navbar from "../components/Navbar"
 import Modal from "../components/Modal"
 import { Navigate, useNavigate } from "react-router-dom"
 
-type AppState = "idle" | "processing" | "done"
+type AppState = "idle" | "processing" | "downloading" | "done"
 
 const Home = () => {
     const [taskId, setTaskId] = useState<string | null>(null)
@@ -72,7 +72,7 @@ const Home = () => {
 
     useEffect(() => {
         const downloadBookAndProcess = async (id: string) => {
-            setAppState("processing")
+            setAppState("downloading")
             try {
                 const res = await axios.post(`${import.meta.env.VITE_API_URL}/analysis/download/${id}`)
                 navigate(`/processing/${res.data.task_id}`)
@@ -85,6 +85,17 @@ const Home = () => {
             downloadBookAndProcess(bookId)
         }
     }, [bookId, navigate])
+
+    if (appState === "downloading") {
+        return (
+            <div className="">
+                <Navbar />
+                <div className="flex flex-col min-h-screen gap-6">
+                    <h2 className="text-2xl font-serif pt-82 text-center">Grabbing EPUB for processing...</h2>
+                </div>
+            </div>
+        )
+    }
 
     return (
         <>
@@ -101,8 +112,7 @@ const Home = () => {
                         <div className="flex gap-4">
                             <input id="file-upload" type="file" accept=".epub" className="hidden" onChange={(e) => handleFileSelect(e.target.files ? e.target.files[0] : null)} />
                             <button className="bg-brand-cta text-white font-dewi py-2 px-4 rounded-4xl cursor-pointer hover:bg-brand-cta-hover
-                            duration-300 transition-all
-                            " onClick={() => document.getElementById("file-upload")?.click()}>
+                                duration-300 transition-all" onClick={() => document.getElementById("file-upload")?.click()}>
                                 <img src={uploadIcon} alt="Upload Icon" className="inline-block w-5 h-5 mr-3 mb-1 fill-white
                                 invert brightness-150" />
                                     Upload a Book
