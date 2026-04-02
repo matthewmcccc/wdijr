@@ -6,7 +6,7 @@ const Breadcrumbs = ({ items }: { items: { label: string; url?: string }[] }) =>
 
     return (
         <div className="mb-8 mt-8 text-center md:text-left md:mb-4 md:mt-4">
-            <nav className="text-sm font-dewi text-gray-500 mb-4 rounded-md border-gray-400
+            <nav className="text-md font-dewi text-gray-500 mb-4 rounded-md border-gray-400
                 max-w-md">
                     {items.map((item, index) => (
                         <span key={index}>
