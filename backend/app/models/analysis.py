@@ -13,6 +13,7 @@ class Analysis(MappedAsDataclass, Base):
     conversational_network: Mapped[dict] = mapped_column(JSON)
     cooccurrence_network: Mapped[dict] = mapped_column(JSON, nullable=True)
     sentiment_values: Mapped[list | None] = mapped_column(JSON, nullable=True)
+    chapter_cooccurrence_network: Mapped[dict] = mapped_column(JSON, nullable=True)
     inflection_points: Mapped[list | None] = mapped_column(JSON, nullable=True)
     plot_summaries: Mapped[list | None] = mapped_column(JSON, nullable=True)
     novel_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("novel.id"))

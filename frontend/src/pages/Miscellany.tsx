@@ -45,12 +45,6 @@ const Miscellany = () => {
 
     const MiscellanyItems = [
         {
-            title: "About the Author",
-            description: "Learn more about the author of the novel, including their background, influences, and other works.",
-            url: `/author/${novelId}`,
-            image: Quill
-        },
-        {
             title: "Themes and Motifs",
             description: "Explore the major themes and motifs present in the novel, and how they contribute to the overall narrative.",
             url: `/themes-and-motifs/${novelId}`,
@@ -62,6 +56,18 @@ const Miscellany = () => {
             url: `/vocabulary/${novelId}`,
             image: OpenBook
         },
+        {
+            title: "Character Relationships",
+            description: "Explore how relationships between characters evolve throughout the novel.",
+            url: `/character-relationships/${novelId}`,
+            image: Quill
+        },
+        {
+            title: "About the Author",
+            description: "Learn more about the author of the novel, including their background, influences, and other works.",
+            url: `/author/${novelId}`,
+            image: Quill
+        },
     ]
 
     return (
@@ -71,7 +77,7 @@ const Miscellany = () => {
                 <Breadcrumbs items={[{ label: "Analysis", url: `/analysis/${novelId}` }, { label: "Miscellany", url: `/miscellany/${novelId}` }]} />
                 <h1 className="text-5xl font-serif mb-4">Miscellany</h1>
                 <p className="text-md text-gray-700">
-                    This page is a sandbox for testing out new features, visualizations, and analyses that don't fit into the main categories of character or plot analysis. Check back here for experimental content and previews of upcoming features!
+                    A collection of additional analyses and insights about the novel that don't fit into the other categories, but are still fascinating to explore.
                 </p>
             </div>
             <hr className="border-gray-300 my-4" />

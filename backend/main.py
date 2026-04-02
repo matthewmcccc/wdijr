@@ -5,6 +5,7 @@ import os
 import io
 import json
 import serpapi
+from bs4 import BeautifulSoup
 from urllib.parse import urlparse
 from itertools import combinations
 from pathlib import Path
@@ -24,26 +25,14 @@ load_dotenv()
 
 if __name__ == "__main__":
     book: Epub = Epub("./app/temp/aaiw.epub")
-    g: Gemini = Gemini()
-    chunks = book.chunk_text_for_motif_analysis()
-    model = "gemini-2.5-flash"
-    motifs = g.generate_motif_extraction(
-        model,
-        chunks,
-        "motif_extraction",
-        book.title
+    er: EntityExtractor = EntityExtractor(
+        "en_core_web_trf",
+        book.get_full_text()
     )
+    for idx, ch in book.chapters.items():
+        ch_dict = {}
+        soup = BeautifulSoup(ch.item.get_body_content(), "html.parser")
+        paras = [para.get_text() for para in soup.find_all("p")]
+        ch_dict[idx] = paras
+        print(er.build_chapter_cooccurrence(ch_dict))
 
-    all_motifs = []
-    for m in motifs:
-        parsed = json.loads(m)
-        all_motifs.extend(parsed["motifs"])
-
-    consolidated_motifs = g.generate_motif_consolidation(
-        model,
-        all_motifs,
-        "motif_consolidation",
-        book.title,
-    )
-
-    print(consolidated_motifs)

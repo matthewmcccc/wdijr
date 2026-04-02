@@ -27,7 +27,6 @@ const CharacterAnalysisProfile = () => {
     const topQuote = characterData ? (characterData as any).top_quote : null;
     const quoteData = useContext(BookContext)?.quoteData;
     const setCharacterSentimentValues = useContext(BookContext)?.setCharacterSentimentValues;
-    const characterSentimentValues = useContext(BookContext)?.characterSentimentValues;
     const setQuoteData = useContext(BookContext)?.setQuoteData;
     const setPlotSummaries = useContext(BookContext)?.setPlotSummaries;
     const setSentimentValues = useContext(BookContext)?.setSentimentValues;
@@ -46,8 +45,8 @@ const CharacterAnalysisProfile = () => {
     const leftCharacter = currentIndex > 0 ? sortedCharacters[currentIndex - 1] : "";
     const rightCharacter = currentIndex < sortedCharacters.length - 1 ? sortedCharacters[currentIndex + 1] : "";
 
-    const sentimentChartWidth = leftChartWidth > 0 ? leftChartWidth : 725;
-    const networkChartWidth = rightChartWidth > 0 ? rightChartWidth : 725;
+    const sentimentChartWidth = leftChartWidth > 0 ? leftChartWidth : 600;
+    const networkChartWidth = rightChartWidth > 0 ? rightChartWidth : 600;
 
     useEffect(() => {
         const fetchCharacterData = async () => {
@@ -118,6 +117,7 @@ const CharacterAnalysisProfile = () => {
         .filter((q: any) => q.content.length < 300)
         .sort((a: any, b: any) => Math.abs(b.sentiment) - Math.abs(a.sentiment))
         .slice(0, 5);
+
 
     return (
         <div className="container mx-auto px-4 py-8">
@@ -192,7 +192,6 @@ const CharacterAnalysisProfile = () => {
                             <hr className="my-4 text-gray-300"/>
                             <div className="max-h-[400px] overflow-y-auto pr-2">
                                 {notableQuotes.map((q: any, index: number) => (
-                                    console.log(q),
                                     <div key={index} className={`mb-4 p-3 border border-gray-200 rounded-lg border-l-4 ${q.sentiment >= 0 ? "border-l-green-500" : "border-l-red-500"}`}>
                                         <p className="italic text-sm text-gray-800">"{q.content}"</p>
                                         <p className="text-sm text-gray-500 mt-1">{chapterData[q.chapter_number]?.title}</p>
@@ -227,6 +226,7 @@ const CharacterAnalysisProfile = () => {
                             height={300}
                             width={networkChartWidth}
                             showLegend={false}
+                            isFiltered={true}
                         />
                     </div>
                 </div>

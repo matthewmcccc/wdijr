@@ -4,6 +4,7 @@ import spacy
 import gender_guesser.detector as gender
 import regex as re
 import networkx as nx
+from bs4 import BeautifulSoup
 from app.parsers.epub import Epub
 from itertools import combinations
 from networkx.algorithms import community
@@ -171,7 +172,22 @@ class EntityExtractor:
 
         return {"nodes": nodes, "links": links}
 
-
+    def build_chapter_cooccurrence(self, chapters_paras: dict[int, list[str]]) -> dict:
+        persons_dict = self.build_persons_dict()
+        result = {}
+        for idx, paras in chapters_paras.items():
+            counts = defaultdict(int)
+            for para in paras:
+                para_lower = para.lower()
+                seen = set()
+                for variant, canonical in persons_dict.items():
+                    if variant in para_lower:
+                        seen.add(canonical)
+                for char_a, char_b in combinations(seen, 2):
+                    key = tuple(sorted([char_a, char_b]))
+                    counts[key] += 1
+            result[idx] = dict(counts)
+        return result
 
     def build_persons_dict(self) -> dict:
         """
@@ -472,16 +488,6 @@ class EntityExtractor:
 
         return {"nodes": nodes, "links": links}
     
-    @staticmethod
-    def get_nodes_from_cooccurrence_network_dict(
-        cooccurrence_nw_dict: dict
-    ):
-        nodes = []
-        links = []
-        seen_nodes = set()
-        pass
-
-
 
     # TODO: used typeddict
     @staticmethod

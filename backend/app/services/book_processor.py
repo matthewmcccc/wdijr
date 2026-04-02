@@ -3,6 +3,7 @@ import json
 import os
 import requests
 import serpapi
+from bs4 import BeautifulSoup
 from urllib.parse import urlparse
 from dotenv import load_dotenv
 from collections import defaultdict
@@ -73,6 +74,12 @@ def process_text(self, book_path):
 
     conversational_network = er.build_conversational_network(associated_quotes)
     cooccurrence_network_data = er.build_cooccurrence_network(book.get_full_text_paras())
+
+    ch_cooccurence_dict = {}
+    for idx, ch in book.chapters.items():
+        soup = BeautifulSoup(ch.item.get_body_content(), "html.parser")
+        paras = [para.get_text() for para in soup.find_all("p")]
+        ch_cooccurence_dict[idx] = paras
     
     conversational_nw_nodes = er.get_nodes_from_network_dict(conversational_network)
 
@@ -190,6 +197,7 @@ def process_text(self, book_path):
         chapter_summaries=chapter_summaries,
         chapter_valence_vals=chapter_valence_vals,
         cooccurrence_frequency_network=cooccurrence_network_data,
+        chapter_cooccurrence_network=ch_cooccurence_dict,
         author_details=author_details,
         motifs=motifs,
         lexical_richness=lexical_richness,
