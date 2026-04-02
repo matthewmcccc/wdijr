@@ -283,9 +283,10 @@ class Gemini:
                                         "motifs": {
                                             "type": "ARRAY",
                                             "items": {"type": "STRING"}
-                                        }
+                                        },
+                                        "summary": {"type": "string"}
                                     },
-                                    "required": ["category", "motifs"]
+                                    "required": ["category", "motifs", "summary"]
                                 }
                             }
                         },
@@ -569,7 +570,6 @@ class Gemini:
         You must also provide a 2-3 sentence summary, contextualizing this motif
         group and how it relates to the novel being analysed. To aid in this task,
         you will be provided with the title of the novel. 
-        
 
         Rules:
         - Do NOT acknowledge the prompt. Just identify the categories of 

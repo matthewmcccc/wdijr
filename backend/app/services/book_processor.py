@@ -119,7 +119,7 @@ def process_text(self, book_path):
     )
 
     # consolidated_network = g.consolidate_network(
-    #     "gemini-2.5-flash",
+    #     "gemini-2.0-flash",
     #     nw,
     #     "consolidate_network"
     # )
@@ -252,7 +252,7 @@ def get_character_summaries(
         )
         associated_quotes_obj_list[character["id"]] = char_quotes
     character_summaries = g.character_summary_mass_prompt(
-        "gemini-2.5-flash",
+        "gemini-2.0-flash",
         characters,
         associated_quotes_obj_list,
         "character_summary",
@@ -268,7 +268,7 @@ def get_chapter_summaries(g: Gemini, chapters, book_title, book):
         chapter_items.append((book.get_chapter_text(idx), idx, chapter.title))
         idx_order.append(idx)
     responses = g.chapter_summary_mass_prompt(
-        "gemini-2.5-flash", chapter_items, "chapter_summary", book_title
+        "gemini-2.0-flash", chapter_items, "chapter_summary", book_title
     )
     return dict(responses)
 
@@ -277,7 +277,7 @@ def get_plot_summaries(g: Gemini, summarisation_texts: list[tuple], characters: 
     text_only = [text[0] for text in summarisation_texts]
     chapter_indices = [text[1] for text in summarisation_texts]
     plot_summaries = g.text_span_summary_mass_prompt(
-        "gemini-2.5-flash", text_only, "excerpt_summary", characters
+        "gemini-2.0-flash", text_only, "excerpt_summary", characters
     )
     return zip(plot_summaries, chapter_indices)
 
@@ -336,7 +336,7 @@ def get_author_data(book: Epub, g: Gemini, author: str) -> dict:
     extract = next(iter(wiki_body["query"]["pages"].values()))
 
     author_summary = g.generate_author_summary(
-        "gemini-2.5-flash",
+        "gemini-2.0-flash",
         "author_summary",
         extract,
         book.title
@@ -399,7 +399,7 @@ def get_chapter_valence_vals(book: Epub, ps: PlotSentiment) -> list:
 
 def get_novel_description(book: Epub, g: Gemini):
     response = g.generate_novel_description(
-        "gemini-2.5-flash",
+        "gemini-2.0-flash",
         "novel_description",
         book.author,
         book.title,
@@ -411,12 +411,12 @@ def get_novel_description(book: Epub, g: Gemini):
 def get_motif_data(book: Epub, g: Gemini):
     chunks = book.chunk_text_for_motif_analysis()   
     motifs = g.generate_motif_extraction(
-        "gemini-2.5-flash",
+        "gemini-2.0-flash",
         chunks,
         "motif_extraction"
     )
     consolidated_motifs = g.generate_motif_consolidation(
-        "gemini-2.5-flash",
+        "gemini-2.0-flash",
         motifs,
         "motif_consolidation"
     )

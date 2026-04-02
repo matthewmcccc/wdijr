@@ -91,7 +91,7 @@ const Home = () => {
             <div className="">
                 <Navbar />
                 <div className="flex flex-col min-h-screen gap-6">
-                    <h2 className="text-2xl font-serif pt-82 text-center">Grabbing EPUB for processing...</h2>
+                    <h2 className="text-3xl font-serif pt-82 text-center">Grabbing EPUB for processing...</h2>
                 </div>
             </div>
         )
