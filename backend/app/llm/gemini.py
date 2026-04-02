@@ -346,7 +346,7 @@ class Gemini:
         if instruction == PromptInstruction.MOTIF_EXTRACTION:
             additional_instruction = self.motif_analysis_prompt()
         if instruction == PromptInstruction.MOTIF_CONSOLIDATION:
-            additional_instruction = self.consolidate_motifs_prompt()
+            additional_instruction = self.consolidate_motifs_prompt(title=novel_title)
         if instruction == PromptInstruction.NOVEL_DESCRIPTION:
             additional_instruction = self.novel_description_prompt(
                 author=author, novel_title=novel_title
@@ -559,22 +559,27 @@ class Gemini:
         """
     
     @staticmethod
-    def consolidate_motifs_prompt():
-        return """  
+    def consolidate_motifs_prompt(title: str):
+        return f"""  
         You are an expert in literary analysis.
         You will be given a list of literary motifs. Your task is to consolidate
         this list into 5-10 groups of overarching motif categories.
         You must map the overarching motif category to the motifs you believe
         best belong to that category.
+        You must also provide a 2-3 sentence summary, contextualizing this motif
+        group and how it relates to the novel being analysed. To aid in this task,
+        you will be provided with the title of the novel. 
+        
 
         Rules:
         - Do NOT acknowledge the prompt. Just identify the categories of 
         motifs from the provided list and complete the mapping.
-        - Use only the provided motif list. Use no other context.
         - Provide your response in the following JSON format:
             "motif_groups": [
-                {"category": "OVERARCHING CATEGORY", "motifs": ["motif one", "motif two", ...]},
-                {"category": "OVERARCHING CATEGORY", "motifs": ["motif three", "motif four", ...]},
+                {{"category": "OVERARCHING CATEGORY", "motifs": ["motif one", "motif two", ...], "summary": "MOTIF GROUP SUMMARY"}},
+                {{"category": "OVERARCHING CATEGORY", "motifs": ["motif three", "motif four", ...], "summary": "MOTIF GROUP SUMMARY"}},
                 ...
             ]
+
+        Novel Title: {title}
         """

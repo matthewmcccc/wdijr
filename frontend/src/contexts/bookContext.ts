@@ -72,7 +72,7 @@ interface BookContextType {
         other_works: Array<{ title: string; year: number; image_url: string }>;
     } | null,
     setAuthorData: (data: { name: string; description: string; image_url: string; novel_id: string; other_works: Array<{ title: string; year: number; image_url: string }> }) => void,
-    motifData: Record<string, string[]>,
+    motifData: Array<{ category: string; motifs: string[]; summary: string }>
     setMotifData: (data: Record<string, string[]>) => void,
     lexicalRichness: Array<{character: string, data: Record<string, any>}> | null,
     setLexicalRichness: (data: Array<{character: string, data: Record<string, any>}>) => void,

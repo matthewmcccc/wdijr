@@ -186,7 +186,7 @@ const CharacterAnalysisProfile = () => {
                                 <h1 className="font-serif text-center text-lg mt-2">Notable Quotes</h1>
                                 <TooltipComponent 
                                     title={"Notable Quotes"}
-                                    content={"These quotes are selected based on their sentiment strength and relevance to the character. \n\n They may provide insights into the character's personality, motivations, or key moments in the story.\n\n The sentiment of each quote is indicated by the color of the border: green for positive, red for negative."}
+                                    content={"These quotes are selected based on their sentiment strength and relevance to the character. \n\n The sentiment of each quote is indicated by the color of the border: green for positive, red for negative."}
                                 />
                             </div>
                             <hr className="my-4 text-gray-300"/>

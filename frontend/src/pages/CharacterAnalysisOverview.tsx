@@ -8,9 +8,7 @@ import { BookContext } from "../contexts/bookContext";
 import humanize from "../utils/humanize";
 import { useParams } from "react-router-dom";
 import fetchNovelData from "../utils/fetchNovelData";
-import SideCharacterCard from "../components/SideCharacterCard";
 import newTabIcon from "../assets/img/new-tab.png";
-import defaultAvatar from "../assets/img/default-avatar.png";
 import useContainerSize from "../hooks/useContainerSize";
 import TooltipComponent from "../components/Tooltip";
 import * as Select from "@radix-ui/react-select";
@@ -36,16 +34,13 @@ const CharacterAnalysisLanding = () => {
     const setCharacterSentimentValues = bookContext?.setCharacterSentimentValues;
     const setChapterData = bookContext?.setChapterData;
     const chapterData = bookContext?.chapterData || [];
-    const associatedQuotes = bookContext?.associatedQuotes;
     const setChapterNetworkData = bookContext?.setChapterNetworkData;
     const chapterNetworkData = bookContext?.chapterNetworkData;
-    const [showSideCard, setShowSideCard] = useState<string | null>(null);
     const maxChapter = chapterData.length > 0 ? chapterData.length - 1 : 0;
     const allValue = maxChapter + 1;
     const [sliderValue, setSliderValue] = useState<number>(allValue);
     const selectedChapter = sliderValue === 0 ? null : sliderValue - 1;
     const [cumulative, setCumulative] = useState(true);
-    const cooccurrenceNetworkData = bookContext?.cooccurrenceNetworkData;
     const setCooccurrenceNetworkData = bookContext?.setCooccurrenceNetworkData;
     const { containerRef, width: containerWidth, height: containerHeight } = useContainerSize();
     const [characterPage, setCharacterPage] = useState(0);
@@ -124,7 +119,7 @@ const CharacterAnalysisLanding = () => {
                                     </Select.Root>
                                 </div>
                                 <div className="absolute right-2">
-                                    <TooltipComponent content={networkMode === "conversational" ? `Each node represents a character, and edges represent interactions between characters. \n\n The size of the node indicates the prominence of the character in the story.\n\n An interaction is defined as two back and forth conversations between two characters within a certain window of text.` : `Each node represents a character, and edges represent co-occurrences of characters in the same passages. \n\n The size of the node indicates the prominence of the character in the story.\n\n A co-occurrence is defined as two characters appearing in the same passage.`} />
+                                    <TooltipComponent title={networkMode === "conversational" ? "Conversational Network" : "Co-occurrence Network"} content={networkMode === "conversational" ? `Each node represents a character, and edges represent interactions between characters. \n\n The size of the node indicates the prominence of the character in the story.\n\n An interaction is defined as two back and forth quotes between two characters within a certain window of text.` : `Each node represents a character, and edges represent co-occurrences of characters in the same window of text. \n\n The size of the node indicates the prominence of the character in the story.\n\n A co-occurrence is defined as two characters appearing in the same passage.`} />
                                 </div>
                             </div>
                             <hr className="border-gray-300 w-1/2 mx-auto" />
