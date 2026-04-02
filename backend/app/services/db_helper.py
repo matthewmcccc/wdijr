@@ -123,7 +123,7 @@ def save_analysis_to_db(
             motifs=motifs,
             cooccurrence_network=cooccurrence_frequency_network,
             lexical_richness=lexical_richness,
-            chapter_cooccurrence_network=chapter_cooccurrence_network
+            chapter_cooccurrence_network=json.loads(chapter_cooccurrence_network)
         )
 
         author_obj = Author(
