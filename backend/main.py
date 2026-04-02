@@ -24,17 +24,26 @@ load_dotenv()
 
 if __name__ == "__main__":
     book: Epub = Epub("./app/temp/aaiw.epub")
-    quotes = book.get_full_text_quotes(book.get_full_text())
-    er: EntityExtractor = EntityExtractor(
-        "en_core_web_trf",
-        book.get_full_text()
+    g: Gemini = Gemini()
+    chunks = book.chunk_text_for_motif_analysis()
+    model = "gemini-2.5-flash"
+    motifs = g.generate_motif_extraction(
+        model,
+        chunks,
+        "motif_extraction",
+        book.title
     )
 
-    asct_quotes = er.associate_text_quotes(quotes)
-    nw_dict = er.build_conversational_network(
-        asct_quotes
+    all_motifs = []
+    for m in motifs:
+        parsed = json.loads(m)
+        all_motifs.extend(parsed["motifs"])
+
+    consolidated_motifs = g.generate_motif_consolidation(
+        model,
+        all_motifs,
+        "motif_consolidation",
+        book.title,
     )
-    top_char_quotes = er.get_character_quotes(
-        nw_dict=nw_dict
-    )
-    print(top_char_quotes)
+
+    print(consolidated_motifs)

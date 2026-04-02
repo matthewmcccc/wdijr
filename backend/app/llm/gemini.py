@@ -225,11 +225,12 @@ class Gemini:
         return summaries
     
     def generate_motif_extraction(
-            self, model, chunks: list, instruction: str
+            self, model, chunks: list, instruction: str, novel_title: str
     ):
         def send_request(chunk):
             additional_instruction = self.get_additional_instruction(
-                instruction
+                instruction,
+                novel_title=novel_title
             )
             prompt = f"{additional_instruction}\n{chunk}"
             return (
@@ -261,9 +262,9 @@ class Gemini:
         return all_motifs
     
     def generate_motif_consolidation(
-        self, model, motifs: list, instruction: str
+        self, model, motifs: list, instruction: str, novel_title: str,
     ):
-        additional_instruction = self.get_additional_instruction(instruction)
+        additional_instruction = self.get_additional_instruction(instruction, novel_title)
         prompt = f"{additional_instruction}\n{(", ").join(motifs)}"
         return (
             self.client.models.generate_content(
@@ -284,7 +285,7 @@ class Gemini:
                                             "type": "ARRAY",
                                             "items": {"type": "STRING"}
                                         },
-                                        "summary": {"type": "string"}
+                                        "summary": {"type": "STRING"}
                                     },
                                     "required": ["category", "motifs", "summary"]
                                 }
