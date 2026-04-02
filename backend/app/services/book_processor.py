@@ -75,11 +75,11 @@ def process_text(self, book_path):
     conversational_network = er.build_conversational_network(associated_quotes)
     cooccurrence_network_data = er.build_cooccurrence_network(book.get_full_text_paras())
 
-    ch_cooccurence_dict = {}
+    ch_dict = {}
     for idx, ch in book.chapters.items():
         soup = BeautifulSoup(ch.item.get_body_content(), "html.parser")
-        paras = [para.get_text() for para in soup.find_all("p")]
-        ch_cooccurence_dict[idx] = paras
+        ch_dict[idx] = [para.get_text() for para in soup.find_all("p")]
+    ch_cooccurence_result = json.dumps(er.build_chapter_cooccurrence(ch_dict))
     
     conversational_nw_nodes = er.get_nodes_from_network_dict(conversational_network)
 
@@ -119,15 +119,7 @@ def process_text(self, book_path):
         )   
         text_for_summarisation.append(sum_text)
 
-    self.update_state(
-        state="PROCESSING", meta={"status": "Generating character summaries..."}
-    )
-
-    # consolidated_network = g.consolidate_network(
-    #     "gemini-2.5-flash",
-    #     nw,
-    #     "consolidate_network"
-    # )
+    
 
     top_relationships_dict = {}
     top_quotes = {}
@@ -137,12 +129,24 @@ def process_text(self, book_path):
         top_quotes[name] = er.get_character_quotes(conversational_network, name)
 
     flat_texts = [text for chapter_texts in text_for_summarisation for text in chapter_texts]
-    print(f"length of flat texts: {len(flat_texts)}")
     character_summaries = get_character_summaries(er, characters, conversational_network, g, book.title)
+    self.update_state(
+        state="PROCESSING", meta={"status": "Creating character summaries..."}
+    )
+
     plot_summaries = get_plot_summaries(g, flat_texts, er.canonical_characters)
+    self.update_state(
+        state="PROCESSING", meta={"status": "Creating plot summaries..."}
+    )
+
     chapter_summaries = get_chapter_summaries(g, chapters, title, book)
+    self.update_state(
+        state="PROCESSING", meta={"status": "Creating chapter summaries..."}
+    )
+
     chapter_conversational_networks = get_chapter_networks(er, associated_quotes)
     chapter_nw_nodes = get_chapter_network_nodes(er, chapter_conversational_networks)
+
 
     mapping = er.persons_to_id()
 
@@ -157,10 +161,18 @@ def process_text(self, book_path):
         offset += chapter_point_count
     global_inflection_points.sort(key=lambda p: p[0])
 
+    self.update_state(
+        state="PROCESSING", meta={"status": "Calculating key plot points..."}
+    )
+
     author_details = get_author_data(
         book,
         g,
         book.author
+    )
+
+    self.update_state(
+        state="PROCESSING", meta={"status": "Grabbing author data..."}
     )
 
     motifs = get_motif_data(
@@ -175,6 +187,10 @@ def process_text(self, book_path):
 
     novel_description = get_novel_description(
         book, g
+    )
+
+    self.update_state(
+        state="PROCESSING", meta={"status": "Finalising analysis..."}
     )
 
     novel_id = save_analysis_to_db(
@@ -197,7 +213,7 @@ def process_text(self, book_path):
         chapter_summaries=chapter_summaries,
         chapter_valence_vals=chapter_valence_vals,
         cooccurrence_frequency_network=cooccurrence_network_data,
-        chapter_cooccurrence_network=ch_cooccurence_dict,
+        chapter_cooccurrence_network=ch_cooccurence_result,
         author_details=author_details,
         motifs=motifs,
         lexical_richness=lexical_richness,

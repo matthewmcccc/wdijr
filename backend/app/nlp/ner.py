@@ -186,7 +186,7 @@ class EntityExtractor:
                 for char_a, char_b in combinations(seen, 2):
                     key = tuple(sorted([char_a, char_b]))
                     counts[key] += 1
-            result[idx] = dict(counts)
+            result[idx] = {f"{a}--{b}": count for (a, b), count in counts.items()}
         return result
 
     def build_persons_dict(self) -> dict:

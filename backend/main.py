@@ -29,10 +29,10 @@ if __name__ == "__main__":
         "en_core_web_trf",
         book.get_full_text()
     )
+    ch_dict = {}
     for idx, ch in book.chapters.items():
-        ch_dict = {}
         soup = BeautifulSoup(ch.item.get_body_content(), "html.parser")
-        paras = [para.get_text() for para in soup.find_all("p")]
-        ch_dict[idx] = paras
-        print(er.build_chapter_cooccurrence(ch_dict))
+        ch_dict[idx] = [para.get_text() for para in soup.find_all("p")]
 
+    result = er.build_chapter_cooccurrence(ch_dict)
+    print(json.dumps(result))
