@@ -20,7 +20,7 @@ const CharacterSelectComponent = ({ characters, selectedCharacter, setSelectedCh
             </Select.Trigger>
             <Select.Portal>
                 <Select.Content position="popper" side="bottom" sideOffset={4} align="start" avoidCollisions={false} className="border border-gray-300 text-black bg-white p-1 rounded z-50 min-w-[280px] cursor-pointer">
-                    <Select.Viewport>
+                    <Select.Viewport className="p-1 overflow-auto max-h-60 scrollbar-thin scrollbar-thumb-gray-300">
                         {characters.map(character => (
                             <Select.Item key={character} value={character} className="px-3 py-1 rounded hover:bg-gray-100 outline-none data-[highlighted]:bg-gray-100">
                                 <Select.ItemText>{humanize(character)}</Select.ItemText>

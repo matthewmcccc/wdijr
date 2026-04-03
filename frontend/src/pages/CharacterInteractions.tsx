@@ -1,12 +1,14 @@
 import { BookContext } from "../contexts/bookContext";
 import { useParams } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Breadcrumbs from "../components/Breadcrumbs";
 import fetchNovelData from "../utils/fetchNovelData";
 import CharacterSelectComponent from "../components/CharacterSelectComponent";
 import InteractionsLineChart from "../components/InteractionsLineChart";
 import humanize from "../utils/humanize";
+import CharacterInteractionCharacterCard from "../components/CharacterInteractionCharacterCard";
 
 export const CharacterInteractions = () => {
     const { novelId } = useParams();
@@ -32,11 +34,17 @@ export const CharacterInteractions = () => {
     const setChapterCooccurrenceData = useContext(BookContext)?.setChapterCooccurrenceData;
     const chapterCooccurrenceData = useContext(BookContext)?.chapterCooccurrenceData;
     const title = useContext(BookContext)?.title || "";
+    const navigate = useNavigate();
 
     const characters = characterData ? characterData.map((c: any) => c.name) : [];
 
     const [charA, setCharA] = useState<string | null>(characters.length > 0 ? characters[0] : null);
     const [charB, setCharB] = useState<string | null>(characters.length > 1 ? characters[1] : null);
+
+    const charAData = characterData?.find((c: any) => c.name === charA);
+    const charBData = characterData?.find((c: any) => c.name === charB);
+
+    console.log(charAData, charBData)
 
     const selectedPair = ([charA, charB]).sort().join("--");
     const chartData = chapterCooccurrenceData ? Object.entries(chapterCooccurrenceData).map(([chapterIdx, pairs]) => ({
@@ -53,6 +61,9 @@ export const CharacterInteractions = () => {
         fetchData();
     }, [!quoteData, !lexicalRichness, !chapterCooccurrenceData]);
 
+    useEffect(() => {
+        document.title = `Character Interactions | ${title}`;
+    }, [title]);
 
     return (
         <div className="container mx-auto px-4 py-8">
@@ -76,10 +87,29 @@ export const CharacterInteractions = () => {
                             <CharacterSelectComponent characters={characters.filter(c => c !== charA)} selectedCharacter={charB} setSelectedCharacter={setCharB} />
                         </div>
                     </div>
-                    {/* {charA && charB && <h1 className="text-xl font-serif mb-4 text-center">{title} | {humanize(charA)} & {humanize(charB)} Interactions</h1>} */}
                     <InteractionsLineChart data={chartData} />
+                   
                 </div>
             </div>
+             {charA && charB ? (
+                <div className="">
+                    <hr className="border-gray-300 mb-4 w-full mt-8"/>
+                    <div className="flex flex-row gap-6 mt-8">
+                        <div onClick={() => {navigate(`/character/${novelId}/${charAData?.name}`)}} className="flex-1">
+                            <CharacterInteractionCharacterCard
+                                character={humanize(charAData?.name)}
+                                summary={charAData?.description}
+                            />
+                        </div>
+                        <div onClick={() => {navigate(`/character/${novelId}/${charBData?.name}`)}} className="flex-1">
+                            <CharacterInteractionCharacterCard
+                                character={humanize(charBData?.name)}
+                                summary={charBData?.description}
+                            />
+                        </div>
+                    </div>
+                </div>
+        ) : null}
         </div>
     )
 }
