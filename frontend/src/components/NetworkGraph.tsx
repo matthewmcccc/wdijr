@@ -131,29 +131,33 @@ const createNetworkGraph = (
         .attr("r", (d: any) => connectedNodes.has(d.id) ? 10 : 5)
         .attr("opacity", (d: any) => connectedNodes.has(d.id) ? 1 : 0.4)
         .attr("fill", (d: any) => getColor(d.group))
+        .style("cursor", "pointer");   
 
-    node.on("mouseenter", (event: any, hoveredNode: any) => {
-        const connectedNodeIds = new Set([hoveredNode.id]);
-        links.forEach((l: any) => {
-            if (l.source.id === hoveredNode.id) connectedNodeIds.add(l.target.id);
-            if (l.target.id === hoveredNode.id) connectedNodeIds.add(l.source.id);
-        });
-        
-        node.attr("opacity", (d: any) => connectedNodeIds.has(d.id) ? 1 : 0.1);
-        link.attr("opacity", (d: any) =>
-            d.source.id === hoveredNode.id || d.target.id === hoveredNode.id ? 0.9 : 0.1
-        );
-        labels.attr("opacity", (d: any) => connectedNodeIds.has(d.id) ? 1 : 0.1);
-    })
-    .on("mouseleave", () => {
-        node.attr("opacity", (d: any) => connectedNodes.has(d.id) ? 1 : 0.1);
-        link.attr("opacity", 0.7);
-        labels.attr("opacity", 1);
-    });
+
+    let selectedNode: any = null;
 
     node.on("click", (event: any, d: any) => {
         event.stopPropagation();
-        onNodeHover?.(d);
+        if (selectedNode === d) {
+            selectedNode = null;
+            node.attr("opacity", (n: any) => connectedNodes.has(n.id) ? 1 : 0.4);
+            link.attr("opacity", 0.7);
+            labels.attr("opacity", 1);
+            onNodeHover?.(null);
+        } else {
+            selectedNode = d;
+            const connectedNodeIds = new Set([d.id]);
+            links.forEach((l: any) => {
+                if (l.source.id === d.id) connectedNodeIds.add(l.target.id);
+                if (l.target.id === d.id) connectedNodeIds.add(l.source.id);
+            });
+            node.attr("opacity", (n: any) => connectedNodeIds.has(n.id) ? 1 : 0.1);
+            link.attr("opacity", (l: any) =>
+                l.source.id === d.id || l.target.id === d.id ? 0.9 : 0.1
+            );
+            labels.attr("opacity", (n: any) => connectedNodeIds.has(n.id) ? 1 : 0.1);
+            onNodeHover?.(d);
+        }
     });
 
     svg.on("click", (event: any) => {

@@ -119,8 +119,6 @@ def process_text(self, book_path):
         )   
         text_for_summarisation.append(sum_text)
 
-    
-
     top_relationships_dict = {}
     top_quotes = {}
     for character in characters: 
