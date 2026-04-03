@@ -53,21 +53,23 @@ const Author = () => {
                         </div>
                         {/* // TODO: add section for other works by the author, if data is available */}
                        
-                        <div className="mt-8">
-                            <h1 className="text-3xl font-serif mb-4">
-                                Other Works 
-                            </h1>
-                            <hr className="border-gray-300 my-4" />
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
-                                {otherWorks.map((work, index) => (
-                                    <div key={index} className="border border-gray-300 rounded-md p-4">
-                                        <img src={work.image_url || ""} alt={work.title} className="w-full h-48 object-cover mb-4" />
-                                        <h3 className="text-xl font-semibold">{work.title}</h3>
-                                        <p className="text-gray-600">{work.year}</p>
-                                    </div>
-                                ))}
+                        {otherWorks.length > 0 && (                       
+                            <div className="mt-8">
+                                <h1 className="text-3xl font-serif mb-4">
+                                    Other Works 
+                                </h1>
+                                <hr className="border-gray-300 my-4" />
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+                                    {otherWorks.map((work, index) => (
+                                        <div key={index} className="border border-gray-300 rounded-md p-4">
+                                            <img src={work.image_url || ""} alt={work.title} className="w-full h-48 object-cover mb-4" />
+                                            <h3 className="text-xl font-semibold">{work.title}</h3>
+                                            <p className="text-gray-600">{work.year}</p>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
-                        </div>
+                        )}
                     </div>
                 )}
             </div>

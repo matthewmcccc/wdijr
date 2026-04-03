@@ -8,6 +8,7 @@ import AnalysisItem from "../components/AnalysisItem";
 import Quill from "../assets/img/ink_and_quill.png"
 import Interlock from "../assets/img/interlock.png"
 import OpenBook from "../assets/img/open_book.png"
+import Handshake from "../assets/img/handshake.png"
 
 
 const Miscellany = () => {
@@ -60,7 +61,7 @@ const Miscellany = () => {
             title: "Character Interactions",
             description: "Explore how interactions between characters evolve throughout the novel.",
             url: `/character-interactions/${novelId}`,
-            image: Quill
+            image: Handshake
         },
         {
             title: "About the Author",
