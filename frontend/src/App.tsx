@@ -15,7 +15,7 @@ import Miscellany from "./pages/Miscellany";
 import Author from "./pages/Author";
 import ThemesAndMotifs from "./pages/ThemesAndMotifs";
 import Vocabulary from "./pages/Vocabulary";
-import CharacterRelationships from "./pages/CharacterRelationships";
+import CharacterInteractions from "./pages/CharacterInteractions";
 
 const App = () => {
   const [characterData, setCharacterData] = useState<Array<{ id: Number, name: string, summary: string, description: string, novel_id: string, image_url: string }>>([])
@@ -39,6 +39,7 @@ const App = () => {
   const [authorData, setAuthorData] = useState<any>(null);
   const [motifData, setMotifData] = useState<{ motif_groups: Array<{ category: string; motifs: string[]; summary: string }> } | null>(null);
   const [lexicalRichness, setLexicalRichness] = useState<Array<{ character: string; data: Record<string, any> }>>([]);
+  const [chapterCooccurrenceData, setChapterCooccurrenceData] = useState<Record<string, Record<string, number>> | null>(null);
 
   const contextValue = useMemo(() => ({
       characterData,
@@ -81,8 +82,10 @@ const App = () => {
       motifData,
       setMotifData,
       lexicalRichness,
-      setLexicalRichness
-  }), [characterData, networkData, novelData, associatedQuotes, topCharacterRelationships, title, topCharacterQuotes, attributedQuotes, quoteData, sentimentValues, inflectionPoints, plotSummaries, coverUrl, characterSentimentValues, chapterData, chapterNetworkData, chapterLengths, cooccurrenceNetworkData, authorData, setCharacterData, setNetworkData, setNovelData, setAssociatedQuotes, setTopCharacterRelationships, setTitle, setTopCharacterQuotes, setAttributedQuotes, setQuoteData, setSentimentValues, setInflectionPoints, setPlotSummaries, setCoverUrl, setCharacterSentimentValues, setChapterData, setChapterNetworkData, setChapterLengths, setCooccurrenceNetworkData, setAuthorData, setMotifData, lexicalRichness, setLexicalRichness]);
+      setLexicalRichness,
+      chapterCooccurrenceData,
+      setChapterCooccurrenceData
+  }), [characterData, networkData, novelData, associatedQuotes, topCharacterRelationships, title, topCharacterQuotes, attributedQuotes, quoteData, sentimentValues, inflectionPoints, plotSummaries, coverUrl, characterSentimentValues, chapterData, chapterNetworkData, chapterLengths, cooccurrenceNetworkData, authorData, setCharacterData, setNetworkData, setNovelData, setAssociatedQuotes, setTopCharacterRelationships, setTitle, setTopCharacterQuotes, setAttributedQuotes, setQuoteData, setSentimentValues, setInflectionPoints, setPlotSummaries, setCoverUrl, setCharacterSentimentValues, setChapterData, setChapterNetworkData, setChapterLengths, setCooccurrenceNetworkData, setAuthorData, setMotifData, lexicalRichness, setLexicalRichness, chapterCooccurrenceData, setChapterCooccurrenceData]);
 
   return (
     <BrowserRouter>
@@ -101,7 +104,7 @@ const App = () => {
           <Route path="/author/:novelId" element={<Author />} />
           <Route path="/themes-and-motifs/:novelId" element={<ThemesAndMotifs />} />
           <Route path="/vocabulary/:novelId" element={<Vocabulary />} />
-          <Route path="/character-relationships/:novelId" element={<CharacterRelationships />} />
+          <Route path="/character-interactions/:novelId" element={<CharacterInteractions />} />
         </Routes>
       </BookContext.Provider>
     </BrowserRouter>

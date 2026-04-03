@@ -92,7 +92,7 @@ const CharacterAnalysisLanding = () => {
                         <div className="flex flex-col gap-4 w-full border border-gray-300 rounded-lg p-4">
                             <div className="flex items-center justify-center relative">
                                 <h1 className="font-serif text-center text-xl mr-1">{title} | </h1>
-                                <div className="border border-gray-300 rounded px-2 py-[2px]">
+                                <div className="border border-gray-300 rounded px-2 py-[2px] shadow-sm">
                                     <Select.Root value={networkMode} onValueChange={setNetworkMode}>
                                         <Select.Trigger asChild>
                                             <div className="flex items-center gap-2 cursor-pointer">

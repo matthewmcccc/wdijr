@@ -57,9 +57,9 @@ const Miscellany = () => {
             image: OpenBook
         },
         {
-            title: "Character Relationships",
-            description: "Explore how relationships between characters evolve throughout the novel.",
-            url: `/character-relationships/${novelId}`,
+            title: "Character Interactions",
+            description: "Explore how interactions between characters evolve throughout the novel.",
+            url: `/character-interactions/${novelId}`,
             image: Quill
         },
         {

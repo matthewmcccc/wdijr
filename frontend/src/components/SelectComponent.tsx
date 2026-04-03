@@ -1,8 +1,8 @@
 import * as Select from "@radix-ui/react-select";
 
 interface SelectComponentProps {
-    networkMode: "conversational" | "cooccurrence";
-    setNetworkMode: (mode: "conversational" | "cooccurrence") => void;
+    networkMode?: "conversational" | "cooccurrence";
+    setNetworkMode?: (mode: "conversational" | "cooccurrence") => void;
 }
 
 const SelectComponent = ({ networkMode, setNetworkMode }: SelectComponentProps) => {
@@ -12,7 +12,7 @@ const SelectComponent = ({ networkMode, setNetworkMode }: SelectComponentProps) 
                 <Select.Value placeholder="Select network type" />
             </Select.Trigger>
             <Select.Portal>
-                <Select.Content className="bg-gray-100 border border-gray-300 rounded-md p-2">
+                <Select.Content position="popper" side="bottom" sideOffset={8} className="border border-gray-300 text-black bg-white p-1 rounded z-50 min-w-[280px]">
                     <Select.Viewport>
                         <Select.Item value="conversational">
                             <Select.ItemText>Conversational</Select.ItemText>

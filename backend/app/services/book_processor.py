@@ -147,7 +147,6 @@ def process_text(self, book_path):
     chapter_conversational_networks = get_chapter_networks(er, associated_quotes)
     chapter_nw_nodes = get_chapter_network_nodes(er, chapter_conversational_networks)
 
-
     mapping = er.persons_to_id()
 
     offset = 0
@@ -239,6 +238,7 @@ def process_text(self, book_path):
         "author_details": author_details,
         "motifs": motifs,
         "lexical_richness": lexical_richness,
+        "chapter_cooccurrence_network": ch_cooccurence_result,
     }
 
 

@@ -76,6 +76,8 @@ interface BookContextType {
     setMotifData: (data: { motif_groups: Array<{ category: string; motifs: string[]; summary: string }> }) => void,
     lexicalRichness: Array<{character: string, data: Record<string, any>}> | null,
     setLexicalRichness: (data: Array<{character: string, data: Record<string, any>}>) => void,
+    chapterCooccurrenceData: Record<string, Record<string, number>> | null,
+    setChapterCooccurrenceData: (data: Record<string, Record<string, number>>) => void,
 }
 
 export const BookContext = createContext<BookContextType | null>(null);

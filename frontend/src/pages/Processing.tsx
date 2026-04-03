@@ -30,6 +30,7 @@ const Processing = () => {
     const setAuthorData = useContext(BookContext)?.setAuthorData;
     const setMotifData = useContext(BookContext)?.setMotifData;
     const setLexicalRichness = useContext(BookContext)?.lexicalRichness;
+    const setChapterCooccurrenceData = useContext(BookContext)?.setChapterCooccurrenceData;
 
     useEffect(() => {
         if (done) return;
