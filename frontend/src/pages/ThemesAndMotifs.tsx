@@ -65,7 +65,7 @@ const ThemesAndMotifs = () => {
             <hr className="border-gray-300 mb-4" />
             {hasMotifData ? ( 
                 <>
-                    <div className="border border-gray-300 rounded-md mb-8">
+                    <div className="border border-gray-300 rounded-md mb-8 shadow-md">
                         <div className="flex items-center justify-between px-4 py-2">
                             <h1></h1>
                             <h1 className="text-xl font-serif my-4 text-center">{bookTitle} | Motifs</h1>

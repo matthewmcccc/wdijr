@@ -159,8 +159,8 @@ const CharacterAnalysisProfile = () => {
                     </div>
                     <div className="flex-1 flex-col min-w-[280px]">
                         {topRelationships.length > 0 && (
-                            <div className="border border-gray-300 rounded-lg p-4">
-                                <div className="flex justify-between items-center">
+                            <div className="border border-gray-300 rounded-lg p-4 shadow-md">
+                                <div className="flex justify-between items-center ">
                                     <h1></h1>
                                     <h1 className="font-serif text-lg text-center">Closely Related Characters</h1>
                                     <TooltipComponent
@@ -180,7 +180,7 @@ const CharacterAnalysisProfile = () => {
                                 ))}
                             </div>
                         )}
-                        <div className="mt-16 border border-gray-300 rounded-lg p-4">
+                        <div className="mt-16 border border-gray-300 rounded-lg p-4 shadow-md">
                             <div className="flex justify-between items-center">
                                 <h1></h1>
                                 <h1 className="font-serif text-center text-lg mt-2">Notable Quotes</h1>
@@ -203,7 +203,7 @@ const CharacterAnalysisProfile = () => {
                 </div>
                 <hr className="border-gray-300 w-1/2 mx-auto my-12" />
                 <div className="grid grid-cols-2 gap-8 mt-12">
-                    <div ref={leftChartRef} className="overflow-hidden border border-gray-300 rounded-lg p-4">
+                    <div ref={leftChartRef} className="overflow-hidden border border-gray-300 rounded-lg p-4 shadow-md">
                         <h1 className="font-serif text-md mb-4 text-center text-lg">
                             {characterName ? `${humanize(characterName)}'s Sentiment Over Time` : "Sentiment Over Time"}
                         </h1>
@@ -214,7 +214,7 @@ const CharacterAnalysisProfile = () => {
                             height={300}
                         />
                     </div>
-                    <div ref={rightChartRef} className="overflow-hidden border border-gray-300 rounded-lg p-4">
+                    <div ref={rightChartRef} className="overflow-hidden border border-gray-300 rounded-lg p-4 shadow-md">
                         <h1 className="font-serif text-md mb-4 text-center text-lg">
                             {characterName ? `${humanize(characterName)}'s Social Network` : "Social Network"}
                         </h1>

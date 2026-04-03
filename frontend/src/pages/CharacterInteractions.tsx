@@ -65,8 +65,8 @@ export const CharacterInteractions = () => {
                 </p>
             </div>
             <hr className="my-4 border-gray-300" />
-            <div className="flex flex-col gap-4">
-                <div className="flex flex-row gap-4 border border-gray-100 w-fit p-2 rounded-xl items-center shadow-xs">
+            <div className="flex flex-col gap-6">
+                <div className="flex flex-row gap-4 border border-gray-100 w-fit p-2 rounded-xl items-center mx-auto shadow-xs">
                     <div className="border border-gray-300 rounded-lg px-3 py-[2px]">
                         <CharacterSelectComponent characters={characters.filter(c => c !== charB)} selectedCharacter={charA} setSelectedCharacter={setCharA} />
                     </div>
@@ -75,7 +75,7 @@ export const CharacterInteractions = () => {
                         <CharacterSelectComponent characters={characters.filter(c => c !== charA)} selectedCharacter={charB} setSelectedCharacter={setCharB} />
                     </div>
                 </div>
-                <div className="border border-gray-300 rounded-lg p-4">
+                <div className="border border-gray-300 rounded-lg p-4 shadow-md">
                     {charA && charB && <h1 className="text-xl font-serif mb-4 text-center">{title} | {humanize(charA)} & {humanize(charB)} Interactions</h1>}
                     <InteractionsLineChart data={chartData} />
                 </div>

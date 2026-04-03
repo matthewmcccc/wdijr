@@ -150,7 +150,7 @@ const Vocabulary = () => {
                             "{mostDiverseCharacterQuote.content}"
                         </blockquote>
                         <p className="text-xs text-gray-400 mt-1">Chapter {mostDiverseCharacterQuote.chapter_number}</p>
-                        <p className="text-xs text-gray-700 mt-2 bg-gray-300 p-2 rounded w-fit">
+                        <p className="text-xs text-gray-700 mt-2 bg-gray-100 p-2 rounded w-fit">
                             Words unique to <span className="font-semibold">{humanize(mostDiverseCharacter.character)}</span>: {exclusiveWords(mostDiverseCharacter.character).slice(0, 10).map(word => word.toLowerCase()).join(', ')}
                         </p>
                     </div>
@@ -164,7 +164,7 @@ const Vocabulary = () => {
                             "{leastDiverseCharacterQuote.content}"
                         </blockquote>
                         <p className="text-xs text-gray-400 mt-1">Chapter {leastDiverseCharacterQuote.chapter_number}</p>
-                        <p className="text-xs text-gray-700 mt-2 bg-gray-300 p-2 rounded w-fit">
+                        <p className="text-xs text-gray-700 mt-2 bg-gray-100 p-2 rounded w-fit">
                             Words unique to <span className="font-semibold">{humanize(leastDiverseCharacter.character)}</span>: {exclusiveWords(leastDiverseCharacter.character).slice(0, 10).map(word => word.toLowerCase()).join(', ')}
                         </p>
                     </div>

@@ -51,6 +51,10 @@ const ChapterAnalysis = () => {
         }
     })
 
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, [chapterNumber]);
+
     const keyCharacters = quoteData
         ?.filter(quote => quote.chapter_number === parseInt(chapterNumber))
         .reduce((acc, quote) => {
@@ -121,7 +125,7 @@ const ChapterAnalysis = () => {
                             </p>
                         </div>
                         <div className="flex-3 md:flex-1">
-                            <div className="border border-gray-300 rounded-lg p-4 w-full">
+                            <div className="border border-gray-300 rounded-lg p-4 w-full h-fit shadow-md">
                                 <h1 className="text-xl font-serif mb-4 text-center mt-4 md:mt-0 md:text-center">
                                     Key Characters
                                 </h1>
@@ -137,7 +141,7 @@ const ChapterAnalysis = () => {
                                 </ul>
                             </div>
                                 {keyEvents && keyEvents.length > 0 && (
-                                    <div className="border border-gray-300 rounded-lg p-4 mt-6">
+                                    <div className="border border-gray-300 rounded-lg p-4 mt-6 shadow-md">
                                         <h1 className="text-center md:text-center text-xl font-serif mb-2">
                                             Key Events
                                         </h1>
@@ -168,7 +172,7 @@ const ChapterAnalysis = () => {
                 <div className="flex flex-col md:flex-row gap-6 justify-between">
                     {chapterHasSentimentData && (
                         <div className="">
-                            <div className="border border-gray-300 rounded-lg p-4 w-fit">
+                            <div className="border border-gray-300 rounded-lg p-4 w-fit shadow-md">
                                 <h1 className="text-lg font-serif mb-4 text-center">Chapter Sentiment</h1>
                                 <hr className="border-gray-300 my-4 w-1/2 mx-auto"/>
                                 <SentimentAreaChart
@@ -181,7 +185,7 @@ const ChapterAnalysis = () => {
                         </div>
                     )}
                     {chapterHasNetworkData && (
-                        <div className="border border-gray-300 rounded-lg p-4 w-fit">
+                        <div className="border border-gray-300 rounded-lg p-4 w-fit shadow-md">
                             <h1 className="text-lg font-serif mb-4 text-center">Chapter Network</h1>
                             <hr className="border-gray-300 my-4 w-1/2 mx-auto"/>
                             <NetworkGraph
