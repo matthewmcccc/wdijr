@@ -4,6 +4,7 @@ import spacy
 import gender_guesser.detector as gender
 import regex as re
 import networkx as nx
+from collections import Counter
 from bs4 import BeautifulSoup
 from app.parsers.epub import Epub
 from itertools import combinations
@@ -134,7 +135,17 @@ class EntityExtractor:
         for i, person in enumerate(self.canonical_characters):
             mapping[person] = i
         return mapping
-    
+
+    def build_character_occurence(self, paras: list[str]) -> dict:
+        occurences = Counter()
+        persons_dict = self.build_persons_dict()
+        for para in paras:
+            para_lower = para.lower()
+            for variant, canonical in persons_dict.items():
+                if variant in para_lower:
+                    occurences[canonical] += 1
+        return occurences
+
     def build_cooccurrence_network(self, paras: list[str]) -> dict:
         cooccurrence_dict = defaultdict(list)
         persons_dict = self.build_persons_dict()

@@ -26,13 +26,14 @@ load_dotenv()
 if __name__ == "__main__":
     book: Epub = Epub("./app/temp/aaiw.epub")
     er: EntityExtractor = EntityExtractor(
-        "en_core_web_trf",
+        "en_core_web_trf", 
         book.get_full_text()
     )
-    ch_dict = {}
+    ch_occurences_dict = defaultdict(dict)
     for idx, ch in book.chapters.items():
         soup = BeautifulSoup(ch.item.get_body_content(), "html.parser")
-        ch_dict[idx] = [para.get_text() for para in soup.find_all("p")]
-
-    result = er.build_chapter_cooccurrence(ch_dict)
-    print(json.dumps(result))
+        paras = [para.get_text() for para in soup.find_all("p")]
+        ch_occurences = er.build_character_occurence(paras)
+        ch_occurences_dict[idx] = ch_occurences
+    print(ch_occurences_dict)
+        
