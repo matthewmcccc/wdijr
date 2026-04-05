@@ -9,9 +9,13 @@ from dotenv import load_dotenv
 from collections import defaultdict
 from app.parsers.epub import Epub
 from app.services.celery_worker import celery_app
-from app.analysis.ner import EntityExtractor
+from app.analysis.character_extractor import CharacterExtractor
+from app.analysis.network_builder import NetworkBuilder
 from app.analysis.plot_sentiment import PlotSentiment
+from app.analysis.quote_attributor import QuoteAttributor
+from app.analysis.lexical_analysis import LexicalAnalysis
 from app.services.task_states import TaskState
+from app.analysis.sentiment import build_sentiment_dict_from_network, get_top_relationships
 from app.llm.gemini import Gemini
 from .db_helper import save_analysis_to_db
 
@@ -61,34 +65,38 @@ def process_text(self, book_path):
 
     self.update_state(state="PROCESSING", meta={"status": "Identifying characters..."})
 
-    er: EntityExtractor = EntityExtractor("en_core_web_trf", text)
+    ce: CharacterExtractor = CharacterExtractor(text)
+    character_dict = ce.build_character_dict()
+    nb: NetworkBuilder = NetworkBuilder(ce.consolidated_characters)
+    qa: QuoteAttributor = QuoteAttributor(ce.consolidated_characters, character_dict, book.get_full_text())
+    la: LexicalAnalysis = LexicalAnalysis(ce.consolidated_characters)
     g: Gemini = Gemini()
 
     self.update_state(
         state="PROCESSING", meta={"status": "Associating quotes with characters..."}
     )
 
-    associated_quotes = er.associate_text_quotes(quotes)
+    associated_quotes = qa.associate_text_quotes(quotes, character_dict)
 
     self.update_state(state="PROCESSING", meta={"status": "Building social network..."})
 
-    conversational_network = er.build_conversational_network(associated_quotes)
-    cooccurrence_network_data = er.build_cooccurrence_network(book.get_full_text_paras())
+    conversational_network = nb.build_conversational_network(associated_quotes)
+    cooccurrence_network_data = nb.build_cooccurrence_network(book.get_full_text_paras())
 
     ch_dict = {}
     for idx, ch in book.chapters.items():
         soup = BeautifulSoup(ch.item.get_body_content(), "html.parser")
         ch_dict[idx] = [para.get_text() for para in soup.find_all("p")]
-    ch_cooccurence_result = json.dumps(er.build_chapter_cooccurrence(ch_dict))
+    ch_cooccurence_result = json.dumps(nb.build_chapter_cooccurrence(ch_dict))
     
-    conversational_nw_nodes = er.get_nodes_from_network_dict(conversational_network)
+    conversational_nw_nodes = nb.get_nodes_from_network_dict(conversational_network)
 
-    characters = er.canonical_characters
+    characters = ce.canonical_characters
     characters = [{"id": i, "name": name} for i, name in enumerate(characters)]
 
     self.update_state(state="PROCESSING", meta={"status": "Analysing plot data..."})
 
-    character_to_character_sentiment_dict = er.build_sentiment_dict_from_network(
+    character_to_character_sentiment_dict = build_sentiment_dict_from_network(
         nw_dict=conversational_network
     )
 
@@ -123,16 +131,16 @@ def process_text(self, book_path):
     top_quotes = {}
     for character in characters: 
         name = character["name"]
-        top_relationships_dict[name] = er.get_top_relationships(conversational_network, name)
-        top_quotes[name] = er.get_character_quotes(conversational_network, name)
+        top_relationships_dict[name] = get_top_relationships(conversational_network, name)
+        top_quotes[name] = qa.get_character_quotes(conversational_network, name)
 
     flat_texts = [text for chapter_texts in text_for_summarisation for text in chapter_texts]
-    character_summaries = get_character_summaries(er, characters, conversational_network, g, book.title)
+    character_summaries = get_character_summaries(qa, characters, conversational_network, g, book.title)
     self.update_state(
         state="PROCESSING", meta={"status": "Creating character summaries..."}
     )
 
-    plot_summaries = get_plot_summaries(g, flat_texts, er.canonical_characters)
+    plot_summaries = get_plot_summaries(g, flat_texts, ce.canonical_characters)
     self.update_state(
         state="PROCESSING", meta={"status": "Creating plot summaries..."}
     )
@@ -142,10 +150,10 @@ def process_text(self, book_path):
         state="PROCESSING", meta={"status": "Creating chapter summaries..."}
     )
 
-    chapter_conversational_networks = get_chapter_networks(er, associated_quotes)
-    chapter_nw_nodes = get_chapter_network_nodes(er, chapter_conversational_networks)
+    chapter_conversational_networks = get_chapter_networks(qa, nb, associated_quotes)
+    chapter_nw_nodes = get_chapter_network_nodes(nb, chapter_conversational_networks)
 
-    mapping = er.persons_to_id()
+    mapping = ce.characters_to_id()
 
     offset = 0
     global_inflection_points = []
@@ -177,8 +185,8 @@ def process_text(self, book_path):
         g
     )
 
-    lexical_richness = er.character_lexical_richness(
-        quotes,
+    lexical_richness = la.character_lexical_richness(
+        associated_quotes,
         100
     )
 
@@ -239,29 +247,28 @@ def process_text(self, book_path):
         "chapter_cooccurrence_network": ch_cooccurence_result,
     }
 
-
-def get_chapter_networks(er: EntityExtractor, associated_quotes):
-    chapter_associated_quotes = er.get_associated_quotes_by_chapter(associated_quotes)
+def get_chapter_networks(qa: QuoteAttributor, nb: NetworkBuilder, associated_quotes):
+    chapter_associated_quotes = qa.get_associated_quotes_by_chapter(associated_quotes)
     chapter_conversational_networks = defaultdict(dict)
     for idx, chapter_quotes in chapter_associated_quotes.items():
-        chapter_conversational_networks[idx] = er.build_conversational_network(
+        chapter_conversational_networks[idx] = nb.build_conversational_network(
             chapter_quotes
         )
     return chapter_conversational_networks
 
 
-def get_chapter_network_nodes(er: EntityExtractor, chapter_networks: dict) -> dict:
+def get_chapter_network_nodes(nb: NetworkBuilder, chapter_networks: dict) -> dict:
     chapter_network_nodes = defaultdict(dict)
     for idx, nw in chapter_networks.items():
-        chapter_network_nodes[idx] = er.get_nodes_from_network_dict(nw)
+        chapter_network_nodes[idx] = nb.get_nodes_from_network_dict(nw)
     return chapter_network_nodes
 
 def get_character_summaries(
-    er: EntityExtractor, characters: list[dict], nw_dict, g: Gemini, title
+    qa: QuoteAttributor, characters: list[dict], nw_dict, g: Gemini, title
 ):
     associated_quotes_obj_list = {}
     for character in characters:
-        char_quotes = er.get_character_quotes(
+        char_quotes = qa.get_character_quotes(
             nw_dict=nw_dict,
             character=str(character["name"]),
             n=20,
@@ -299,9 +306,9 @@ def get_plot_summaries(g: Gemini, summarisation_texts: list[tuple], characters: 
     plot_summaries = g.text_span_summary_mass_prompt(
         "gemini-2.5-flash", text_only, "excerpt_summary", characters
     )
-    return zip(plot_summaries, chapter_indices)
+    return list(zip(plot_summaries, chapter_indices))
 
-def get_character_thumbnails(title: str, er: EntityExtractor, novel_id: str):
+def get_character_thumbnails(title: str, ce: CharacterExtractor, novel_id: str):
     def send_request(character: str, title: str):
         try:
             api_key = os.getenv("SERP_API_KEY")
@@ -321,7 +328,7 @@ def get_character_thumbnails(title: str, er: EntityExtractor, novel_id: str):
             "device": "desktop"
         })
 
-        data_dir = os.path.join(os.path.dirname(__file__), "..", "data", {novel_id}, "character_thumbnails")
+        data_dir = os.path.join(os.path.dirname(__file__), "..", "data", str(novel_id), "character_thumbnails")
 
         try:
             image_results = results["image_results"]
@@ -333,7 +340,7 @@ def get_character_thumbnails(title: str, er: EntityExtractor, novel_id: str):
         except Exception as e:
             print(f"Couldn't grab image from results: {e}")
 
-    for character in er.canonical_characters:
+    for character in ce.canonical_characters:
         send_request(character, title)
 
 def get_author_data(book: Epub, g: Gemini, author: str) -> dict:
@@ -387,7 +394,7 @@ def get_author_data(book: Epub, g: Gemini, author: str) -> dict:
         author_dict["name"] = author
         try:
             author_dict["image_url"] = extract["thumbnail"]["source"]
-        except:
+        except KeyError:
             author_dict["image_url"] = ""
         author_dict["description"] = json.loads(author_summary)["summary"]
         author_dict["other_works"] = other_works_list
