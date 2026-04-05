@@ -9,8 +9,8 @@ from dotenv import load_dotenv
 from collections import defaultdict
 from app.parsers.epub import Epub
 from app.services.celery_worker import celery_app
-from app.nlp.ner import EntityExtractor
-from app.nlp.plot_sentiment import PlotSentiment
+from app.analysis.ner import EntityExtractor
+from app.analysis.plot_sentiment import PlotSentiment
 from app.services.task_states import TaskState
 from app.llm.gemini import Gemini
 from .db_helper import save_analysis_to_db

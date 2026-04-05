@@ -11,8 +11,8 @@ from itertools import combinations
 from pathlib import Path
 from app.parsers.book import Chapter
 from app.parsers.epub import Epub
-from app.nlp.ner import EntityExtractor
-from app.nlp.plot_sentiment import PlotSentiment
+from app.analysis.ner import EntityExtractor
+from app.analysis.plot_sentiment import PlotSentiment
 from app.llm.gemini import Gemini
 from app.services.book_processor import process_text
 from PIL import Image
