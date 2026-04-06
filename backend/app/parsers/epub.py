@@ -47,7 +47,6 @@ class Epub(Book):
             fragment = full_href.split("#")[1] if "#" in full_href else None
 
             ch_title = item.title
-            print(f"title: '{ch_title}' valid: {self.check_valid_ch_title(ch_title)}")
             match = re.match(r'CHAPTER\s+([IVXLC\d]+)\.?\s*(.*)', ch_title, re.IGNORECASE)
             if match:
                 numeral = match.group(1).upper()
@@ -79,7 +78,6 @@ class Epub(Book):
                 text = "\n".join(p.get_text() for p in soup.find_all("p"))
 
             words = text.split()
-            print(f"'{ch_title}' — fragment: {fragment} — words: {len(words)}")
             if len(words) < MIN_CHAPTER_WORD_LEN:
                 continue
 

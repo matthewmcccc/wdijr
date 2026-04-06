@@ -1,4 +1,4 @@
-import re
+import regex as re
 
 def clean_string(s: str) -> str:
     """

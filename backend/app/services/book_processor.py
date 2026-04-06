@@ -47,16 +47,19 @@ def process_epub(self, book_path) -> Epub:
 
 # TODO: split this up a bit
 @celery_app.task(bind=True)
-def process_text(self, book_path):
+def process_text(self, book_path: str):
+    book, title, author, cover, chapters = parse_book(book_path)
+    text = book.get_full_text()
+
     ps: PlotSentiment = PlotSentiment()
+    ce: CharacterExtractor = CharacterExtractor(text)
+    character_dict = ce.build_character_dict()
+    nb: NetworkBuilder = NetworkBuilder(ce.consolidated_characters)
+    qa: QuoteAttributor = QuoteAttributor(ce.consolidated_characters, character_dict, book.get_full_text())
+    la: LexicalAnalysis = LexicalAnalysis(ce.consolidated_characters)
+    g: Gemini = Gemini()
 
     self.update_state(state="PROCESSING", meta={"status": "Parsing book..."})
-
-    book = Epub(book_path)
-    title = book.title
-    author = book.author
-    cover = book.cover
-    chapters = book.chapters
 
     self.update_state(state="PROCESSING", meta={"status": "Extracting quotes..."})
 
@@ -64,13 +67,6 @@ def process_text(self, book_path):
     quotes = book.get_full_text_quotes(text)
 
     self.update_state(state="PROCESSING", meta={"status": "Identifying characters..."})
-
-    ce: CharacterExtractor = CharacterExtractor(text)
-    character_dict = ce.build_character_dict()
-    nb: NetworkBuilder = NetworkBuilder(ce.consolidated_characters)
-    qa: QuoteAttributor = QuoteAttributor(ce.consolidated_characters, character_dict, book.get_full_text())
-    la: LexicalAnalysis = LexicalAnalysis(ce.consolidated_characters)
-    g: Gemini = Gemini()
 
     self.update_state(
         state="PROCESSING", meta={"status": "Associating quotes with characters..."}
@@ -81,13 +77,13 @@ def process_text(self, book_path):
     self.update_state(state="PROCESSING", meta={"status": "Building social network..."})
 
     conversational_network = nb.build_conversational_network(associated_quotes)
-    cooccurrence_network_data = nb.build_cooccurrence_network(book.get_full_text_paras())
+    cooccurrence_network_data = nb.build_cooccurrence_network(book.get_full_text_paras(), character_dict)
 
     ch_dict = {}
     for idx, ch in book.chapters.items():
         soup = BeautifulSoup(ch.item.get_body_content(), "html.parser")
         ch_dict[idx] = [para.get_text() for para in soup.find_all("p")]
-    ch_cooccurence_result = json.dumps(nb.build_chapter_cooccurrence(ch_dict))
+    ch_cooccurence_result = json.dumps(nb.build_chapter_cooccurrence(ch_dict, character_dict))
     
     conversational_nw_nodes = nb.get_nodes_from_network_dict(conversational_network)
 
@@ -100,32 +96,14 @@ def process_text(self, book_path):
         nw_dict=conversational_network
     )
 
-    chapter_valence_vals: list = []
-    for idx, chapter in book.chapters.items():
-        word_list = book.get_chapter_word_list(idx)
-        try:
-            sentiment_values = ps.get_section_valence(
-                word_list
-            )
-            chapter_valence_vals.append(sentiment_values)
-        except ValueError:
-            chapter_valence_vals.append([])
-    diff_values = []
-    for idx, valence_vals in enumerate(chapter_valence_vals):
-        first_diff = ps.first_difference(
-            valence_vals
-        )
-        diff_values.append(sorted(first_diff, key=lambda x: abs(x[1]), reverse=True)[:2])
+    chapter_valence_vals = get_chapter_valence_vals(book, ps)    
+    diff_values = get_diff_values(chapter_valence_vals, ps)
+    text_for_summarisation = get_text_for_summarisation(book, ps, diff_values, chapter_valence_vals)
 
-    text_for_summarisation = []
-    for idx, valence_vals in enumerate(chapter_valence_vals):
-        sum_text = ps.get_text_for_summarization(
-            book.get_chapter_text(idx),
-            diff_values[idx],
-            len(chapter_valence_vals[idx]),
-            idx
-        )   
-        text_for_summarisation.append(sum_text)
+    global_inflection_points = get_global_inflection_points(
+        chapter_valence_vals,
+        text_for_summarisation
+    )
 
     top_relationships_dict = {}
     top_quotes = {}
@@ -152,19 +130,9 @@ def process_text(self, book_path):
 
     chapter_conversational_networks = get_chapter_networks(qa, nb, associated_quotes)
     chapter_nw_nodes = get_chapter_network_nodes(nb, chapter_conversational_networks)
+    character_chapter_occurences = get_character_chapter_occurences(book, nb, character_dict)
 
     mapping = ce.characters_to_id()
-
-    offset = 0
-    global_inflection_points = []
-    for idx, valence_vals in enumerate(chapter_valence_vals):
-        chapter_point_count = len(valence_vals)
-        for item in text_for_summarisation[idx]:
-            text, chapter_idx, mid_pos, delta = item
-            global_x = offset + mid_pos * (chapter_point_count - 1)
-            global_inflection_points.append((global_x, delta))
-        offset += chapter_point_count
-    global_inflection_points.sort(key=lambda p: p[0])
 
     self.update_state(
         state="PROCESSING", meta={"status": "Calculating key plot points..."}
@@ -193,7 +161,6 @@ def process_text(self, book_path):
     novel_description = get_novel_description(
         book, g
     )
-
     self.update_state(
         state="PROCESSING", meta={"status": "Finalising analysis..."}
     )
@@ -223,6 +190,7 @@ def process_text(self, book_path):
         motifs=motifs,
         lexical_richness=lexical_richness,
         novel_description=novel_description,
+        character_chapter_occurences=character_chapter_occurences
     )
 
     cover_url = book.write_cover(cover, novel_id)
@@ -245,7 +213,74 @@ def process_text(self, book_path):
         "motifs": motifs,
         "lexical_richness": lexical_richness,
         "chapter_cooccurrence_network": ch_cooccurence_result,
+        "character_chapter_occurences": character_chapter_occurences,
     }
+
+def get_character_chapter_occurences(book: Epub, nb: NetworkBuilder, character_dict) -> dict:
+    character_ch_occurences = defaultdict(dict)
+    for idx, ch in book.chapters.items():
+        soup = BeautifulSoup(ch.item.get_body_content(), "html.parser")
+        paras = [para.get_text().lower() for para in soup.find_all("p")]
+        character_ch_occurences[idx] = nb.build_character_occurence(
+            paras, character_dict
+        )
+    return character_ch_occurences
+
+
+def get_global_inflection_points(chapter_valence_vals, text_for_summarisation):
+    offset = 0
+    global_inflection_points = []
+    for idx, valence_vals in enumerate(chapter_valence_vals):
+        chapter_point_count = len(valence_vals)
+        for item in text_for_summarisation[idx]:
+            text, chapter_idx, mid_pos, delta = item
+            global_x = offset + mid_pos * (chapter_point_count - 1)
+            global_inflection_points.append((global_x, delta))
+        offset += chapter_point_count
+    global_inflection_points.sort(key=lambda p: p[0])
+
+def get_chapter_valence_vals(book: Epub, ps: PlotSentiment):
+    chapter_valence_vals: list = []
+    for idx, chapter in book.chapters.items():
+        word_list = book.get_chapter_word_list(idx)
+        try:
+            sentiment_values = ps.get_section_valence(
+                word_list
+            )
+            chapter_valence_vals.append(sentiment_values)
+        except ValueError:
+            chapter_valence_vals.append([])
+    return chapter_valence_vals
+
+def get_diff_values(chapter_valence_vals, ps: PlotSentiment):
+    diff_values = []
+    for idx, valence_vals in enumerate(chapter_valence_vals):
+        first_diff = ps.first_difference(
+            valence_vals
+        )
+        diff_values.append(sorted(first_diff, key=lambda x: abs(x[1]), reverse=True)[:2])
+    return diff_values
+
+def get_text_for_summarisation(book: Epub, ps: PlotSentiment, diff_values, chapter_valence_vals):
+    text_for_summarisation = []
+    for idx, valence_vals in enumerate(chapter_valence_vals):
+        sum_text = ps.get_text_for_summarization(
+            book.get_chapter_text(idx),
+            diff_values[idx],
+            len(chapter_valence_vals[idx]),
+            idx
+        )   
+        text_for_summarisation.append(sum_text)
+    return text_for_summarisation
+
+def parse_book(book_path: str) -> tuple[Epub, str, str, list, dict]:
+    book: Epub = Epub(book_path)
+    title: str = book.title
+    author: str = book.author
+    cover: list = book.cover
+    chapters: dict = book.chapters
+    
+    return (book, title, author, cover, chapters)
 
 def get_chapter_networks(qa: QuoteAttributor, nb: NetworkBuilder, associated_quotes):
     chapter_associated_quotes = qa.get_associated_quotes_by_chapter(associated_quotes)

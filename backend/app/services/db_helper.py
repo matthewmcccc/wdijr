@@ -43,6 +43,7 @@ def save_analysis_to_db(
     lexical_richness,
     novel_description,
     chapter_cooccurrence_network,
+    character_chapter_occurences,
     has_cover=False,
 ):
     with Session(sync_engine) as session:
@@ -123,7 +124,8 @@ def save_analysis_to_db(
             motifs=motifs,
             cooccurrence_network=cooccurrence_frequency_network,
             lexical_richness=lexical_richness,
-            chapter_cooccurrence_network=json.loads(chapter_cooccurrence_network)
+            chapter_cooccurrence_network=json.loads(chapter_cooccurrence_network),
+            character_chapter_occurences=character_chapter_occurences,
         )
 
         author_obj = Author(

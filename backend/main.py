@@ -5,21 +5,12 @@ import os
 import io
 import json
 import serpapi
-from bs4 import BeautifulSoup
-from urllib.parse import urlparse
-from itertools import combinations
-from pathlib import Path
-from app.parsers.book import Chapter
 from app.parsers.epub import Epub
 from app.analysis.character_extractor import CharacterExtractor
-from app.analysis.plot_sentiment import PlotSentiment
-from app.llm.gemini import Gemini
-from app.services.book_processor import process_text
-from PIL import Image
 from dotenv import load_dotenv
-from collections import defaultdict
-from app.services.book_processor import get_character_thumbnails
-from app.services.book_processor import get_author_data
+from app.analysis.network_builder import NetworkBuilder
+from app.analysis.quote_attributor import QuoteAttributor
+from app.services.book_processor import get_character_chapter_occurences
 
 load_dotenv()
 
@@ -28,6 +19,23 @@ if __name__ == "__main__":
     ch_extractor: CharacterExtractor = CharacterExtractor(
         book.get_full_text(),
     )
-    for character in ch_extractor.characters:
-        print(character)
-        
+    # characters_list = ch_extractor.consolidated_characters
+    # characters_dict = ch_extractor.build_character_dict()
+    canonical_characters = ch_extractor.canonical_characters
+
+    # qa: QuoteAttributor = QuoteAttributor(canonical_characters, characters_dict, book.get_full_text())
+    # associated_quotes = qa.associate_text_quotes(
+    #     book.get_full_text_quotes(book.get_full_text()),
+    #     characters_dict
+    # )
+
+    nb: NetworkBuilder = NetworkBuilder(canonical_characters)
+    # cn = nb.build_conversational_network(
+    #     associated_quotes
+    # )
+    char_occurences = get_character_chapter_occurences(
+        book, nb, ch_extractor.build_character_dict()
+    )
+    print(char_occurences)
+
+

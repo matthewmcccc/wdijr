@@ -9,6 +9,7 @@ class AnalysisSchemaBase(BaseModel):
     conversational_network: dict
     cooccurrence_network: dict
     chapter_cooccurrence_network: dict
+    character_chapter_occurences: dict
     sentiment_values: list
     inflection_points: list
     plot_summaries: list
