@@ -25,6 +25,7 @@ class Epub(Book):
         self.full_word_list: list[str] = self.get_full_text_word_list()
         self.full_word_count: int = self.get_full_word_count()
         self.span_index: list[tuple[int, int]] = self.build_chapter_span_index()
+        self.text = self.get_full_text()
 
     def set_author(self) -> str:
         if self.book.get_metadata("DC", "creator"):
@@ -208,7 +209,7 @@ class Epub(Book):
             span_index[ch_idx] = (start_idx, end_idx)
         return span_index
 
-    def get_full_text_quotes(self, text: str) -> list[dict]:
+    def get_full_text_quotes(self) -> list[dict]:
         """
         Get a list of all of the quotes from the text,
         and spans of text before and after the quote.
@@ -218,24 +219,24 @@ class Epub(Book):
         :rtype list[dict]
         """
         quotes = []
-        text_len = range(len(text))
+        text_len = range(len(self.text))
         for i in text_len:
-            if text[i] in ('"', "“"):
+            if self.text[i] in ('"', "“"):
                 start_idx = i + 1
                 chars = []
                 i += 1
-                while text[i] not in ('"', "”"):
-                    chars.append(text[i])
+                while self.text[i] not in ('"', "”"):
+                    chars.append(self.text[i])
                     i += 1
 
                 end_idx = i - 1
                 quote_dict = {}
                 quote_len = len(chars)
 
-                prior = text[i - quote_len - PRIOR_SPAN_WINDOW : i - quote_len].replace(
+                prior = self.text[i - quote_len - PRIOR_SPAN_WINDOW : i - quote_len].replace(
                     "\n", " "
                 )
-                post = text[i : i + POST_SPAN_WINDOW].replace("\n", " ")
+                post = self.text[i : i + POST_SPAN_WINDOW].replace("\n", " ")
 
                 quote_str = "".join(chars)
                 quote_str = (

@@ -54,9 +54,9 @@ def process_text(self, book_path: str):
     ps: PlotSentiment = PlotSentiment()
     ce: CharacterExtractor = CharacterExtractor(text)
     character_dict = ce.build_character_dict()
-    nb: NetworkBuilder = NetworkBuilder(ce.consolidated_characters)
-    qa: QuoteAttributor = QuoteAttributor(ce.consolidated_characters, character_dict, book.get_full_text())
-    la: LexicalAnalysis = LexicalAnalysis(ce.consolidated_characters)
+    nb: NetworkBuilder = NetworkBuilder(ce.canonical_characters)
+    qa: QuoteAttributor = QuoteAttributor(ce.canonical_characters, character_dict, book.get_full_text())
+    la: LexicalAnalysis = LexicalAnalysis(ce.canonical_characters)
     g: Gemini = Gemini()
 
     self.update_state(state="PROCESSING", meta={"status": "Parsing book..."})
@@ -64,7 +64,7 @@ def process_text(self, book_path: str):
     self.update_state(state="PROCESSING", meta={"status": "Extracting quotes..."})
 
     text = book.get_full_text()
-    quotes = book.get_full_text_quotes(text)
+    quotes = book.get_full_text_quotes()
 
     self.update_state(state="PROCESSING", meta={"status": "Identifying characters..."})
 
@@ -238,6 +238,7 @@ def get_global_inflection_points(chapter_valence_vals, text_for_summarisation):
             global_inflection_points.append((global_x, delta))
         offset += chapter_point_count
     global_inflection_points.sort(key=lambda p: p[0])
+    return global_inflection_points
 
 def get_chapter_valence_vals(book: Epub, ps: PlotSentiment):
     chapter_valence_vals: list = []
