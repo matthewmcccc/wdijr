@@ -31,6 +31,7 @@ const Processing = () => {
     const setMotifData = useContext(BookContext)?.setMotifData;
     const setLexicalRichness = useContext(BookContext)?.lexicalRichness;
     const setChapterCooccurrenceData = useContext(BookContext)?.setChapterCooccurrenceData;
+    const setChapterOccurenceData = useContext(BookContext)?.setChapterOccurenceData;
 
     useEffect(() => {
         if (done) return;
@@ -56,6 +57,7 @@ const Processing = () => {
                 setCooccurrenceNetworkData?.(data.data.data.cooccurrence_network);
                 setAuthorData?.(data.data.data.author_details);
                 setMotifData?.(data.data.data.motifs.motif_groups);
+                setChapterOccurenceData?.(data.data.data.character_chapter_occurences);
                 setDone(true);
             }
         }, 2000);

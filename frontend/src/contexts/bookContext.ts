@@ -78,6 +78,8 @@ interface BookContextType {
     setLexicalRichness: (data: Array<{character: string, data: Record<string, any>}>) => void,
     chapterCooccurrenceData: Record<string, Record<string, number>> | null,
     setChapterCooccurrenceData: (data: Record<string, Record<string, number>>) => void,
+    chapterOccurenceData: Record<string, Record<string, number>> | null,
+    setChapterOccurenceData: (data: Record<string, Record<string, number>>) => void,
 }
 
 export const BookContext = createContext<BookContextType | null>(null);

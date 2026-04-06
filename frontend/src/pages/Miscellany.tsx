@@ -69,6 +69,12 @@ const Miscellany = () => {
             url: `/author/${novelId}`,
             image: Quill
         },
+        {
+            title: "Character Occurences",
+            description: "Examine the frequency and distribution of character appearances throughout the novel.",
+            url: `/character-occurences/${novelId}`,
+            image: Quill
+        }
     ]
 
     return (
