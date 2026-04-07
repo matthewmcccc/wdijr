@@ -208,7 +208,7 @@ const CharacterAnalysisLanding = () => {
                             {(!data.name) ? "" : null}
                             <CharacterCard 
                                 name={humanize(data.name)}
-                                image_url="https://upload.wikimedia.org/wikipedia/commons/6/63/Alice_par_John_Tenniel_04.png"
+                                image_url={data.image_url ? `${import.meta.env.VITE_API_URL.replace('/api', '/data')}/${novelId}/${data.image_url}` : undefined}
                                 // image_url={data.image_url ? `${import.meta.env.VITE_API_URL.replace('/api', '')}${data.image_url}` : defaultAvatar}
                                 description={data.description ?? "No description available."}
                                 // size={"large"}

@@ -97,6 +97,8 @@ const ChapterAnalysis = () => {
     const chapterHasNetworkData = chapterNetworkData && chapterNetworkData.nodes && chapterNetworkData.nodes.length > 0;
     const chapterHasSentimentData = chapterSentimentData && chapterSentimentData.length > 0;
 
+    console.log(characterImages);
+
     return (
         <div className="container mx-auto px-4 py-8">
             <Navbar />
@@ -134,7 +136,7 @@ const ChapterAnalysis = () => {
                                     {topCharacters.map(character => (
                                         <RelatedCharacterCard 
                                             name={humanize(character)}
-                                            image_url={characterImages[character] ?? ""}
+                                            image_url={`${import.meta.env.VITE_API_URL.replace('/api', '/data')}/${novelId}/${characterImages[character] ?? ""}`}
                                             description=""
                                         />
                                     ))}

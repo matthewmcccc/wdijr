@@ -9,7 +9,7 @@ import Quill from "../assets/img/ink_and_quill.png"
 import Interlock from "../assets/img/interlock.png"
 import OpenBook from "../assets/img/open_book.png"
 import Handshake from "../assets/img/handshake.png"
-
+import Footprint from "../assets/img/footprint.png"
 
 const Miscellany = () => {
     const bookContext = useContext(BookContext);
@@ -64,17 +64,17 @@ const Miscellany = () => {
             image: Handshake
         },
         {
+            title: "Character Occurences",
+            description: "Examine the frequency and distribution of character appearances throughout the novel.",
+            url: `/character-occurences/${novelId}`,
+            image: Footprint
+        },
+        {
             title: "About the Author",
             description: "Learn more about the author of the novel, including their background, influences, and other works.",
             url: `/author/${novelId}`,
             image: Quill
         },
-        {
-            title: "Character Occurences",
-            description: "Examine the frequency and distribution of character appearances throughout the novel.",
-            url: `/character-occurences/${novelId}`,
-            image: Quill
-        }
     ]
 
     return (

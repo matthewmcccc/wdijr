@@ -12,6 +12,8 @@ const RelatedCharacterCard = ({ name, image_url, quoteCount, sentiment }: { name
         ? sentiment > 0 ? "border-l-green-500" : sentiment < 0 ? "border-l-red-500" : "border-l-gray-400"
         : "border-l-gray-300";
 
+    console.log(image_url)
+
     return (
         <div 
             onClick={() => navigate(`/character/${novelId}/${name.toLowerCase().replace(/\s+/g, '-')}`)}
@@ -20,7 +22,7 @@ const RelatedCharacterCard = ({ name, image_url, quoteCount, sentiment }: { name
             <div className="flex items-center gap-3">
                 {image_url && (
                     <img 
-                        src={`${import.meta.env.VITE_API_URL.replace('/api', '')}${image_url}`} 
+                        src={image_url} 
                         alt={name} 
                         className="rounded-full w-10 h-10 object-cover" 
                     />

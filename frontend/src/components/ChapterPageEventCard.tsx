@@ -58,7 +58,7 @@ const ChapterPageEventCard = ({ title, eventType, description, characters, chara
                                     <div key={index} className="flex items-center px-2 py-1">
                                         <div className="relative group">
                                             <img
-                                                src={charInfo?.image_url ? `${import.meta.env.VITE_API_URL.replace('/api', '')}${charInfo.image_url}` : defaultAvatar}
+                                                src={charInfo?.image_url ? `${import.meta.env.VITE_API_URL.replace('/api', '/data')}/${bookContext?.novelData?.id}/${charInfo.image_url}` : defaultAvatar}
                                                 alt={character}
                                                 className="cursor-pointer w-14 h-14 object-cover border border-gray-800 p-1 rounded-lg"
                                                 onClick={() => window.open(

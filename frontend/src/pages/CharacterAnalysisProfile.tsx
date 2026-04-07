@@ -36,7 +36,7 @@ const CharacterAnalysisProfile = () => {
     const setChapterNetworkData = useContext(BookContext)?.setChapterNetworkData;
     const chapterData = useContext(BookContext)?.chapterData || [];
     const currentChar = humanize(characterName ?? "").toLowerCase();
-    const characterImageUrl = characterData?.image_url ? `${import.meta.env.VITE_API_URL.replace('/api', '')}${characterData.image_url}` : null;
+    const characterImageUrl = characterData?.image_url ? `${import.meta.env.VITE_API_URL.replace('/api', '/data')}/${novelId}/${characterData.image_url}` : null;
     const { containerRef: leftChartRef, width: leftChartWidth } = useContainerSize();
     const { containerRef: rightChartRef, width: rightChartWidth } = useContainerSize();
 
@@ -109,7 +109,7 @@ const CharacterAnalysisProfile = () => {
 
     const relatedCharacterImages = topRelationships.map(([relatedCharacter]) => {
         const relatedData = Object.values(allCharacterData ?? {}).find(c => c.name.toLowerCase() === relatedCharacter.toLowerCase());
-        return relatedData?.image_url;
+        return relatedData?.image_url ? `${import.meta.env.VITE_API_URL.replace('/api', '/data')}/${novelId}/${relatedData.image_url}` : undefined;
     });
 
     const notableQuotes = characterQuotes
@@ -118,6 +118,7 @@ const CharacterAnalysisProfile = () => {
         .sort((a: any, b: any) => Math.abs(b.sentiment) - Math.abs(a.sentiment))
         .slice(0, 5);
 
+    console.log(characterImageUrl);
 
     return (
         <div className="container mx-auto px-4 py-8">
@@ -132,7 +133,7 @@ const CharacterAnalysisProfile = () => {
                         />
                     </div>
                     <div>
-                        {characterImageUrl && <img src={characterImageUrl} alt={characterName ? humanize(characterName) : "Character Analysis"} className="border border-gray-300 p-1 mx-auto mb-4 rounded-lg w-36 h-36 object-cover" />}
+                        {characterImageUrl && <img src={characterImageUrl} alt={characterName ? humanize(characterName) : "Character Analysis"} className="border border-gray-300 p-1 mx-auto mb-4 rounded-lg w-40 h-48 object-cover" />}
                         <h1 className="text-4xl flex-1 text-center">
                             {characterName ? humanize(characterName) : "Character Analysis"}
                         </h1>

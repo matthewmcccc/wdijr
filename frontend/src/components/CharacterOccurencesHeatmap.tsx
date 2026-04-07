@@ -65,7 +65,7 @@ const CharacterOccurrencesHeatmap = ({ data }: CharacterOccurrencesHeatmapProps)
         const maxVal = d3.max(flat, (d) => d.value) || 1;
 
         const color = d3.scaleSequential()
-            .interpolator(d3.interpolateYlOrRd)
+            .interpolator(d3.interpolateGreens)
             .domain([0, maxVal]);
 
         svg.append("g")
