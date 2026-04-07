@@ -13,6 +13,7 @@ class CharacterSchemaBase(BaseModel):
     novel_id: uuid.UUID | None = None
     image_url: str | None = None
 
+
 class CharacterSchemaCreate(CharacterSchemaBase):
     pass
 

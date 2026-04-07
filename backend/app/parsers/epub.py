@@ -15,6 +15,7 @@ QUOTE_SPAN_WINDOW = 400
 CHUNK_SPAN_WINDOW = 500
 MIN_CHAPTER_WORD_LEN = 150
 
+
 class Epub(Book):
     def __init__(self, book_path):
         self.book: epub.EpubBook = epub.read_epub(book_path)
@@ -48,7 +49,9 @@ class Epub(Book):
             fragment = full_href.split("#")[1] if "#" in full_href else None
 
             ch_title = item.title
-            match = re.match(r'CHAPTER\s+([IVXLC\d]+)\.?\s*(.*)', ch_title, re.IGNORECASE)
+            match = re.match(
+                r"CHAPTER\s+([IVXLC\d]+)\.?\s*(.*)", ch_title, re.IGNORECASE
+            )
             if match:
                 numeral = match.group(1).upper()
                 subtitle = match.group(2).strip()
@@ -87,7 +90,6 @@ class Epub(Book):
             idx += 1
         return chapters
 
-
     def check_valid_ch_title(self, ch_title: str) -> bool:
         valid = True
 
@@ -110,7 +112,7 @@ class Epub(Book):
         except json.JSONDecodeError as e:
             print(f"Error opening config.json: {e}")
         return valid
-    
+
     def get_full_text_paras(self) -> list[str]:
         paras = []
         for chapter in self.chapters.values():
@@ -156,7 +158,7 @@ class Epub(Book):
 
     def chunk_text_for_motif_analysis(self) -> list[str]:
         text_chunks = []
-    
+
         for idx, _chapter in self.chapters.items():
             text = self.get_chapter_text(idx)
             words = text.split(" ")
@@ -164,7 +166,7 @@ class Epub(Book):
                 chunk = (" ").join(words[idx : idx + CHUNK_SPAN_WINDOW])
                 if chunk.strip():
                     text_chunks.append(chunk)
-        
+
         return text_chunks
 
     def get_text_span(self, idx_start: int, idx_end: int) -> str:
@@ -233,9 +235,9 @@ class Epub(Book):
                 quote_dict = {}
                 quote_len = len(chars)
 
-                prior = self.text[i - quote_len - PRIOR_SPAN_WINDOW : i - quote_len].replace(
-                    "\n", " "
-                )
+                prior = self.text[
+                    i - quote_len - PRIOR_SPAN_WINDOW : i - quote_len
+                ].replace("\n", " ")
                 post = self.text[i : i + POST_SPAN_WINDOW].replace("\n", " ")
 
                 quote_str = "".join(chars)
@@ -298,13 +300,15 @@ class Epub(Book):
             ttrs.append(len(set(w)) / window)
         return sum(ttrs) / len(ttrs)
 
-
     def lexical_richness(self):
         ch_lexical_richness = []
         for idx, chapter in self.chapters.items():
             text = self.get_chapter_text(idx)
-            tokens = [w.lower().strip(".,!?;:\"'()") for w in text.split() if w.strip(".,!?;:\"'()")]
+            tokens = [
+                w.lower().strip(".,!?;:\"'()")
+                for w in text.split()
+                if w.strip(".,!?;:\"'()")
+            ]
             mattr = self.compute_mattr(tokens, window=100)
             ch_lexical_richness.append(mattr)
         return ch_lexical_richness
-    

@@ -1,5 +1,6 @@
 from collections import defaultdict
 
+
 def get_top_relationships(
     nw_dict: dict[str, dict[str, list[dict]]], character, n=3
 ) -> list[str]:
@@ -37,12 +38,11 @@ def get_top_relationships(
 
     result = []
     for name, data in counts.items():
-        result.append(
-            (name, data["count"], data["total_sentiment"] / data["count"])
-        )
+        result.append((name, data["count"], data["total_sentiment"] / data["count"]))
 
     result.sort(key=lambda x: x[1], reverse=True)
     return result[:n]
+
 
 def build_sentiment_dict_from_network(nw_dict: dict) -> dict:
     character_sentiment_dict = defaultdict(dict)

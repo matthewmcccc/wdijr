@@ -23,18 +23,8 @@ if __name__ == "__main__":
     qa: QuoteAttributor = QuoteAttributor(ce.canonical_characters, char_dict, book.text)
     associated_quotes = qa.associate_text_quotes(book.get_full_text_quotes(), char_dict)
     nb: NetworkBuilder = NetworkBuilder(ce.canonical_characters)
-    nw_dict = nb.build_conversational_network(
-        associated_quotes
-    )
+    nw_dict = nb.build_conversational_network(associated_quotes)
     alice_quotes = qa.get_character_quotes(
-        nw_dict,
-        "lory",
-        500,
-        0.0,
-        True,
-        True,
-        0,
-        200
+        nw_dict, "lory", 500, 0.0, True, True, 0, 200
     )
     print(alice_quotes)
-

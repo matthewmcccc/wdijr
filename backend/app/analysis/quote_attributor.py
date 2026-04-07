@@ -9,7 +9,8 @@ from app.utils.util import clean_string
 POST_SPAN_WINDOW = 3
 PRIOR_SPAN_WINDOW = 10
 
-class QuoteAttributor():
+
+class QuoteAttributor:
     def __init__(self, characters_list: list[str], characters_dict, text):
         self.characters_dict = characters_dict
         self.gender_detector = gender.Detector()
@@ -53,7 +54,9 @@ class QuoteAttributor():
             )[:n]
         return sorted_quotes
 
-    def associate_text_quotes(self, quotes: list[dict], characters_dict: dict) -> list[dict]:
+    def associate_text_quotes(
+        self, quotes: list[dict], characters_dict: dict
+    ) -> list[dict]:
         """
         Associate the quotes from a text with an entity (specifically a person)
 
@@ -110,7 +113,7 @@ class QuoteAttributor():
             ]
             attributed_quotes.append(quote_obj)
         return attributed_quotes
-    
+
     def check_span_for_speech(self, span: str, name: str, span_len: int) -> bool:
         words = span.split(" ")
         name_lower = name.lower()
@@ -121,11 +124,11 @@ class QuoteAttributor():
                 if re.search(r"\b" + re.escape(name_lower) + r"\b", context_str):
                     return True
         return False
-    
+
     def match_speech_verbs_regex(self, s: str) -> bool:
         verbs_regex = self.verbs_regex
         return bool(re.search(verbs_regex, s))
-    
+
     @staticmethod
     def build_speech_verbs_regex() -> str:
         verbs = set()
@@ -138,7 +141,7 @@ class QuoteAttributor():
         except json.JSONDecodeError as e:
             print(f"Error opening config.json: {e}")
         return r"\b(" + "|".join(verbs) + r")\b"
-    
+
     @staticmethod
     def get_associated_quotes_by_chapter(associated_quotes: dict) -> dict:
         """
@@ -153,7 +156,7 @@ class QuoteAttributor():
             chapter_number = int(quote["chapter_number"])
             chapter_associated_quotes[chapter_number].append(quote)
         return chapter_associated_quotes
-    
+
     def coref_res(self, index: int, pronoun: str) -> str:
         """
         Lightweight coreference resolution that replaces pronouns with
@@ -170,7 +173,7 @@ class QuoteAttributor():
             return self.female_at[index]
         if pronoun in ("he", "his", "himself"):
             return self.male_at[index]
-        
+
     def build_entity_index(self, s: str, characters: list[str]) -> None:
         """
         Takes the text/novel as a string and builds ana index of

@@ -152,7 +152,9 @@ const CharacterAnalysisProfile = () => {
                         <div className="font-serif text-2xl">Character Summary</div>
                         <hr className="my-4 text-gray-300 w-1/2"/>
                         <p className="font-serif text-gray-900 whitespace-pre-wrap">
-                            {characterData?.summary || "No summary available."}
+                            {characterData?.summary?.split('\n\n').map((para, i) => (
+                                <p key={i} className="font-serif text-gray-900 mb-4">{para}</p>
+                            )) || "No summary available."}
                         </p>
                     </div>
                     <div className="flex-1 flex-col min-w-[280px]">

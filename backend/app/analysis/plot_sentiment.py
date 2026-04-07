@@ -10,6 +10,7 @@ CTX_WINDOW = 500
 # but impacts performance, vice versa as you increase
 SLIDE = 150
 
+
 class PlotSentiment:
     def __init__(self):
         self.lang = "english"
@@ -36,7 +37,9 @@ class PlotSentiment:
         word_list: the list of words to get valence values for
         """
         if len(word_list) < CTX_WINDOW:
-            raise ValueError(f"Given word list is too short. Length: {len(word_list)}\nRequired length: {CTX_WINDOW}")
+            raise ValueError(
+                f"Given word list is too short. Length: {len(word_list)}\nRequired length: {CTX_WINDOW}"
+            )
 
         valence_vals: list[float] = []
 

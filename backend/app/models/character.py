@@ -28,8 +28,7 @@ class Character(Base):
     @classmethod
     async def get_from_novel_id(cls, db: AsyncSession, id: str):
         return (await db.execute(select(cls).where(cls.novel_id == id))).scalars().all()
-    
+
     @classmethod
     async def get_from_name(cls, db: AsyncSession, name: str):
         return (await db.execute(select(cls).where(cls.name == name))).scalar_one()
-

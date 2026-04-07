@@ -198,7 +198,7 @@ const CharacterAnalysisLanding = () => {
             <div className="py-18">
                 <div className="justify-between flex flex-row">
                     <h1 className="font-serif text-4xl">Characters</h1>
-                    <Dropdown />
+                    {/* <Dropdown /> */}
                 </div>
                 <hr className="border-gray-300 my-4" />
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

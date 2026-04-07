@@ -5,6 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List, Optional
 from .base import Base
 
+
 class Author(MappedAsDataclass, Base):
     __tablename__ = "author"
 

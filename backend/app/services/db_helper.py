@@ -19,6 +19,7 @@ load_dotenv()
 db_path = os.path.join(os.path.dirname(__file__), "..", "..", "data")
 sync_engine = create_engine(f"sqlite:///{os.path.join(db_path, 'app.db')}")
 
+
 def save_analysis_to_db(
     title: str,
     author: str,
@@ -47,7 +48,11 @@ def save_analysis_to_db(
     has_cover=False,
 ):
     with Session(sync_engine) as session:
-        novel = Novel(title=title, author=author, description=novel_description if novel_description else None)
+        novel = Novel(
+            title=title,
+            author=author,
+            description=novel_description if novel_description else None,
+        )
         session.add(novel)
         session.flush()
         if has_cover:
@@ -133,7 +138,7 @@ def save_analysis_to_db(
             description=author_details["description"],
             image_url=author_details["image_url"],
             novel_id=novel.id,
-            other_works=author_details["other_works"]
+            other_works=author_details["other_works"],
         )
 
         session.add(author_obj)
@@ -184,7 +189,7 @@ def save_analysis_to_db(
                     novel_id=novel.id,
                     summary=chapter_summary.get("summary", ""),
                     overview=chapter_summary.get("overview", ""),
-                    sentiment=chapter_valence_vals[idx]
+                    sentiment=chapter_valence_vals[idx],
                 )
             )
 
