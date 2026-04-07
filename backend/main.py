@@ -28,7 +28,7 @@ if __name__ == "__main__":
     )
     alice_quotes = qa.get_character_quotes(
         nw_dict,
-        "bill",
+        "lory",
         500,
         0.0,
         True,

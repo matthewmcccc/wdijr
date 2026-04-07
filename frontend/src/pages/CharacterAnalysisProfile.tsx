@@ -11,6 +11,7 @@ import NetworkGraph from "../components/NetworkGraph";
 import fetchNovelData from "../utils/fetchNovelData";
 import RelatedCharacterCard from "../components/RelatedCharacterCard";
 import TooltipComponent from "../components/Tooltip";
+import topQuotes from "../../data/top_quotes.json";
 
 const CharacterAnalysisProfile = () => {
     const characterName = useParams<{ name: string }>().name;
@@ -112,13 +113,9 @@ const CharacterAnalysisProfile = () => {
         return relatedData?.image_url ? `${import.meta.env.VITE_API_URL.replace('/api', '/data')}/${novelId}/${relatedData.image_url}` : undefined;
     });
 
-    const notableQuotes = characterQuotes
-        .filter((q: any) => q.content !== topQuote)
-        .filter((q: any) => q.content.length < 300)
-        .sort((a: any, b: any) => Math.abs(b.sentiment) - Math.abs(a.sentiment))
-        .slice(0, 5);
 
-    console.log(characterImageUrl);
+    const notableQuotes = topQuotes[novelId]?.[currentChar] || [];
+    console.log(notableQuotes)
 
     return (
         <div className="container mx-auto px-4 py-8">
@@ -199,7 +196,7 @@ const CharacterAnalysisProfile = () => {
                                 ) : (
                                     notableQuotes.map((q: any, index: number) => (
                                         <div key={index} className={`mb-4 p-3 border border-gray-200 rounded-lg border-l-4 ${q.sentiment >= 0 ? "border-l-green-500" : "border-l-red-500"}`}>
-                                            <p className="italic text-sm text-gray-800">"{q.content}"</p>
+                                            <p className="italic text-sm text-gray-800">"{q.quote}"</p>
                                             <p className="text-sm text-gray-500 mt-1">{chapterData[q.chapter_number]?.title}</p>
                                         </div>
                                     ))
