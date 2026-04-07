@@ -192,12 +192,18 @@ const CharacterAnalysisProfile = () => {
                             </div>
                             <hr className="my-4 text-gray-300"/>
                             <div className="max-h-[400px] overflow-y-auto pr-2">
-                                {notableQuotes.map((q: any, index: number) => (
-                                    <div key={index} className={`mb-4 p-3 border border-gray-200 rounded-lg border-l-4 ${q.sentiment >= 0 ? "border-l-green-500" : "border-l-red-500"}`}>
-                                        <p className="italic text-sm text-gray-800">"{q.content}"</p>
-                                        <p className="text-sm text-gray-500 mt-1">{chapterData[q.chapter_number]?.title}</p>
-                                    </div>
-                                ))}
+                                {notableQuotes.length === 0 ? (
+                                    <p className="text-gray-600 font-serif text-sm italic text-center">
+                                        No notable quotes found for this character.
+                                    </p>
+                                ) : (
+                                    notableQuotes.map((q: any, index: number) => (
+                                        <div key={index} className={`mb-4 p-3 border border-gray-200 rounded-lg border-l-4 ${q.sentiment >= 0 ? "border-l-green-500" : "border-l-red-500"}`}>
+                                            <p className="italic text-sm text-gray-800">"{q.content}"</p>
+                                            <p className="text-sm text-gray-500 mt-1">{chapterData[q.chapter_number]?.title}</p>
+                                        </div>
+                                    ))
+                                )}  
                             </div>
                         </div>
                     </div>
@@ -209,26 +215,38 @@ const CharacterAnalysisProfile = () => {
                             {characterName ? `${humanize(characterName)}'s Sentiment Over Time` : "Sentiment Over Time"}
                         </h1>
                         <hr className="border-gray-300 w-1/2 mx-auto" />
-                        <SentimentAreaChart
-                            data={smoothPositioned(positionedSentiment)}
-                            width={sentimentChartWidth}
-                            height={300}
-                        />
+                        {positionedSentiment.length === 0 ? (
+                            <p className="text-gray-600 font-serif text-sm italic text-center mt-4">
+                                No sentiment data available for this character.
+                            </p>
+                            ) : (
+                            <SentimentAreaChart
+                                data={smoothPositioned(positionedSentiment)}
+                                width={sentimentChartWidth}
+                                height={300}
+                            />
+                        )}
                     </div>
                     <div ref={rightChartRef} className="overflow-hidden border border-gray-300 rounded-lg p-4 shadow-md">
                         <h1 className="font-serif text-md mb-4 text-center text-lg">
                             {characterName ? `${humanize(characterName)}'s Social Network` : "Social Network"}
                         </h1>
                         <hr className="border-gray-300 w-1/2 mx-auto" />
-                        <NetworkGraph
-                            key={characterName}
-                            id={`network-${characterName}`}
-                            filterCharacter={characterName}
-                            height={300}
+                        {positionedSentiment.length === 0 ? (
+                            <p className="text-gray-600 font-serif text-sm italic text-center mt-4">
+                                No social network data available for this character.
+                            </p>
+                        ) : (
+                            <NetworkGraph
+                                key={characterName}
+                                id={`network-${characterName}`}
+                                filterCharacter={characterName}
+                                height={300}
                             width={networkChartWidth}
                             showLegend={false}
                             isFiltered={true}
                         />
+                        )}
                     </div>
                 </div>
             </div>
