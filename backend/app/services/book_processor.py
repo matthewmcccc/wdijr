@@ -51,8 +51,12 @@ def process_epub(self, book_path) -> Epub:
 # TODO: split this up a bit
 @celery_app.task(bind=True)
 def process_text(self, book_path: str):
+    self.update_state(state="PROCESSING", meta={"status": "Parsing book..."})
+
     book, title, author, cover, chapters = parse_book(book_path)
     text = book.get_full_text()
+
+    self.update_state(state="PROCESSING", meta={"status": "Extracting quotes..."})
 
     ps: PlotSentiment = PlotSentiment()
     ce: CharacterExtractor = CharacterExtractor(text)
@@ -63,10 +67,6 @@ def process_text(self, book_path: str):
     )
     la: LexicalAnalysis = LexicalAnalysis(ce.canonical_characters)
     g: Gemini = Gemini()
-
-    self.update_state(state="PROCESSING", meta={"status": "Parsing book..."})
-
-    self.update_state(state="PROCESSING", meta={"status": "Extracting quotes..."})
 
     text = book.get_full_text()
     quotes = book.get_full_text_quotes()

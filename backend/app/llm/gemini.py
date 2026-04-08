@@ -276,9 +276,42 @@ class Gemini:
         additional_instruction = self.get_additional_instruction(
             instruction, novel_title
         )
-        prompt = f"{additional_instruction}\n{(", ").join(motifs)}"
-        return (
-            self.client.models.generate_content(
+        prompt = f"{additional_instruction}\n{(', ').join(motifs)}"
+        response = self.client.models.generate_content(
+            model=model,
+            contents=prompt,
+            config=types.GenerateContentConfig(
+                response_mime_type="application/json",
+                response_schema={
+                    "type": "OBJECT",
+                    "properties": {
+                        "motif_groups": {
+                            "type": "ARRAY",
+                            "items": {
+                                "type": "OBJECT",
+                                "properties": {
+                                    "category": {"type": "STRING"},
+                                    "motifs": {
+                                        "type": "ARRAY",
+                                        "items": {"type": "STRING"},
+                                    },
+                                    "summary": {"type": "STRING"},
+                                },
+                                "required": ["category", "motifs", "summary"],
+                            },
+                        }
+                    },
+                    "required": ["motif_groups"],
+                },
+            ),
+        )
+
+        candidate = response.candidates[0]
+        if candidate.finish_reason != "STOP":
+            print(f"WARNING: Motif consolidation truncated (finish_reason={candidate.finish_reason}), retrying with fewer motifs")
+            unique_motifs = list(set(motifs))
+            prompt = f"{additional_instruction}\n{(', ').join(unique_motifs)}"
+            response = self.client.models.generate_content(
                 model=model,
                 contents=prompt,
                 config=types.GenerateContentConfig(
@@ -306,10 +339,11 @@ class Gemini:
                     },
                 ),
             )
-            .candidates[0]
-            .content.parts[0]
-            .text
-        )
+            candidate = response.candidates[0]
+            if candidate.finish_reason != "STOP":
+                raise RuntimeError(f"Motif consolidation failed after retry: finish_reason={candidate.finish_reason}")
+
+        return candidate.content.parts[0].text
 
     def consolidate_quotes(self, model, network: dict, instruction: str):
         additional_instruction = self.get_additional_instruction(instruction)

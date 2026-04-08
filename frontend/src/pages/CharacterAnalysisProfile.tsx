@@ -115,7 +115,6 @@ const CharacterAnalysisProfile = () => {
 
 
     const notableQuotes = topQuotes[novelId]?.[currentChar] || [];
-    console.log(notableQuotes)
 
     return (
         <div className="container mx-auto px-4 py-8">
@@ -130,7 +129,7 @@ const CharacterAnalysisProfile = () => {
                         />
                     </div>
                     <div>
-                        {characterImageUrl && <img src={characterImageUrl} alt={characterName ? humanize(characterName) : "Character Analysis"} className="border border-gray-300 p-1 mx-auto mb-4 rounded-lg w-40 h-48 object-cover" />}
+                        {/* { && <img src={"characterImageUrl"} alt={characterName ? humanize(characterName) : "Character Analysis"} className="border border-gray-300 p-1 mx-auto mb-4 rounded-lg w-40 h-48 object-cover" />} */}
                         <h1 className="text-4xl flex-1 text-center">
                             {characterName ? humanize(characterName) : "Character Analysis"}
                         </h1>
@@ -175,7 +174,7 @@ const CharacterAnalysisProfile = () => {
                                         name={relatedCharacter}
                                         quoteCount={strength}
                                         sentiment={sentiment}
-                                        image_url={relatedCharacterImages[index] || undefined}
+                                        image_url={"" || undefined}
                                     />
                                 ))}
                             </div>
@@ -228,12 +227,12 @@ const CharacterAnalysisProfile = () => {
                     </div>
                     <div ref={rightChartRef} className="overflow-hidden border border-gray-300 rounded-lg p-4 shadow-md">
                         <h1 className="font-serif text-md mb-4 text-center text-lg">
-                            {characterName ? `${humanize(characterName)}'s Social Network` : "Social Network"}
+                            {characterName ? `${humanize(characterName)}'s Conversational Network` : "Conversational Network"}
                         </h1>
                         <hr className="border-gray-300 w-1/2 mx-auto" />
                         {positionedSentiment.length === 0 ? (
                             <p className="text-gray-600 font-serif text-sm italic text-center mt-4">
-                                No social network data available for this character.
+                                No conversational network data available for this character.
                             </p>
                         ) : (
                             <NetworkGraph
@@ -241,10 +240,10 @@ const CharacterAnalysisProfile = () => {
                                 id={`network-${characterName}`}
                                 filterCharacter={characterName}
                                 height={300}
-                            width={networkChartWidth}
-                            showLegend={false}
-                            isFiltered={true}
-                        />
+                                width={networkChartWidth}
+                                showLegend={false}
+                                isFiltered={true}
+                            />
                         )}
                     </div>
                 </div>
