@@ -40,7 +40,7 @@ const CharacterOccurrencesHeatmap = ({ data }: CharacterOccurrencesHeatmapProps)
         }
 
         const margin = { top: 30, right: 60, bottom: 80, left: 160 };
-        const cellSize = 200 / Math.sqrt(chapters.length);
+        const cellSize = 160 / Math.sqrt(chapters.length);
         const width = chapters.length * cellSize;
         const height = characters.length * cellSize;
 
