@@ -28,11 +28,17 @@ def init_app(init_db=True):
                 await sessionmanager.close()
 
     server = FastAPI(title="FastAPI server", lifespan=lifespan)
-    data_dir = os.getenv("DATA_DIR", os.path.join(os.path.dirname(__file__), "..", "data"))
+    data_dir = os.getenv(
+        "DATA_DIR", os.path.join(os.path.dirname(__file__), "..", "data")
+    )
     server.mount("/data", StaticFiles(directory=data_dir), name="static_data")
     server.add_middleware(
         CORSMiddleware,
-        allow_origins=["http://localhost:5173", "http://localhost", "http://65.108.48.214"],
+        allow_origins=[
+            "http://localhost:5173",
+            "http://localhost",
+            "http://65.108.48.214",
+        ],
         allow_methods=["*"],
         allow_headers=["*"],
     )

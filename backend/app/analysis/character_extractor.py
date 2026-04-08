@@ -4,9 +4,10 @@ from app.utils.util import clean_string
 
 spacy.prefer_gpu()
 
-class CharacterExtractor():
+
+class CharacterExtractor:
     def __init__(
-        self, 
+        self,
         text: str,
         model: str = "en_core_web_trf",
     ):
@@ -16,7 +17,7 @@ class CharacterExtractor():
         self.doc = self.process_text(text)
         self.characters = self.get_characters_from_text()
         self.consolidated_characters = self.consolidate_characters()
-        self.canonical_characters = [c[0] for c in self.consolidated_characters] 
+        self.canonical_characters = [c[0] for c in self.consolidated_characters]
 
     def process_text(self, text: str):
         """
@@ -29,7 +30,7 @@ class CharacterExtractor():
         """
         self.doc = self.nlp(text)
         return self.doc
-    
+
     def get_characters_from_text(self) -> list[str]:
         """
         Retrieves all entities with the "PERSON" entity label from a text.
@@ -57,7 +58,7 @@ class CharacterExtractor():
                 characters.append((text, person_count))
         characters = sorted(characters, key=lambda x: x[1], reverse=True)
         return [person[0] for i, person in enumerate(characters)]
-    
+
     def consolidate_characters(self) -> list[list[str]]:
         """
         Consolidates unique character name variations into groups.
@@ -110,13 +111,13 @@ class CharacterExtractor():
                         ]
                     )
         return gen_characters
-    
+
     def characters_to_id(self):
         mapping = defaultdict(int)
         for i, character in enumerate(self.canonical_characters):
             mapping[character] = i
         return mapping
-    
+
     def build_character_dict(self) -> dict:
         """
         Build dictionary for associating variations of a name with their

@@ -27,6 +27,7 @@ async def create_character(
     character = await CharacterModel.create(db, **character.dict())
     return character
 
+
 @router.get("/character/{name}", response_model=CharacterSchema)
 async def get_by_name(
     name: str,

@@ -5,7 +5,8 @@ from itertools import combinations
 
 ALLOWED_CHARACTER_DIFF = 1500
 
-class NetworkBuilder():
+
+class NetworkBuilder:
     def __init__(self, characters):
         self.characters = characters
 
@@ -17,8 +18,10 @@ class NetworkBuilder():
                 if variant in para_lower:
                     occurences[canonical] += 1
         return occurences
-    
-    def build_cooccurrence_network(self, paras: list[str], character_dict: dict) -> dict:
+
+    def build_cooccurrence_network(
+        self, paras: list[str], character_dict: dict
+    ) -> dict:
         cooccurrence_dict = defaultdict(list)
         for para in paras:
             para_lower = para.lower()
@@ -45,15 +48,20 @@ class NetworkBuilder():
                 group_map[character] = group_idx
 
         all_characters = set()
-        for (a, b) in cooccurrence_frequency_dict:
+        for a, b in cooccurrence_frequency_dict:
             all_characters.add(a)
             all_characters.add(b)
 
-        nodes = [{"id": char, "group": group_map.get(char, 0)} for char in all_characters]
-        links = [{"source": a, "target": b, "value": v} for (a, b), v in cooccurrence_frequency_dict.items()]
+        nodes = [
+            {"id": char, "group": group_map.get(char, 0)} for char in all_characters
+        ]
+        links = [
+            {"source": a, "target": b, "value": v}
+            for (a, b), v in cooccurrence_frequency_dict.items()
+        ]
 
         return {"nodes": nodes, "links": links}
-    
+
     # TODO: write a TypedDict class for this return type...
     def build_conversational_network(
         self, quotes: list[dict]
@@ -77,8 +85,10 @@ class NetworkBuilder():
                     {"quote": quotes[q_idx]["quote"], "sentiment": sentiment}
                 )
         return nw_dict
-    
-    def build_chapter_cooccurrence(self, chapters_paras: dict[int, list[str]], character_dict: dict) -> dict:
+
+    def build_chapter_cooccurrence(
+        self, chapters_paras: dict[int, list[str]], character_dict: dict
+    ) -> dict:
         result = {}
         for idx, paras in chapters_paras.items():
             counts = defaultdict(int)
@@ -93,7 +103,7 @@ class NetworkBuilder():
                     counts[key] += 1
             result[idx] = {f"{a}--{b}": count for (a, b), count in counts.items()}
         return result
-    
+
     @staticmethod
     def get_nodes_from_network_dict(
         nw_dict: dict[str, dict[str, list[dict]]],

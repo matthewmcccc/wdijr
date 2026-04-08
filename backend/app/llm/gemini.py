@@ -9,6 +9,7 @@ from enum import Enum
 
 load_dotenv()
 
+
 class PromptInstruction(str, Enum):
     EXCERPT_SUMMARY = "excerpt_summary"
     CHARACTER_SUMMARY = "character_summary"
@@ -18,6 +19,7 @@ class PromptInstruction(str, Enum):
     MOTIF_EXTRACTION = "motif_extraction"
     MOTIF_CONSOLIDATION = "motif_consolidation"
     NOVEL_DESCRIPTION = "novel_description"
+
 
 class Gemini:
     def __init__(self):
@@ -42,18 +44,16 @@ class Gemini:
         )
 
         return response.text
-    
+
     def generate_novel_description(
-        self, 
+        self,
         model,
         instruction: str,
         author: str,
         title: str,
     ):
         additional_instruction = self.get_additional_instruction(
-            instruction=instruction,
-            author=author, 
-            novel_title=title
+            instruction=instruction, author=author, novel_title=title
         )
 
         response = self.client.models.generate_content(
@@ -110,15 +110,15 @@ class Gemini:
             )
 
         return dict(zip(character_ids, summaries))
-    
+
     def generate_author_summary(
-            self, model, instruction, extract: str, novel_title: str
+        self, model, instruction, extract: str, novel_title: str
     ):
         additional_instruction = self.get_additional_instruction(
             instruction=instruction, novel_title=novel_title
         )
         prompt = f"{additional_instruction}\n{extract}"
-        try: 
+        try:
             response = (
                 self.client.models.generate_content(
                     model=model,
@@ -126,20 +126,22 @@ class Gemini:
                     config=types.GenerateContentConfig(
                         response_mime_type="application/json",
                         response_schema={
-                                "type": "OBJECT",
-                                "properties": {
-                                    "summary": {"type": "STRING"},
-                                },
-                                "required": ["summary"],
+                            "type": "OBJECT",
+                            "properties": {
+                                "summary": {"type": "STRING"},
                             },
-                    )
-                ).candidates[0].content.parts[0].text   
+                            "required": ["summary"],
+                        },
+                    ),
+                )
+                .candidates[0]
+                .content.parts[0]
+                .text
             )
         except Exception as e:
             print(f"Error generating author summary: {e}")
-        
+
         return response
-        
 
     def chapter_summary_mass_prompt(
         self, model, chapters, instruction, book_title: str
@@ -187,33 +189,40 @@ class Gemini:
         self, model, texts: list[str], instruction: str, characters: list[str]
     ) -> list[str]:
         def send_request(text):
-            additional_instruction = self.get_additional_instruction(instruction, characters=characters)
+            additional_instruction = self.get_additional_instruction(
+                instruction, characters=characters
+            )
             prompt = f"{additional_instruction}\n{text}"
             return (
                 self.client.models.generate_content(
-                    model=model, 
-                    contents=prompt, 
+                    model=model,
+                    contents=prompt,
                     config=types.GenerateContentConfig(
-                            response_mime_type="application/json",
-                            response_schema={
-                                "type": "OBJECT",
-                                "properties": {
-                                    "summary": {"type": "STRING"},
-                                    "headline": {
-                                        "type": "STRING",
-                                        "description": "A short 2-5 word narrative headline"
-                                        "for the event, NOT the category name"
-                                    },
-                                    "category": {"type": "STRING"},
-                                    "characters": {
-                                        "type": "ARRAY",
-                                        "items": {"type": "STRING"}
-                                    }
+                        response_mime_type="application/json",
+                        response_schema={
+                            "type": "OBJECT",
+                            "properties": {
+                                "summary": {"type": "STRING"},
+                                "headline": {
+                                    "type": "STRING",
+                                    "description": "A short 2-5 word narrative headline"
+                                    "for the event, NOT the category name",
                                 },
-                                "required": ["summary", "category", "characters", "headline"],
+                                "category": {"type": "STRING"},
+                                "characters": {
+                                    "type": "ARRAY",
+                                    "items": {"type": "STRING"},
+                                },
                             },
-                        )
-                    )
+                            "required": [
+                                "summary",
+                                "category",
+                                "characters",
+                                "headline",
+                            ],
+                        },
+                    ),
+                )
                 .candidates[0]
                 .content.parts[0]
                 .text
@@ -223,34 +232,30 @@ class Gemini:
             summaries = list(executor.map(send_request, texts))
 
         return summaries
-    
+
     def generate_motif_extraction(
-            self, model, chunks: list, instruction: str, novel_title: str
+        self, model, chunks: list, instruction: str, novel_title: str
     ):
         def send_request(chunk):
             additional_instruction = self.get_additional_instruction(
-                instruction,
-                novel_title=novel_title
+                instruction, novel_title=novel_title
             )
             prompt = f"{additional_instruction}\n{chunk}"
             return (
                 self.client.models.generate_content(
-                    model=model, 
-                    contents=prompt, 
+                    model=model,
+                    contents=prompt,
                     config=types.GenerateContentConfig(
-                            response_mime_type="application/json",
-                            response_schema={
-                                "type": "OBJECT",
-                                "properties": {
-                                    "motifs": {
-                                        "type": "ARRAY",
-                                        "items": {"type": "STRING"}
-                                    }                                
-                                },
-                                "required": ["motifs"],
+                        response_mime_type="application/json",
+                        response_schema={
+                            "type": "OBJECT",
+                            "properties": {
+                                "motifs": {"type": "ARRAY", "items": {"type": "STRING"}}
                             },
-                        )
-                    )
+                            "required": ["motifs"],
+                        },
+                    ),
+                )
                 .candidates[0]
                 .content.parts[0]
                 .text
@@ -260,14 +265,53 @@ class Gemini:
             all_motifs = list(executor.map(send_request, chunks))
 
         return all_motifs
-    
+
     def generate_motif_consolidation(
-        self, model, motifs: list, instruction: str, novel_title: str,
+        self,
+        model,
+        motifs: list,
+        instruction: str,
+        novel_title: str,
     ):
-        additional_instruction = self.get_additional_instruction(instruction, novel_title)
-        prompt = f"{additional_instruction}\n{(", ").join(motifs)}"
-        return (
-            self.client.models.generate_content(
+        additional_instruction = self.get_additional_instruction(
+            instruction, novel_title
+        )
+        prompt = f"{additional_instruction}\n{(', ').join(motifs)}"
+        response = self.client.models.generate_content(
+            model=model,
+            contents=prompt,
+            config=types.GenerateContentConfig(
+                response_mime_type="application/json",
+                response_schema={
+                    "type": "OBJECT",
+                    "properties": {
+                        "motif_groups": {
+                            "type": "ARRAY",
+                            "items": {
+                                "type": "OBJECT",
+                                "properties": {
+                                    "category": {"type": "STRING"},
+                                    "motifs": {
+                                        "type": "ARRAY",
+                                        "items": {"type": "STRING"},
+                                    },
+                                    "summary": {"type": "STRING"},
+                                },
+                                "required": ["category", "motifs", "summary"],
+                            },
+                        }
+                    },
+                    "required": ["motif_groups"],
+                },
+            ),
+        )
+
+        candidate = response.candidates[0]
+        if candidate.finish_reason != "STOP":
+            print(f"WARNING: Motif consolidation truncated (finish_reason={candidate.finish_reason}), retrying with fewer motifs")
+            unique_motifs = list(set(motifs))
+            prompt = f"{additional_instruction}\n{(', ').join(unique_motifs)}"
+            response = self.client.models.generate_content(
                 model=model,
                 contents=prompt,
                 config=types.GenerateContentConfig(
@@ -283,35 +327,38 @@ class Gemini:
                                         "category": {"type": "STRING"},
                                         "motifs": {
                                             "type": "ARRAY",
-                                            "items": {"type": "STRING"}
+                                            "items": {"type": "STRING"},
                                         },
-                                        "summary": {"type": "STRING"}
+                                        "summary": {"type": "STRING"},
                                     },
-                                    "required": ["category", "motifs", "summary"]
-                                }
+                                    "required": ["category", "motifs", "summary"],
+                                },
                             }
                         },
                         "required": ["motif_groups"],
-                    }
+                    },
                 ),
             )
-            .candidates[0].content.parts[0].text
-        )
+            candidate = response.candidates[0]
+            if candidate.finish_reason != "STOP":
+                raise RuntimeError(f"Motif consolidation failed after retry: finish_reason={candidate.finish_reason}")
 
-    def consolidate_quotes(
-        self, model, network: dict, instruction: str
-    ):
+        return candidate.content.parts[0].text
+
+    def consolidate_quotes(self, model, network: dict, instruction: str):
         additional_instruction = self.get_additional_instruction(instruction)
-        prompt=f"{additional_instruction}\n{str(json.dumps(network))}"
+        prompt = f"{additional_instruction}\n{str(json.dumps(network))}"
         return (
             self.client.models.generate_content(
-                model=model, 
+                model=model,
                 contents=prompt,
                 config=types.GenerateContentConfig(
                     response_mime_type="application/json",
                 ),
             )
-            .candidates[0].content.parts[0].text
+            .candidates[0]
+            .content.parts[0]
+            .text
         )
 
     def get_models(self):
@@ -324,7 +371,7 @@ class Gemini:
         novel_title: str = "",
         chapter_title: str = "",
         characters: list[str] = [],
-        author: str = ""
+        author: str = "",
     ) -> str:
         additional_instruction = ""
         if instruction == PromptInstruction.EXCERPT_SUMMARY:
@@ -338,13 +385,9 @@ class Gemini:
                 novel_title, chapter_title
             )
         if instruction == PromptInstruction.CONSOLIDATE_QUOTES:
-            additional_instruction = self.consolidate_quotes(
-                novel_title
-            )
+            additional_instruction = self.consolidate_quotes(novel_title)
         if instruction == PromptInstruction.AUTHOR_SUMMARY:
-            additional_instruction = self.author_summary_prompt(
-                novel_title
-            )
+            additional_instruction = self.author_summary_prompt(novel_title)
         if instruction == PromptInstruction.MOTIF_EXTRACTION:
             additional_instruction = self.motif_analysis_prompt()
         if instruction == PromptInstruction.MOTIF_CONSOLIDATION:
@@ -373,7 +416,7 @@ class Gemini:
                 Title: {novel_title}
                 Here are the quotes to consolidate:
                 """
-    
+
     @staticmethod
     def novel_description_prompt(author: str, novel_title: str):
         return f"""You are an expert in literary analysis.
@@ -519,7 +562,6 @@ class Gemini:
         Chapter title: {chapter_title}
         """
 
-
     @staticmethod
     def author_summary_prompt(novel_title: str = ""):
         return f"""You are an expert in text summarisation.
@@ -542,7 +584,7 @@ class Gemini:
 
     # Some prompt details taken from here:
     # https://arxiv.org/pdf/2504.21742
-    @staticmethod 
+    @staticmethod
     def motif_analysis_prompt():
         return """
         Identify literary motifs (recurring recognizable and meaningful
@@ -559,7 +601,7 @@ class Gemini:
         - Provide your response in the following JSON format:
             "motifs": ["motif one", "motif two", ...]
         """
-    
+
     @staticmethod
     def consolidate_motifs_prompt(title: str):
         return f"""  

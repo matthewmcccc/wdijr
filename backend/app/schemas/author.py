@@ -2,6 +2,7 @@ from pydantic import BaseModel
 from app.schemas.quote import QuoteSchema
 import uuid
 
+
 class AuthorSchemaBase(BaseModel):
     name: str
     description: str
@@ -13,8 +14,9 @@ class AuthorSchemaBase(BaseModel):
 class AuthorSchemaCreate(AuthorSchemaBase):
     pass
 
+
 class AuthorSchema(AuthorSchemaBase):
     id: int
-    
+
     class Config:
         from_attributes = True

@@ -1,6 +1,7 @@
 import uuid
 from pydantic import BaseModel
 
+
 class ChapterSchemaBase(BaseModel):
     id: str
     chapter_number: int

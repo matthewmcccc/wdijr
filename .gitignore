@@ -6,4 +6,5 @@ fonts/
 node_modules/
 data/
 uploads/
-app.db
+data/
+!data/app.db

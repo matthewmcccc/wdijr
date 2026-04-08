@@ -1,4 +1,3 @@
-
 import json
 import os
 import requests
@@ -15,12 +14,16 @@ from app.analysis.plot_sentiment import PlotSentiment
 from app.analysis.quote_attributor import QuoteAttributor
 from app.analysis.lexical_analysis import LexicalAnalysis
 from app.services.task_states import TaskState
-from app.analysis.sentiment import build_sentiment_dict_from_network, get_top_relationships
+from app.analysis.sentiment import (
+    build_sentiment_dict_from_network,
+    get_top_relationships,
+)
 from app.llm.gemini import Gemini
 from .db_helper import save_analysis_to_db
 
 book_path = os.path.join(os.path.dirname(__file__), "..", "temp", "aaiw.epub")
 load_dotenv()
+
 
 @celery_app.task(bind=True)
 def process_epub(self, book_path) -> Epub:
@@ -48,20 +51,22 @@ def process_epub(self, book_path) -> Epub:
 # TODO: split this up a bit
 @celery_app.task(bind=True)
 def process_text(self, book_path: str):
+    self.update_state(state="PROCESSING", meta={"status": "Parsing book..."})
+
     book, title, author, cover, chapters = parse_book(book_path)
     text = book.get_full_text()
+
+    self.update_state(state="PROCESSING", meta={"status": "Extracting quotes..."})
 
     ps: PlotSentiment = PlotSentiment()
     ce: CharacterExtractor = CharacterExtractor(text)
     character_dict = ce.build_character_dict()
     nb: NetworkBuilder = NetworkBuilder(ce.canonical_characters)
-    qa: QuoteAttributor = QuoteAttributor(ce.canonical_characters, character_dict, book.get_full_text())
+    qa: QuoteAttributor = QuoteAttributor(
+        ce.canonical_characters, character_dict, book.get_full_text()
+    )
     la: LexicalAnalysis = LexicalAnalysis(ce.canonical_characters)
     g: Gemini = Gemini()
-
-    self.update_state(state="PROCESSING", meta={"status": "Parsing book..."})
-
-    self.update_state(state="PROCESSING", meta={"status": "Extracting quotes..."})
 
     text = book.get_full_text()
     quotes = book.get_full_text_quotes()
@@ -77,14 +82,18 @@ def process_text(self, book_path: str):
     self.update_state(state="PROCESSING", meta={"status": "Building social network..."})
 
     conversational_network = nb.build_conversational_network(associated_quotes)
-    cooccurrence_network_data = nb.build_cooccurrence_network(book.get_full_text_paras(), character_dict)
+    cooccurrence_network_data = nb.build_cooccurrence_network(
+        book.get_full_text_paras(), character_dict
+    )
 
     ch_dict = {}
     for idx, ch in book.chapters.items():
         soup = BeautifulSoup(ch.item.get_body_content(), "html.parser")
         ch_dict[idx] = [para.get_text() for para in soup.find_all("p")]
-    ch_cooccurence_result = json.dumps(nb.build_chapter_cooccurrence(ch_dict, character_dict))
-    
+    ch_cooccurence_result = json.dumps(
+        nb.build_chapter_cooccurrence(ch_dict, character_dict)
+    )
+
     conversational_nw_nodes = nb.get_nodes_from_network_dict(conversational_network)
 
     characters = ce.canonical_characters
@@ -96,32 +105,37 @@ def process_text(self, book_path: str):
         nw_dict=conversational_network
     )
 
-    chapter_valence_vals = get_chapter_valence_vals(book, ps)    
+    chapter_valence_vals = get_chapter_valence_vals(book, ps)
     diff_values = get_diff_values(chapter_valence_vals, ps)
-    text_for_summarisation = get_text_for_summarisation(book, ps, diff_values, chapter_valence_vals)
+    text_for_summarisation = get_text_for_summarisation(
+        book, ps, diff_values, chapter_valence_vals
+    )
 
     global_inflection_points = get_global_inflection_points(
-        chapter_valence_vals,
-        text_for_summarisation
+        chapter_valence_vals, text_for_summarisation
     )
 
     top_relationships_dict = {}
     top_quotes = {}
-    for character in characters: 
+    for character in characters:
         name = character["name"]
-        top_relationships_dict[name] = get_top_relationships(conversational_network, name)
+        top_relationships_dict[name] = get_top_relationships(
+            conversational_network, name
+        )
         top_quotes[name] = qa.get_character_quotes(conversational_network, name)
 
-    flat_texts = [text for chapter_texts in text_for_summarisation for text in chapter_texts]
-    character_summaries = get_character_summaries(qa, characters, conversational_network, g, book.title)
+    flat_texts = [
+        text for chapter_texts in text_for_summarisation for text in chapter_texts
+    ]
+    character_summaries = get_character_summaries(
+        qa, characters, conversational_network, g, book.title
+    )
     self.update_state(
         state="PROCESSING", meta={"status": "Creating character summaries..."}
     )
 
     plot_summaries = get_plot_summaries(g, flat_texts, ce.canonical_characters)
-    self.update_state(
-        state="PROCESSING", meta={"status": "Creating plot summaries..."}
-    )
+    self.update_state(state="PROCESSING", meta={"status": "Creating plot summaries..."})
 
     chapter_summaries = get_chapter_summaries(g, chapters, title, book)
     self.update_state(
@@ -130,7 +144,9 @@ def process_text(self, book_path: str):
 
     chapter_conversational_networks = get_chapter_networks(qa, nb, associated_quotes)
     chapter_nw_nodes = get_chapter_network_nodes(nb, chapter_conversational_networks)
-    character_chapter_occurences = get_character_chapter_occurences(book, nb, character_dict)
+    character_chapter_occurences = get_character_chapter_occurences(
+        book, nb, character_dict
+    )
 
     mapping = ce.characters_to_id()
 
@@ -138,32 +154,16 @@ def process_text(self, book_path: str):
         state="PROCESSING", meta={"status": "Calculating key plot points..."}
     )
 
-    author_details = get_author_data(
-        book,
-        g,
-        book.author
-    )
+    author_details = get_author_data(book, g, book.author)
 
-    self.update_state(
-        state="PROCESSING", meta={"status": "Grabbing author data..."}
-    )
+    self.update_state(state="PROCESSING", meta={"status": "Grabbing author data..."})
 
-    motifs = get_motif_data(
-        book,
-        g
-    )
+    motifs = get_motif_data(book, g)
 
-    lexical_richness = la.character_lexical_richness(
-        associated_quotes,
-        100
-    )
+    lexical_richness = la.character_lexical_richness(associated_quotes, 100)
 
-    novel_description = get_novel_description(
-        book, g
-    )
-    self.update_state(
-        state="PROCESSING", meta={"status": "Finalising analysis..."}
-    )
+    novel_description = get_novel_description(book, g)
+    self.update_state(state="PROCESSING", meta={"status": "Finalising analysis..."})
 
     novel_id = save_analysis_to_db(
         title=title,
@@ -190,7 +190,7 @@ def process_text(self, book_path: str):
         motifs=motifs,
         lexical_richness=lexical_richness,
         novel_description=novel_description,
-        character_chapter_occurences=character_chapter_occurences
+        character_chapter_occurences=character_chapter_occurences,
     )
 
     cover_url = book.write_cover(cover, novel_id)
@@ -216,7 +216,10 @@ def process_text(self, book_path: str):
         "character_chapter_occurences": character_chapter_occurences,
     }
 
-def get_character_chapter_occurences(book: Epub, nb: NetworkBuilder, character_dict) -> dict:
+
+def get_character_chapter_occurences(
+    book: Epub, nb: NetworkBuilder, character_dict
+) -> dict:
     character_ch_occurences = defaultdict(dict)
     for idx, ch in book.chapters.items():
         soup = BeautifulSoup(ch.item.get_body_content(), "html.parser")
@@ -240,39 +243,43 @@ def get_global_inflection_points(chapter_valence_vals, text_for_summarisation):
     global_inflection_points.sort(key=lambda p: p[0])
     return global_inflection_points
 
+
 def get_chapter_valence_vals(book: Epub, ps: PlotSentiment):
     chapter_valence_vals: list = []
     for idx, chapter in book.chapters.items():
         word_list = book.get_chapter_word_list(idx)
         try:
-            sentiment_values = ps.get_section_valence(
-                word_list
-            )
+            sentiment_values = ps.get_section_valence(word_list)
             chapter_valence_vals.append(sentiment_values)
         except ValueError:
             chapter_valence_vals.append([])
     return chapter_valence_vals
 
+
 def get_diff_values(chapter_valence_vals, ps: PlotSentiment):
     diff_values = []
     for idx, valence_vals in enumerate(chapter_valence_vals):
-        first_diff = ps.first_difference(
-            valence_vals
+        first_diff = ps.first_difference(valence_vals)
+        diff_values.append(
+            sorted(first_diff, key=lambda x: abs(x[1]), reverse=True)[:2]
         )
-        diff_values.append(sorted(first_diff, key=lambda x: abs(x[1]), reverse=True)[:2])
     return diff_values
 
-def get_text_for_summarisation(book: Epub, ps: PlotSentiment, diff_values, chapter_valence_vals):
+
+def get_text_for_summarisation(
+    book: Epub, ps: PlotSentiment, diff_values, chapter_valence_vals
+):
     text_for_summarisation = []
     for idx, valence_vals in enumerate(chapter_valence_vals):
         sum_text = ps.get_text_for_summarization(
             book.get_chapter_text(idx),
             diff_values[idx],
             len(chapter_valence_vals[idx]),
-            idx
-        )   
+            idx,
+        )
         text_for_summarisation.append(sum_text)
     return text_for_summarisation
+
 
 def parse_book(book_path: str) -> tuple[Epub, str, str, list, dict]:
     book: Epub = Epub(book_path)
@@ -280,8 +287,9 @@ def parse_book(book_path: str) -> tuple[Epub, str, str, list, dict]:
     author: str = book.author
     cover: list = book.cover
     chapters: dict = book.chapters
-    
+
     return (book, title, author, cover, chapters)
+
 
 def get_chapter_networks(qa: QuoteAttributor, nb: NetworkBuilder, associated_quotes):
     chapter_associated_quotes = qa.get_associated_quotes_by_chapter(associated_quotes)
@@ -298,6 +306,7 @@ def get_chapter_network_nodes(nb: NetworkBuilder, chapter_networks: dict) -> dic
     for idx, nw in chapter_networks.items():
         chapter_network_nodes[idx] = nb.get_nodes_from_network_dict(nw)
     return chapter_network_nodes
+
 
 def get_character_summaries(
     qa: QuoteAttributor, characters: list[dict], nw_dict, g: Gemini, title
@@ -336,7 +345,9 @@ def get_chapter_summaries(g: Gemini, chapters, book_title, book):
     return dict(responses)
 
 
-def get_plot_summaries(g: Gemini, summarisation_texts: list[tuple], characters: list[str]):
+def get_plot_summaries(
+    g: Gemini, summarisation_texts: list[tuple], characters: list[str]
+):
     text_only = [text[0] for text in summarisation_texts]
     chapter_indices = [text[1] for text in summarisation_texts]
     plot_summaries = g.text_span_summary_mass_prompt(
@@ -344,40 +355,48 @@ def get_plot_summaries(g: Gemini, summarisation_texts: list[tuple], characters: 
     )
     return list(zip(plot_summaries, chapter_indices))
 
+
 def get_character_thumbnails(title: str, ce: CharacterExtractor, novel_id: str):
     def send_request(character: str, title: str):
         try:
             api_key = os.getenv("SERP_API_KEY")
         except Exception as e:
             print(f"Couldn't grab api key: {e}")
-        client = serpapi.Client(
-            api_key=api_key
-        )
+        client = serpapi.Client(api_key=api_key)
         n_title = title.replace("'s", " ")
-        results = client.search({
-            "engine": "google_images",
-            "q": f"{character} {n_title.lower()} illustration",
-            "location": "United Kingdom",
-            "google_domain": "google.com",
-            "hl": "en",
-            "gl": "us",
-            "device": "desktop"
-        })
+        results = client.search(
+            {
+                "engine": "google_images",
+                "q": f"{character} {n_title.lower()} illustration",
+                "location": "United Kingdom",
+                "google_domain": "google.com",
+                "hl": "en",
+                "gl": "us",
+                "device": "desktop",
+            }
+        )
 
-        data_dir = os.path.join(os.path.dirname(__file__), "..", "data", str(novel_id), "character_thumbnails")
+        data_dir = os.path.join(
+            os.path.dirname(__file__),
+            "..",
+            "data",
+            str(novel_id),
+            "character_thumbnails",
+        )
 
         try:
             image_results = results["image_results"]
             image = image_results[0]["thumbnail"]
             path = urlparse(image).path
             ext = os.path.splitext(path)[1]
-            with open(f"{data_dir}/{character}{ext}", 'wb') as handler:
+            with open(f"{data_dir}/{character}{ext}", "wb") as handler:
                 handler.write(requests.get(image).content)
         except Exception as e:
             print(f"Couldn't grab image from results: {e}")
 
     for character in ce.canonical_characters:
         send_request(character, title)
+
 
 def get_author_data(book: Epub, g: Gemini, author: str) -> dict:
     author_dict = {
@@ -386,23 +405,21 @@ def get_author_data(book: Epub, g: Gemini, author: str) -> dict:
         "description": "",
         "other_works": [],
     }
-    
+
     author_normalized = ("_").join(author.split(" "))
     wiki_url = f"https://en.wikipedia.org/w/api.php?action=query&titles={author_normalized}&prop=extracts|pageimages&explaintext=true&pithumbsize=400&format=json"
     wiki_res = requests.get(
         wiki_url,
         headers={
             "User-Agent": "wdijr/1.0 (dissertation project; mattmcconnachie4@gmail.com)"
-    })
+        },
+    )
 
     wiki_body = wiki_res.json()
     extract = next(iter(wiki_body["query"]["pages"].values()))
 
     author_summary = g.generate_author_summary(
-        "gemini-2.5-flash",
-        "author_summary",
-        extract,
-        book.title
+        "gemini-2.5-flash", "author_summary", extract, book.title
     )
 
     other_works_list = []
@@ -412,20 +429,20 @@ def get_author_data(book: Epub, g: Gemini, author: str) -> dict:
         open_lib_url,
         headers={
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36"
-        }
+        },
     )
     if open_lib_res.ok and open_lib_res.text:
         open_lib_body = open_lib_res.json()
         for doc in open_lib_body["docs"]:
             if book.title not in doc["title"] and author in doc["author_name"]:
-                image_url = f"https://covers.openlibrary.org/b/id/{doc['cover_i']}-M.jpg" if "cover_i" in doc else ""
+                image_url = (
+                    f"https://covers.openlibrary.org/b/id/{doc['cover_i']}-M.jpg"
+                    if "cover_i" in doc
+                    else ""
+                )
                 title = doc["title"] if "title" in doc else ""
                 year = doc["first_publish_year"] if "first_publish_year" in doc else ""
-                work_obj = {
-                    "title": title,
-                    "image_url": image_url,
-                    "year": year
-                }
+                work_obj = {"title": title, "image_url": image_url, "year": year}
                 other_works_list.append(work_obj)
         author_dict["name"] = author
         try:
@@ -437,7 +454,7 @@ def get_author_data(book: Epub, g: Gemini, author: str) -> dict:
 
     else:
         print(f"Open library request failed: {open_lib_res.status_code}")
-    
+
     return author_dict
 
 
@@ -445,20 +462,19 @@ def get_chapter_valence_vals(book: Epub, ps: PlotSentiment) -> list:
     chapter_valence_vals: list = []
     for idx, chapter in book.chapters.items():
         word_list = book.get_chapter_word_list(idx)
-        try: 
-            sentiment_values = ps.get_section_valence(
-                word_list
-            )
+        try:
+            sentiment_values = ps.get_section_valence(word_list)
             chapter_valence_vals.append(sentiment_values)
         except ValueError:
             chapter_valence_vals.append([])
     diff_values = []
     for idx, valence_vals in enumerate(chapter_valence_vals):
-        first_diff = ps.first_difference(
-            valence_vals
+        first_diff = ps.first_difference(valence_vals)
+        diff_values.append(
+            sorted(first_diff, key=lambda x: abs(x[1]), reverse=True)[:2]
         )
-        diff_values.append(sorted(first_diff, key=lambda x: abs(x[1]), reverse=True)[:2])
     return chapter_valence_vals
+
 
 def get_novel_description(book: Epub, g: Gemini):
     response = g.generate_novel_description(
@@ -472,12 +488,9 @@ def get_novel_description(book: Epub, g: Gemini):
 
 
 def get_motif_data(book: Epub, g: Gemini):
-    chunks = book.chunk_text_for_motif_analysis()   
+    chunks = book.chunk_text_for_motif_analysis()
     motifs = g.generate_motif_extraction(
-        "gemini-2.5-flash",
-        chunks,
-        "motif_extraction",
-        novel_title=book.title
+        "gemini-2.5-flash", chunks, "motif_extraction", novel_title=book.title
     )
 
     all_motifs = []
@@ -486,10 +499,7 @@ def get_motif_data(book: Epub, g: Gemini):
         all_motifs.extend(parsed["motifs"])
 
     consolidated_motifs = g.generate_motif_consolidation(
-        "gemini-2.5-flash",
-        all_motifs,
-        "motif_consolidation",
-        book.title
+        "gemini-2.5-flash", all_motifs, "motif_consolidation", book.title
     )
 
     return json.loads(consolidated_motifs)

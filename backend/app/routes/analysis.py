@@ -15,6 +15,7 @@ from app.db import get_db
 router = APIRouter(prefix="/analysis", tags=["analysis"])
 load_dotenv()
 
+
 @router.post("/", response_model=AnalysisSchema)
 async def create_analysis(
     analysis: AnalysisSchemaCreate, db: AsyncSession = Depends(get_db)
@@ -56,6 +57,7 @@ async def get_analysis(file: UploadFile, db: AsyncSession = Depends(get_db)):
 
     task = process_text.delay(temp_file_path)
     return {"task_id": task.id}
+
 
 @router.post("/download/{book_id}")
 async def download_epub(book_id: int):

@@ -11,6 +11,7 @@ import NetworkGraph from "../components/NetworkGraph";
 import fetchNovelData from "../utils/fetchNovelData";
 import RelatedCharacterCard from "../components/RelatedCharacterCard";
 import TooltipComponent from "../components/Tooltip";
+import topQuotes from "../../data/top_quotes.json";
 
 const CharacterAnalysisProfile = () => {
     const characterName = useParams<{ name: string }>().name;
@@ -112,13 +113,8 @@ const CharacterAnalysisProfile = () => {
         return relatedData?.image_url ? `${import.meta.env.VITE_API_URL.replace('/api', '/data')}/${novelId}/${relatedData.image_url}` : undefined;
     });
 
-    const notableQuotes = characterQuotes
-        .filter((q: any) => q.content !== topQuote)
-        .filter((q: any) => q.content.length < 300)
-        .sort((a: any, b: any) => Math.abs(b.sentiment) - Math.abs(a.sentiment))
-        .slice(0, 5);
 
-    console.log(characterImageUrl);
+    const notableQuotes = topQuotes[novelId]?.[currentChar] || [];
 
     return (
         <div className="container mx-auto px-4 py-8">
@@ -133,7 +129,7 @@ const CharacterAnalysisProfile = () => {
                         />
                     </div>
                     <div>
-                        {characterImageUrl && <img src={characterImageUrl} alt={characterName ? humanize(characterName) : "Character Analysis"} className="border border-gray-300 p-1 mx-auto mb-4 rounded-lg w-40 h-48 object-cover" />}
+                        {/* { && <img src={"characterImageUrl"} alt={characterName ? humanize(characterName) : "Character Analysis"} className="border border-gray-300 p-1 mx-auto mb-4 rounded-lg w-40 h-48 object-cover" />} */}
                         <h1 className="text-4xl flex-1 text-center">
                             {characterName ? humanize(characterName) : "Character Analysis"}
                         </h1>
@@ -155,7 +151,9 @@ const CharacterAnalysisProfile = () => {
                         <div className="font-serif text-2xl">Character Summary</div>
                         <hr className="my-4 text-gray-300 w-1/2"/>
                         <p className="font-serif text-gray-900 whitespace-pre-wrap">
-                            {characterData?.summary || "No summary available."}
+                            {characterData?.summary?.split('\n\n').map((para, i) => (
+                                <p key={i} className="font-serif text-gray-900 mb-4">{para}</p>
+                            )) || "No summary available."}
                         </p>
                     </div>
                     <div className="flex-1 flex-col min-w-[280px]">
@@ -176,7 +174,7 @@ const CharacterAnalysisProfile = () => {
                                         name={relatedCharacter}
                                         quoteCount={strength}
                                         sentiment={sentiment}
-                                        image_url={relatedCharacterImages[index] || undefined}
+                                        image_url={"" || undefined}
                                     />
                                 ))}
                             </div>
@@ -199,7 +197,7 @@ const CharacterAnalysisProfile = () => {
                                 ) : (
                                     notableQuotes.map((q: any, index: number) => (
                                         <div key={index} className={`mb-4 p-3 border border-gray-200 rounded-lg border-l-4 ${q.sentiment >= 0 ? "border-l-green-500" : "border-l-red-500"}`}>
-                                            <p className="italic text-sm text-gray-800">"{q.content}"</p>
+                                            <p className="italic text-sm text-gray-800">"{q.quote}"</p>
                                             <p className="text-sm text-gray-500 mt-1">{chapterData[q.chapter_number]?.title}</p>
                                         </div>
                                     ))
@@ -229,12 +227,12 @@ const CharacterAnalysisProfile = () => {
                     </div>
                     <div ref={rightChartRef} className="overflow-hidden border border-gray-300 rounded-lg p-4 shadow-md">
                         <h1 className="font-serif text-md mb-4 text-center text-lg">
-                            {characterName ? `${humanize(characterName)}'s Social Network` : "Social Network"}
+                            {characterName ? `${humanize(characterName)}'s Conversational Network` : "Conversational Network"}
                         </h1>
                         <hr className="border-gray-300 w-1/2 mx-auto" />
                         {positionedSentiment.length === 0 ? (
                             <p className="text-gray-600 font-serif text-sm italic text-center mt-4">
-                                No social network data available for this character.
+                                No conversational network data available for this character.
                             </p>
                         ) : (
                             <NetworkGraph
@@ -242,10 +240,10 @@ const CharacterAnalysisProfile = () => {
                                 id={`network-${characterName}`}
                                 filterCharacter={characterName}
                                 height={300}
-                            width={networkChartWidth}
-                            showLegend={false}
-                            isFiltered={true}
-                        />
+                                width={networkChartWidth}
+                                showLegend={false}
+                                isFiltered={true}
+                            />
                         )}
                     </div>
                 </div>
