@@ -88,25 +88,28 @@ class QuoteAttributor:
                 ):
                     quote_obj["speaker"] = canonical
                     break
-            if quote_obj["speaker"] == None:
-                span_start = quote_obj["span"][0]
-                for span_text, _direction in [(post.lower(), 1), (prior.lower(), -1)]:
-                    words = span_text.split()
-                    for word in words:
-                        if self.match_speech_verbs_regex(word):
-                            for w in words:
-                                if w in ("he", "his", "himself"):
-                                    quote_obj["speaker"] = self.coref_res(
-                                        span_start, "he"
-                                    )
-                                if w in ("she", "her", "herself"):
-                                    quote_obj["speaker"] = self.coref_res(
-                                        span_start, "she"
-                                    )
-                                    break
-                            break
-                    if quote_obj["speaker"] is None:
-                        break
+            # TODO: test usefulness of this logic on different novels.
+            # appears to be beneficial for some, detrimental for others
+            
+            # if quote_obj["speaker"] == None:
+            #     span_start = quote_obj["span"][0]
+            #     for span_text, _direction in [(post.lower(), 1), (prior.lower(), -1)]:
+            #         words = span_text.split()
+            #         for word in words:
+            #             if self.match_speech_verbs_regex(word):
+            #                 for w in words:
+            #                     if w in ("he", "his", "himself"):
+            #                         quote_obj["speaker"] = self.coref_res(
+            #                             span_start, "he"
+            #                         )
+            #                     if w in ("she", "her", "herself"):
+            #                         quote_obj["speaker"] = self.coref_res(
+            #                             span_start, "she"
+            #                         )
+            #                         break
+            #                 break
+            #         if quote_obj["speaker"] is None:
+            #             break
 
             quote_obj["sentiment"] = self.sid_obj.polarity_scores(quote_obj["quote"])[
                 "compound"

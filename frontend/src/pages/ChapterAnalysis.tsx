@@ -136,7 +136,7 @@ const ChapterAnalysis = () => {
                                     {topCharacters.map(character => (
                                         <RelatedCharacterCard 
                                             name={humanize(character)}
-                                            image_url={`${import.meta.env.VITE_API_URL.replace('/api', '/data')}/${novelId}/${characterImages[character] ?? ""}`}
+                                            // image_url={`${import.meta.env.VITE_API_URL.replace('/api', '/data')}/${novelId}/${characterImages[character] ?? ""}`}
                                             description=""
                                         />
                                     ))}

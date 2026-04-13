@@ -1,6 +1,8 @@
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom"
 import buildNavigationDictionary from "./utils/buildNavigationDictionary";
 import NetworkGraph from "./components/NetworkGraph"
+import About from "./pages/About"
+import Contact from "./pages/Contact"
 import Home from "./pages/Home"
 import GraphTest from "./components/GraphTest"
 import AnalysisLanding from "./pages/AnalysisLanding"
@@ -110,6 +112,8 @@ const App = () => {
           <Route path="/vocabulary/:novelId" element={<Vocabulary />} />
           <Route path="/character-interactions/:novelId" element={<CharacterInteractions />} />
           <Route path="/character-occurences/:novelId" element={<CharacterOccurences />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
         </Routes>
       </BookContext.Provider>
     </BrowserRouter>

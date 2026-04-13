@@ -7,7 +7,7 @@ export default function Navbar() {
         <nav className="rounded-4xl border border-gray-200 px-12 py-1 flex justify-center mt-6 max-w-xs mx-auto">
             <ul className="flex gap-6 font-dewi text-md">
                 <li className="cursor-pointer" onClick={() => navigate("/")}>Home</li>
-                <li className="cursor-pointer" onClick={() => navigate("/about")}>About</li>
+                {/* <li className="cursor-pointer" onClick={() => navigate("/about")}>About</li> */}
                 <li className="cursor-pointer" onClick={() => navigate("/contact")}>Contact</li>
             </ul>
         </nav>

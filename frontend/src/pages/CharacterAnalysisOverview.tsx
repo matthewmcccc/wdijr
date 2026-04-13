@@ -198,6 +198,7 @@ const CharacterAnalysisLanding = () => {
             <div className="py-18">
                 <div className="justify-between flex flex-row">
                     <h1 className="font-serif text-4xl">Characters</h1>
+                    <TooltipComponent title="Characters" content={"This section provides a non-exhaustive list of all of the characters in the novel.\n\n Characters are selected based on their level of significance in the novel, so some may not appear.\n\nClick on a character's card to view a more detailed description, along with their top quotes and most closely related characters."} />
                     {/* <Dropdown /> */}
                 </div>
                 <hr className="border-gray-300 my-4" />
