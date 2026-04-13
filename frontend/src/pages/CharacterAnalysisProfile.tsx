@@ -12,6 +12,7 @@ import fetchNovelData from "../utils/fetchNovelData";
 import RelatedCharacterCard from "../components/RelatedCharacterCard";
 import TooltipComponent from "../components/Tooltip";
 import topQuotes from "../../data/top_quotes.json";
+import { Loader2 } from "lucide-react";
 
 const CharacterAnalysisProfile = () => {
     const characterName = useParams<{ name: string }>().name;
@@ -75,7 +76,15 @@ const CharacterAnalysisProfile = () => {
         : [];
 
     if (!characterData || !quoteData) {
-        return <div>Loading...</div>;
+        return (
+            <div>
+                <Navbar />
+                <div className="min-h-[calc(100vh-80px)] flex flex-col items-center justify-center">
+                    <h1 className="text-3xl shimmer font-serif text-center">Loading...</h1>
+                    <Loader2 className="animate-spin h-7 w-7  mx-auto my-6" />
+                </div>
+            </div>
+        );
     }
 
     const totalChapters = chapterData.length || 1;
