@@ -16,7 +16,7 @@ class Book(ABC):
 
 
 class Chapter:
-    def __init__(self, index, title, item, paragraphs, text=""):
+    def __init__(self, index, title, paragraphs, text=""):
         self.index: int = index
         self.title: str = title
         self.text: str = text

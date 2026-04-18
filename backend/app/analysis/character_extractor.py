@@ -11,7 +11,7 @@ class CharacterExtractor:
         text: str,
         model: str = "en_core_web_trf",
     ):
-        self.nlp = spacy.load(model)
+        self.nlp = spacy.load(model, disable=["tagger", "parser", "lemmatizer", "attribute_ruler"])
         self.text = text
         self.model = model
         self.doc = self.process_text(text)
