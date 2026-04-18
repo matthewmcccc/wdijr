@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 from urllib.parse import urlparse
 from dotenv import load_dotenv
 from collections import defaultdict
-from app.parsers.epub import Epub
+from app.parsers.epub import Epub, Book, Chapter
 from app.services.celery_worker import celery_app
 from app.analysis.character_extractor import CharacterExtractor
 from app.analysis.network_builder import NetworkBuilder
@@ -88,8 +88,7 @@ def process_text(self, book_path: str):
 
     ch_dict = {}
     for idx, ch in book.chapters.items():
-        soup = BeautifulSoup(ch.item.get_body_content(), "html.parser")
-        ch_dict[idx] = [para.get_text() for para in soup.find_all("p")]
+        ch_dict[idx] = ch.paragraphs
     ch_cooccurence_result = json.dumps(
         nb.build_chapter_cooccurrence(ch_dict, character_dict)
     )
@@ -154,7 +153,11 @@ def process_text(self, book_path: str):
         state="PROCESSING", meta={"status": "Calculating key plot points..."}
     )
 
-    author_details = get_author_data(book, g, book.author)
+    try:
+        author_details = get_author_data(book, g, book.author)
+    except Exception as e:
+        print(f"Grabbing author data failed: {e}")
+        author_details = {"name": book.author, "image_url": "", "description": "", "other_works": []}
 
     self.update_state(state="PROCESSING", meta={"status": "Grabbing author data..."})
 
@@ -222,10 +225,8 @@ def get_character_chapter_occurences(
 ) -> dict:
     character_ch_occurences = defaultdict(dict)
     for idx, ch in book.chapters.items():
-        soup = BeautifulSoup(ch.item.get_body_content(), "html.parser")
-        paras = [para.get_text().lower() for para in soup.find_all("p")]
         character_ch_occurences[idx] = nb.build_character_occurence(
-            paras, character_dict
+            [p.lower() for p in ch.paragraphs], character_dict
         )
     return character_ch_occurences
 
@@ -408,49 +409,52 @@ def get_author_data(book: Epub, g: Gemini, author: str) -> dict:
 
     author_normalized = ("_").join(author.split(" "))
     wiki_url = f"https://en.wikipedia.org/w/api.php?action=query&titles={author_normalized}&prop=extracts|pageimages&explaintext=true&pithumbsize=400&format=json"
-    wiki_res = requests.get(
-        wiki_url,
-        headers={
-            "User-Agent": "wdijr/1.0 (dissertation project; mattmcconnachie4@gmail.com)"
-        },
-    )
+    try:
+        wiki_res = requests.get(
+            wiki_url,
+            headers={
+                "User-Agent": "wdijr/1.0 (dissertation project; mattmcconnachie4@gmail.com)"
+            },
+        )
 
-    wiki_body = wiki_res.json()
-    extract = next(iter(wiki_body["query"]["pages"].values()))
+        wiki_body = wiki_res.json()
+        extract = next(iter(wiki_body["query"]["pages"].values()))
 
-    author_summary = g.generate_author_summary(
-        "gemini-2.5-flash", "author_summary", extract, book.title
-    )
+        author_summary = g.generate_author_summary(
+            "gemini-2.5-flash", "author_summary", extract, book.title
+        )
 
-    other_works_list = []
+        other_works_list = []
 
-    open_lib_url = f"https://openlibrary.org/search.json?author={("+").join(author.split(" "))}&limit=10"
-    open_lib_res = requests.get(
-        open_lib_url,
-        headers={
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36"
-        },
-    )
-    if open_lib_res.ok and open_lib_res.text:
-        open_lib_body = open_lib_res.json()
-        for doc in open_lib_body["docs"]:
-            if book.title not in doc["title"] and author in doc["author_name"]:
-                image_url = (
-                    f"https://covers.openlibrary.org/b/id/{doc['cover_i']}-M.jpg"
-                    if "cover_i" in doc
-                    else ""
-                )
-                title = doc["title"] if "title" in doc else ""
-                year = doc["first_publish_year"] if "first_publish_year" in doc else ""
-                work_obj = {"title": title, "image_url": image_url, "year": year}
-                other_works_list.append(work_obj)
-        author_dict["name"] = author
-        try:
-            author_dict["image_url"] = extract["thumbnail"]["source"]
-        except KeyError:
-            author_dict["image_url"] = ""
-        author_dict["description"] = json.loads(author_summary)["summary"]
-        author_dict["other_works"] = other_works_list
+        open_lib_url = f"https://openlibrary.org/search.json?author={("+").join(author.split(" "))}&limit=10"
+        open_lib_res = requests.get(
+            open_lib_url,
+            headers={
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36"
+            },
+        )
+        if open_lib_res.ok and open_lib_res.text:
+            open_lib_body = open_lib_res.json()
+            for doc in open_lib_body["docs"]:
+                if book.title not in doc["title"] and author in doc["author_name"]:
+                    image_url = (
+                        f"https://covers.openlibrary.org/b/id/{doc['cover_i']}-M.jpg"
+                        if "cover_i" in doc
+                        else ""
+                    )
+                    title = doc["title"] if "title" in doc else ""
+                    year = doc["first_publish_year"] if "first_publish_year" in doc else ""
+                    work_obj = {"title": title, "image_url": image_url, "year": year}
+                    other_works_list.append(work_obj)
+            author_dict["name"] = author
+            try:
+                author_dict["image_url"] = extract["thumbnail"]["source"]
+            except KeyError:
+                author_dict["image_url"] = ""
+            author_dict["description"] = json.loads(author_summary)["summary"]
+            author_dict["other_works"] = other_works_list
+    except (requests.RequestException, KeyError, ValueError) as e:
+        print("Wikipedia/summary step failed: {e}")
 
     else:
         print(f"Open library request failed: {open_lib_res.status_code}")

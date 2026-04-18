@@ -21,10 +21,9 @@ class Epub(Book):
         self.book: epub.EpubBook = epub.read_epub(book_path)
         self.cover: list = self.get_cover()
         self.title: str = self.set_title()
-        self.chapters: dict = self.set_chapters()
+        self.chapters: dict[Chapter] = self.set_chapters()
         self.author: str = self.set_author()
         self.full_word_list: list[str] = self.get_full_text_word_list()
-        self.full_word_count: int = self.get_full_word_count()
         self.span_index: list[tuple[int, int]] = self.build_chapter_span_index()
         self.text = self.get_full_text()
 
@@ -62,6 +61,10 @@ class Epub(Book):
             if not self.check_valid_ch_title(ch_title):
                 continue
 
+            full_href = item.href
+            href = full_href.split("#")[0]
+            fragment = full_href.split("#")[1] if "#" in full_href else None
+
             epub_item = self.book.get_item_with_href(href)
             soup = BeautifulSoup(epub_item.get_body_content(), "html.parser")
 
@@ -84,8 +87,9 @@ class Epub(Book):
             words = text.split()
             if len(words) < MIN_CHAPTER_WORD_LEN:
                 continue
-
-            ch = Chapter(index=idx, title=ch_title, item=epub_item, text=text)
+            
+            paragraphs = [p.get_text() for p in soup.find_all()]
+            ch = Chapter(index=idx, title=ch_title, text=text, paragraphs=paragraphs)
             chapters[idx] = ch
             idx += 1
         return chapters
@@ -116,9 +120,7 @@ class Epub(Book):
     def get_full_text_paras(self) -> list[str]:
         paras = []
         for chapter in self.chapters.values():
-            soup = BeautifulSoup(chapter.item.get_body_content(), "html.parser")
-            for para in soup.find_all("p"):
-                paras.append(para.get_text())
+            paras.append(chapter.text)
         return paras
 
     def get_full_text(self) -> str:
@@ -139,8 +141,7 @@ class Epub(Book):
         """
         text = []
         for chapter in self.chapters.values():
-            soup = BeautifulSoup(chapter.item.get_body_content(), "html.parser")
-            text.extend([para.get_text() for para in soup.find_all("p")])
+            text.append(chapter.text)
         text_str = "\n".join(text)
         words = text_str.split()
         return words
@@ -186,19 +187,6 @@ class Epub(Book):
             idx_start = 0
 
         return (" ").join(self.full_word_list[idx_start:idx_end])
-
-    def get_spans_from_index_list(self, fd: list[tuple[float, float]]) -> list[str]:
-        wc = self.full_word_count
-        fd_len = len(fd)
-        spans = [""] * fd_len
-
-        for i, (pct, _) in enumerate(fd):
-            med = math.floor(pct * wc)
-            spans[i] = self.get_text_span(
-                med - QUOTE_SPAN_WINDOW, med + QUOTE_SPAN_WINDOW
-            )
-
-        return spans
 
     def build_chapter_span_index(self) -> list[tuple[int, int]]:
         span_index = [(0, 0)] * len(self.chapters)
@@ -280,16 +268,17 @@ class Epub(Book):
         return None
 
     def write_cover(self, cover, novelId) -> str:
+        if cover is None:
+            return ""
         os.makedirs(f"../data/{novelId}/covers", exist_ok=True)
         content = cover.get_content()
+        if not content:
+            return ""
         cover_url = f"../data/{novelId}/covers/cover.jpg"
         with open(cover_url, "wb") as f:
             f.write(content)
         return f"/data/{novelId}/covers/cover.jpg"
 
-    def get_full_word_count(self):
-        words = self.get_full_text_word_list()
-        return len(words)
 
     def compute_mattr(self, tokens, window):
         if len(tokens) < window:

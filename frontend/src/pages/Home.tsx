@@ -16,6 +16,7 @@ const Home = () => {
     const [showModal, setShowModal] = useState<boolean>(false)
     const [blur, setBlur] = useState<boolean>(false)
     const [bookId, setBookId] = useState<string>("")
+    const [mode, setMode] = useState<"upload" | "preprocessed">("upload")
 
     const navigate = useNavigate();
 
@@ -111,20 +112,23 @@ const Home = () => {
                         </p>
                         <div className="flex gap-4">
                             <input id="file-upload" type="file" accept=".epub" className="hidden" onChange={(e) => handleFileSelect(e.target.files ? e.target.files[0] : null)} />
-                            <button disabled={true} className="bg-brand-cta text-white font-dewi py-2 px-4 rounded-4xl cursor-pointer hover:bg-brand-cta-hover disable disabled:bg-gray-400 disabled:cursor-not-allowed
+                            <button disabled={false} className="bg-brand-cta text-white font-dewi py-2 px-4 rounded-4xl cursor-pointer hover:bg-brand-cta-hover disable disabled:bg-gray-400 disabled:cursor-not-allowed
                                 duration-300 transition-all" onClick={() => document.getElementById("file-upload")?.click()}>
                                 <img src={uploadIcon} alt="Upload Icon" className="inline-block w-5 h-5 mr-3 mb-1 fill-white
                                 invert brightness-150" />
                                     Upload a Book
                             </button>
-                            <button disabled={true} onClick={() => { setShowModal(true); setBlur(true); }} className="flex flex-row gap-2 bg-white border-black-500 border text-black font-dewi py-2 px-4 rounded-4xl cursor-pointer hover:bg-black hover:text-white disabled:bg-gray-400 disabled:text-white disabled:border-gray-400 disabled:cursor-not-allowed
+                            <button disabled={false} onClick={() => { setShowModal(true); setBlur(true); }} className="flex flex-row gap-2 bg-white border-black-500 border text-black font-dewi py-2 px-4 rounded-4xl cursor-pointer hover:bg-black hover:text-white disabled:bg-gray-400 disabled:text-white disabled:border-gray-400 disabled:cursor-not-allowed
                                 duration-300 transition-all">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 20" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-book-open-icon lucide-book-open"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>                                    Choose from Corpus  
                             </button>
                         </div>
+                        <div className="">
+                            Don't want to wait? <span className="bg-brand-cta rounded-md p-2 text-white text-[8px]">Choose from a list of pre-processed novels</span>
+                        </div>
                     </div>
                 </div>
-                <Modal setBlur={setBlur} showModal={showModal} setShowModal={setShowModal} setBookId={setBookId} />
+                <Modal setBlur={setBlur} showModal={showModal} setShowModal={setShowModal} setBookId={setBookId} mode={mode} />
             </div>
             )}
         </>
