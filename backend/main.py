@@ -16,7 +16,7 @@ from app.services.book_processor import get_character_chapter_occurences
 load_dotenv()
 
 if __name__ == "__main__":
-    book: Epub = Epub("./app/temp/aaiw.epub")
+    book: Epub = Epub("./app/temp/dracula.epub")
     quotes = book.get_full_text_quotes()
     ce: CharacterExtractor = CharacterExtractor(book.text)
     for character in ce.canonical_characters:

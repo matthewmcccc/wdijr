@@ -33,7 +33,8 @@ class CharacterExtractor:
 
     def get_characters_from_text(self) -> list[str]:
         """
-        Retrieves all entities with the "PERSON" entity label from a text.
+        Retrieves all entities with the "PERSON" entity label from a text
+        with some filtering.
 
         :return: A list of all of the characters from a text and their counts.
         :rtype: list[dict]
@@ -71,22 +72,11 @@ class CharacterExtractor:
         """
         gen_characters = []
         stop_words = self.nlp.Defaults.stop_words
-        name = clean_string(self.characters[0])
-        gen_characters.append(
-            [
-                name,
-                *[
-                    item
-                    for item in name.split(" ")
-                    if len(item) >= 3 and item not in stop_words
-                ],
-            ]
-        )
+        if not self.characters:
+            return
         for p_idx in range(len(self.characters)):
             seen = False
             p = clean_string(self.characters[p_idx])
-            if len(p) <= 3 or p in stop_words:
-                break
             p_split = p.split(" ")
             for g_idx in range(len(gen_characters)):
                 if p in gen_characters[g_idx]:

@@ -3,7 +3,7 @@ import regex as re
 
 def clean_string(s: str) -> str:
     """
-    Removes all newspaces, punctuation, apostrophes, and converts
+    Removes all newspaces, punctuation, possessives, and converts
     the given string to lower case.
 
     :param s: String to be cleaned
