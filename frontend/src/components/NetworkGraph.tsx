@@ -1,7 +1,6 @@
 import * as d3 from "d3"
 import { useContext, useEffect } from "react";
 import { BookContext } from "../contexts/bookContext";
-import TooltipComponent from "./Tooltip";
 
 
 const getColor = (group: number): string => {
@@ -48,8 +47,8 @@ const createNetworkGraph = (
     showLegend: boolean = true,
     mode: "conversational" | "cooccurrence" = "conversational"
 ) => {
-    const links = data.links.map((d: any) => Object.create(d));
-    const nodes = data.nodes.map((d: any) => Object.create(d));
+    const links = data.links.map((d: any) => ({ ...d }));
+    const nodes = data.nodes.map((d: any) => ({ ...d }));
 
     if (nodes.length === 0) return;
 
@@ -81,7 +80,6 @@ const createNetworkGraph = (
 
     const nodeCount = nodes.length;
     const chargeStrength = Math.min(-800, -100 * nodeCount);
-    const linkDistance = Math.max(150, 10 * nodeCount);
 
     const simulation = d3
         .forceSimulation(nodes)
@@ -113,9 +111,10 @@ const createNetworkGraph = (
             if (mode === "cooccurrence") {
                 return Math.max(1, (d.value / maxCooccurrence) * 8);
             }
-            return Math.max(1, Math.abs(d.value) * 2);
+            return Math.max(1, Math.abs(d.value) * links.length * 0.02);
         })
         .attr("stroke", (d: any) => {
+            console.log(d)
             if (mode === "cooccurrence") return "#888";
             if (d.value > 0.2) return "#2ecc71";
             if (d.value < -0.2) return "#e74c3c";

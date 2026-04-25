@@ -22,7 +22,7 @@ class NetworkBuilder:
     def build_cooccurrence_network(
         self, paras: list[str], character_dict: dict
     ) -> dict:
-        cooccurrence_dict = defaultdict(list)
+        cooccurrence_dict = defaultdict(int)
         for para in paras:
             para_lower = para.lower()
             seen = set()
@@ -31,14 +31,10 @@ class NetworkBuilder:
                     seen.add(canonical)
             for char_a, char_b in combinations(seen, 2):
                 key = tuple(sorted([char_a, char_b]))
-                cooccurrence_dict[key].append(1)
-
-        cooccurrence_frequency_dict = defaultdict(int)
-        for pair, frequency_list in cooccurrence_dict.items():
-            cooccurrence_frequency_dict[pair] = sum(frequency_list)
+                cooccurrence_dict[key] += 1
 
         graph = nx.Graph()
-        for (char_a, char_b), weight in cooccurrence_frequency_dict.items():
+        for (char_a, char_b), weight in cooccurrence_dict.items():
             graph.add_edge(char_a, char_b, weight=weight)
 
         communities = nx.community.greedy_modularity_communities(graph, weight="weight")
@@ -48,7 +44,7 @@ class NetworkBuilder:
                 group_map[character] = group_idx
 
         all_characters = set()
-        for a, b in cooccurrence_frequency_dict:
+        for a, b in cooccurrence_dict:
             all_characters.add(a)
             all_characters.add(b)
 
@@ -57,7 +53,7 @@ class NetworkBuilder:
         ]
         links = [
             {"source": a, "target": b, "value": v}
-            for (a, b), v in cooccurrence_frequency_dict.items()
+            for (a, b), v in cooccurrence_dict.items()
         ]
 
         return {"nodes": nodes, "links": links}
@@ -126,7 +122,8 @@ class NetworkBuilder:
                     {
                         "source": str(character),
                         "target": str(name),
-                        "value": sum(q["sentiment"] for q in quotes),
+                        "value": len(quotes),
+                        "sentiment": sum(q["sentiment"] for q in quotes) / len(quotes),  
                     }
                 )
         G = nx.Graph()

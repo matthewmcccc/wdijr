@@ -23,7 +23,7 @@ class Analysis(MappedAsDataclass, Base):
     motifs: Mapped[dict] = mapped_column(JSON, nullable=True)
     lexical_richness: Mapped[dict] = mapped_column(JSON, nullable=True)
 
-    novel: Mapped["Novel"] = relationship(back_populates="analysis", init=False)
+    novel: Mapped["Novel"] = relationship(back_populates="analysis", init=False, lazy="raise_on_sql")
 
     @classmethod
     async def get_from_novel_id(cls, db: AsyncSession, id: int):

@@ -1,15 +1,13 @@
-import Breadcrumbs from "../components/Breadcrumbs"
-import Navbar from "../components/Navbar"
-import ChapterCard from "../components/ChapterCard"
-import PlotAreaChart from "../components/PlotAreaChart"
-import { useParams } from "react-router-dom"
-import { useContext, useEffect, useRef, useState } from "react"
-import { BookContext } from "../contexts/bookContext"
-import fetchNovelData from "../utils/fetchNovelData"
-import PlotEventCard from "../components/PlotEventCard"
-import useContainerSize from "../hooks/useContainerSize"
-import { Tooltip } from "recharts"
-import TooltipComponent from "../components/Tooltip"
+import Breadcrumbs from "../components/Breadcrumbs";
+import Navbar from "../components/Navbar";
+import ChapterCard from "../components/ChapterCard";
+import PlotAreaChart from "../components/PlotAreaChart";
+import { useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import useNovelData from "../hooks/useNovelData";
+import PlotEventCard from "../components/PlotEventCard";
+import useContainerSize from "../hooks/useContainerSize";
+import TooltipComponent from "../components/Tooltip";
 
 interface SelectedEvent {
     title: string;
@@ -24,42 +22,17 @@ const CHAPTERS_PER_PAGE = 12;
 
 const PlotAnalysisLanding = () => {
     const novelId = useParams<{ novelId: string }>().novelId;
-    const bookContext = useContext(BookContext);
-    const novelData = bookContext?.novelData;
-    const setNovelData = bookContext?.setNovelData;
-    const setCharacterData = bookContext?.setCharacterData;
-    const setNetworkData = bookContext?.setNetworkData;
-    const setTitle = bookContext?.setTitle;
-    const setQuoteData = bookContext?.setQuoteData;
-    const setPlotSummaries = bookContext?.setPlotSummaries;
-    const setSentimentValues = bookContext?.setSentimentValues;
-    const setInflectionPoints = bookContext?.setInflectionPoints;
-    const setCoverUrl = bookContext?.setCoverUrl;
-    const setCharacterSentimentValues = bookContext?.setCharacterSentimentValues;
-    const setChapterData = bookContext?.setChapterData;
-    const setChapterNetworkData = bookContext?.setChapterNetworkData;
-    const hasFetched = useRef<string | null>(null);
-    const title = bookContext?.title;
-    const chapterData = bookContext?.chapterData;
+    const ctx = useNovelData(novelId);
+
+    const title = ctx?.title;
+    const chapterData = ctx?.chapterData;
+
     const { containerRef, width: containerWidth, height: containerHeight } = useContainerSize();
     const [selectedEvent, setSelectedEvent] = useState<SelectedEvent | null>(null);
-    const [cooccurrenceNetworkData, setCooccurrenceNetworkData] = useState<any>(null);
     const [chapterPage, setChapterPage] = useState(0);
 
     const totalPages = chapterData ? Math.ceil(chapterData.length / CHAPTERS_PER_PAGE) : 1;
     const paginatedChapters = chapterData ? chapterData.slice(chapterPage * CHAPTERS_PER_PAGE, (chapterPage + 1) * CHAPTERS_PER_PAGE) : [];
-
-    useEffect(() => {
-        const fetchData = async () => {
-            if (hasFetched.current === novelId) return;
-            hasFetched.current = novelId ?? null;
-
-            if (setNovelData && setCharacterData && setNetworkData && setTitle && setQuoteData && setPlotSummaries && setSentimentValues && setInflectionPoints && setCoverUrl && setCharacterSentimentValues && setChapterData && setChapterNetworkData && setCooccurrenceNetworkData) {
-                await fetchNovelData(novelId ?? "", setNovelData, setCharacterData, setNetworkData, setTitle, setQuoteData, setPlotSummaries, setSentimentValues, setInflectionPoints, setCoverUrl, setCharacterSentimentValues, setChapterData, setChapterNetworkData, setCooccurrenceNetworkData);
-            }
-        };
-        fetchData();
-    }, [novelId]);
 
     useEffect(() => {
         if (title) {
@@ -103,7 +76,7 @@ const PlotAnalysisLanding = () => {
                         </div>
                     </div>
                 </div>
-               {selectedEvent && (
+                {selectedEvent && (
                     <div className="flex-3">
                         <PlotEventCard
                             title={selectedEvent.title}
@@ -156,7 +129,7 @@ const PlotAnalysisLanding = () => {
                 )}
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default PlotAnalysisLanding
+export default PlotAnalysisLanding;

@@ -4,41 +4,29 @@ import { useParams } from "react-router-dom";
 import humanize from "../utils/humanize";
 import Breadcrumbs from "../components/Breadcrumbs";
 import CharacterNavigation from "../components/CharacterNavigation";
-import { useContext, useEffect } from "react";
-import { BookContext } from "../contexts/bookContext";
+import { useEffect } from "react";
+import useNovelData from "../hooks/useNovelData";
 import SentimentAreaChart from "../components/SentimentAreaChart";
 import NetworkGraph from "../components/NetworkGraph";
-import fetchNovelData from "../utils/fetchNovelData";
 import RelatedCharacterCard from "../components/RelatedCharacterCard";
 import TooltipComponent from "../components/Tooltip";
-import topQuotes from "../../data/top_quotes.json";
 import { Loader2 } from "lucide-react";
 
 const CharacterAnalysisProfile = () => {
     const characterName = useParams<{ name: string }>().name;
-    const allCharacterData = useContext(BookContext)?.characterData;
+    const novelId = useParams<{ novelId: string }>().novelId;
+    const ctx = useNovelData(novelId);
+
+    const allCharacterData = ctx?.characterData;
+    const quoteData = ctx?.quoteData;
+    const chapterData = ctx?.chapterData || [];
+
     const characterData = Object.values(allCharacterData ?? {})
         .find(c => c.name.toLowerCase() === humanize(characterName ?? "").toLowerCase());
-    const setNetworkData = useContext(BookContext)?.setNetworkData;
-    const novelId = useParams<{ novelId: string }>().novelId;
-    const novelData = useContext(BookContext)?.novelData;
-    const setNovelData = useContext(BookContext)?.setNovelData;
-    const setCharacterData = useContext(BookContext)?.setCharacterData;
-    const setTitle = useContext(BookContext)?.setTitle;
     const topRelationships = (characterData as any)?.["top_relationships"] || [];
     const topQuote = characterData ? (characterData as any).top_quote : null;
-    const quoteData = useContext(BookContext)?.quoteData;
-    const setCharacterSentimentValues = useContext(BookContext)?.setCharacterSentimentValues;
-    const setQuoteData = useContext(BookContext)?.setQuoteData;
-    const setPlotSummaries = useContext(BookContext)?.setPlotSummaries;
-    const setSentimentValues = useContext(BookContext)?.setSentimentValues;
-    const setInflectionPoints = useContext(BookContext)?.setInflectionPoints;
-    const setCoverUrl = useContext(BookContext)?.setCoverUrl;
-    const setChapterData = useContext(BookContext)?.setChapterData;
-    const setChapterNetworkData = useContext(BookContext)?.setChapterNetworkData;
-    const chapterData = useContext(BookContext)?.chapterData || [];
     const currentChar = humanize(characterName ?? "").toLowerCase();
-    const characterImageUrl = characterData?.image_url ? `${import.meta.env.VITE_API_URL.replace('/api', '/data')}/${novelId}/${characterData.image_url}` : null;
+
     const { containerRef: leftChartRef, width: leftChartWidth } = useContainerSize();
     const { containerRef: rightChartRef, width: rightChartWidth } = useContainerSize();
 
@@ -49,17 +37,6 @@ const CharacterAnalysisProfile = () => {
 
     const sentimentChartWidth = leftChartWidth > 0 ? leftChartWidth : 600;
     const networkChartWidth = rightChartWidth > 0 ? rightChartWidth : 600;
-
-    useEffect(() => {
-        const fetchCharacterData = async () => {
-            if (!novelData || novelData.id !== novelId || !characterData || !quoteData) {
-                if (setNovelData && setCharacterData && setNetworkData && setTitle && setQuoteData && setCharacterSentimentValues && setChapterData && setChapterNetworkData) {
-                    await fetchNovelData(novelId, setNovelData, setCharacterData, setNetworkData, setTitle, setQuoteData, setPlotSummaries, setSentimentValues, setInflectionPoints, setCoverUrl, setCharacterSentimentValues, setChapterData, setChapterNetworkData);
-                }
-            }
-        };
-        fetchCharacterData();
-    }, [novelId]);
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -81,7 +58,7 @@ const CharacterAnalysisProfile = () => {
                 <Navbar />
                 <div className="min-h-[calc(100vh-80px)] flex flex-col items-center justify-center">
                     <h1 className="text-3xl shimmer font-serif text-center">Loading...</h1>
-                    <Loader2 className="animate-spin h-7 w-7  mx-auto my-6" />
+                    <Loader2 className="animate-spin h-7 w-7 mx-auto my-6" />
                 </div>
             </div>
         );
@@ -117,13 +94,7 @@ const CharacterAnalysisProfile = () => {
         });
     };
 
-    const relatedCharacterImages = topRelationships.map(([relatedCharacter]) => {
-        const relatedData = Object.values(allCharacterData ?? {}).find(c => c.name.toLowerCase() === relatedCharacter.toLowerCase());
-        return relatedData?.image_url ? `${import.meta.env.VITE_API_URL.replace('/api', '/data')}/${novelId}/${relatedData.image_url}` : undefined;
-    });
-
-
-    const notableQuotes = topQuotes[novelId]?.[currentChar] || [];
+    const notableQuotes = characterQuotes.filter((q: any) => q.content.length < 150).sort((a: any, b: any) => Math.abs(b.sentiment) - Math.abs(a.sentiment)).slice(0, 5);
 
     return (
         <div className="container mx-auto px-4 py-8">
@@ -138,7 +109,6 @@ const CharacterAnalysisProfile = () => {
                         />
                     </div>
                     <div>
-                        {/* { && <img src={"characterImageUrl"} alt={characterName ? humanize(characterName) : "Character Analysis"} className="border border-gray-300 p-1 mx-auto mb-4 rounded-lg w-40 h-48 object-cover" />} */}
                         <h1 className="text-4xl flex-1 text-center">
                             {characterName ? humanize(characterName) : "Character Analysis"}
                         </h1>
@@ -159,16 +129,16 @@ const CharacterAnalysisProfile = () => {
                     <div className="flex flex-col gap-4 flex-[2]">
                         <div className="font-serif text-2xl">Character Summary</div>
                         <hr className="my-4 text-gray-300 w-1/2"/>
-                        <p className="font-serif text-gray-900 whitespace-pre-wrap">
+                        <div className="font-serif text-gray-900 whitespace-pre-wrap">
                             {characterData?.summary?.split('\n\n').map((para, i) => (
                                 <p key={i} className="font-serif text-gray-900 mb-4">{para}</p>
                             )) || "No summary available."}
-                        </p>
+                        </div>
                     </div>
                     <div className="flex-1 flex-col min-w-[280px]">
                         {topRelationships.length > 0 && (
                             <div className="border border-gray-300 rounded-lg p-4 shadow-md">
-                                <div className="flex justify-between items-center ">
+                                <div className="flex justify-between items-center">
                                     <h1></h1>
                                     <h1 className="font-serif text-lg text-center">Closely Related Characters</h1>
                                     <TooltipComponent
@@ -177,13 +147,13 @@ const CharacterAnalysisProfile = () => {
                                     />
                                 </div>
                                 <hr className="my-4 text-gray-300"/>
-                                {topRelationships.map(([relatedCharacter, strength, sentiment], index) => (
+                                {topRelationships.map(([relatedCharacter, strength, sentiment]) => (
                                     <RelatedCharacterCard
                                         key={relatedCharacter}
                                         name={relatedCharacter}
                                         quoteCount={strength}
                                         sentiment={sentiment}
-                                        image_url={"" || undefined}
+                                        image_url={undefined}
                                     />
                                 ))}
                             </div>
@@ -192,7 +162,7 @@ const CharacterAnalysisProfile = () => {
                             <div className="flex justify-between items-center">
                                 <h1></h1>
                                 <h1 className="font-serif text-center text-lg mt-2">Notable Quotes</h1>
-                                <TooltipComponent 
+                                <TooltipComponent
                                     title={"Notable Quotes"}
                                     content={"These quotes are selected based on their absolute sentiment strength. \n\n The sentiment of each quote is indicated by the color of the border: green for positive, red for negative."}
                                 />
@@ -206,11 +176,11 @@ const CharacterAnalysisProfile = () => {
                                 ) : (
                                     notableQuotes.map((q: any, index: number) => (
                                         <div key={index} className={`mb-4 p-3 border border-gray-200 rounded-lg border-l-4 ${q.sentiment >= 0 ? "border-l-green-500" : "border-l-red-500"}`}>
-                                            <p className="italic text-sm text-gray-800">"{q.quote}"</p>
+                                            <p className="italic text-sm text-gray-800">"{q.content}"</p>
                                             <p className="text-sm text-gray-500 mt-1">{chapterData[q.chapter_number]?.title}</p>
                                         </div>
                                     ))
-                                )}  
+                                )}
                             </div>
                         </div>
                     </div>
@@ -226,7 +196,7 @@ const CharacterAnalysisProfile = () => {
                             <p className="text-gray-600 font-serif text-sm italic text-center mt-4">
                                 No sentiment data available for this character.
                             </p>
-                            ) : (
+                        ) : (
                             <SentimentAreaChart
                                 data={smoothPositioned(positionedSentiment)}
                                 width={sentimentChartWidth}

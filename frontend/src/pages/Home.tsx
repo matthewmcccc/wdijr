@@ -16,7 +16,7 @@ const Home = () => {
     const [showModal, setShowModal] = useState<boolean>(false)
     const [blur, setBlur] = useState<boolean>(false)
     const [bookId, setBookId] = useState<string>("")
-    const [mode, setMode] = useState<"upload" | "preprocessed">("upload")
+    const [mode, setMode] = useState<"gutenberg" | "preprocessed">("gutenberg")
 
     const navigate = useNavigate();
 
@@ -106,8 +106,8 @@ const Home = () => {
                     <Navbar />
                     <div className="flex flex-col gap-6 pt-60 items-center h-screen overflow-hidden">
                         <h1 className="font-serif text-center text-4xl md:text-6xl lg:text-6xl">What Did I Just Read?</h1>
-                        <p className="lg:text-lg font-dewi text-brand-50 text-center">
-                            Upload your own text or choose from a pre-selected
+                        <p className="lg:text-lg font-dewi text-brand-50 w-[50rem] text-center">
+                            Upload your own text, browse a pre-existing novel analysis, or choose from a pre-selected
                             novel corpus for textual analysis.
                         </p>
                         <div className="flex gap-4">
@@ -118,13 +118,15 @@ const Home = () => {
                                 invert brightness-150" />
                                     Upload a Book
                             </button>
-                            <button disabled={false} onClick={() => { setShowModal(true); setBlur(true); }} className="flex flex-row gap-2 bg-white border-black-500 border text-black font-dewi py-2 px-4 rounded-4xl cursor-pointer hover:bg-black hover:text-white disabled:bg-gray-400 disabled:text-white disabled:border-gray-400 disabled:cursor-not-allowed
+                            <button disabled={false} onClick={() => { setShowModal(true); setBlur(true); setMode("preprocessed") }} className="flex flex-row gap-2 bg-white border-black-500 border text-black font-dewi py-2 px-4 rounded-4xl cursor-pointer hover:bg-black hover:text-white disabled:bg-gray-400 disabled:text-white disabled:border-gray-400 disabled:cursor-not-allowed
                                 duration-300 transition-all">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 20" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-book-open-icon lucide-book-open"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>                                    Choose from Corpus  
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 20" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" className="lucide lucide-book-open-icon lucide-book-open"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>                                    Browse pre-existing analyses  
                             </button>
                         </div>
                         <div className="">
-                            Don't want to wait? <span className="bg-brand-cta rounded-md p-2 text-white text-[8px]">Choose from a list of pre-processed novels</span>
+                            <button className="text-sm text-gray-500 italic cursor-pointer" onClick={() => { setShowModal(true); setBlur(true); setMode("gutenberg") }}>
+                                Or, choose a book to analyse from the Project Gutenberg corpus
+                            </button>
                         </div>
                     </div>
                 </div>

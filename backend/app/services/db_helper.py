@@ -61,15 +61,7 @@ def save_analysis_to_db(
         for i, char in enumerate(characters):
             name = char["name"]
             raw = summaries.get(i, "{}")
-            try:
-                if not raw.strip().startswith("{"):
-                    raw = "{" + raw
-                if not raw.strip().endswith("}"):
-                    raw = raw + "}"
-                summary_data = json.loads(raw)
-            except (json.JSONDecodeError, Exception):
-                summary_data = {"summary": "", "description": ""}
-
+            summary_data = json.loads(raw)
             top_quote = ""
             if len(top_quotes[name]) > 0:
                 top_quote = top_quotes[name][0]["quote"]
@@ -166,22 +158,9 @@ def save_analysis_to_db(
                 )
             )
         for idx, chapter in chapters.items():
-            try:
-                chapter_summary = chapter_summaries[idx]
-                if isinstance(chapter_summary, str):
-                    chapter_summary = chapter_summary.strip()
-                    if chapter_summary.startswith("```"):
-                        chapter_summary = chapter_summary.split("\n", 1)[-1]
-                    if chapter_summary.endswith("```"):
-                        chapter_summary = chapter_summary.rsplit("```", 1)[0]
-                    chapter_summary = chapter_summary.strip()
-                    try:
-                        chapter_summary = json.loads(chapter_summary, strict=False)
-                    except json.JSONDecodeError as e:
-                        chapter_summary = {"summary": "", "overview": ""}
-            except json.JSONDecodeError:
-                chapter_summary = {"summary": "", "overview": ""}
-
+            chapter_summary = chapter_summaries[idx]
+            if isinstance(chapter_summary, str):
+                chapter_summary = json.loads(chapter_summary)
             session.add(
                 Chapter(
                     chapter_number=idx,

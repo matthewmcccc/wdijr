@@ -1,15 +1,13 @@
-import { Fragment, useContext, useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import NetworkGraph from "../components/NetworkGraph";
 import Navbar from "../components/Navbar";
 import Breadcrumbs from "../components/Breadcrumbs";
-import Dropdown from "../components/Dropdown";
 import CharacterCard from "../components/CharacterCard";
-import { BookContext } from "../contexts/bookContext";
 import humanize from "../utils/humanize";
 import { useParams } from "react-router-dom";
-import fetchNovelData from "../utils/fetchNovelData";
 import newTabIcon from "../assets/img/new-tab.png";
 import useContainerSize from "../hooks/useContainerSize";
+import useNovelData from "../hooks/useNovelData";
 import TooltipComponent from "../components/Tooltip";
 import * as Select from "@radix-ui/react-select";
 
@@ -17,31 +15,19 @@ import * as Select from "@radix-ui/react-select";
 const CHARACTERS_PER_PAGE = 18;
 
 const CharacterAnalysisLanding = () => {
-    const characterData = useContext(BookContext)?.characterData;
-    const title = useContext(BookContext)?.title || "";
-    const setTitle = useContext(BookContext)?.setTitle;
     const novelId = useParams<{ novelId: string }>().novelId;
-    const bookContext = useContext(BookContext);
-    const novelData = bookContext?.novelData;
-    const setCharacterData = bookContext?.setCharacterData;
-    const setNetworkData = bookContext?.setNetworkData;
-    const setNovelData = bookContext?.setNovelData;
-    const setAssociatedQuotes = bookContext?.setAssociatedQuotes;
-    const setPlotSummaries = bookContext?.setPlotSummaries;
-    const setSentimentValues = bookContext?.setSentimentValues;
-    const setInflectionPoints = bookContext?.setInflectionPoints;
-    const setCoverUrl = bookContext?.setCoverUrl;
-    const setCharacterSentimentValues = bookContext?.setCharacterSentimentValues;
-    const setChapterData = bookContext?.setChapterData;
-    const chapterData = bookContext?.chapterData || [];
-    const setChapterNetworkData = bookContext?.setChapterNetworkData;
-    const chapterNetworkData = bookContext?.chapterNetworkData;
+    const ctx = useNovelData(novelId);
+
+    const characterData = ctx?.characterData;
+    const title = ctx?.title || "";
+    const chapterData = ctx?.chapterData || [];
+    const chapterNetworkData = ctx?.chapterNetworkData;
+
     const maxChapter = chapterData.length > 0 ? chapterData.length - 1 : 0;
     const allValue = maxChapter + 1;
     const [sliderValue, setSliderValue] = useState<number>(allValue);
     const selectedChapter = sliderValue === 0 ? null : sliderValue - 1;
     const [cumulative, setCumulative] = useState(true);
-    const setCooccurrenceNetworkData = bookContext?.setCooccurrenceNetworkData;
     const { containerRef, width: containerWidth, height: containerHeight } = useContainerSize();
     const [characterPage, setCharacterPage] = useState(0);
     const [networkMode, setNetworkMode] = useState<"conversational" | "cooccurrence">("conversational");
@@ -56,17 +42,6 @@ const CharacterAnalysisLanding = () => {
     useEffect(() => {
         setSliderValue(0);
     }, [chapterData.length]);
-
-    useEffect(() => {
-        const fetchCharacterData = async () => {
-            if (!novelData || novelData.id !== novelId) {
-                if (setNovelData && setCharacterData && setNetworkData && setTitle && setAssociatedQuotes && setChapterNetworkData && setCooccurrenceNetworkData && setPlotSummaries && setSentimentValues && setInflectionPoints && setCoverUrl && setCharacterSentimentValues && setChapterData) {
-                    await fetchNovelData(novelId ?? "", setNovelData, setCharacterData, setNetworkData, setTitle, setAssociatedQuotes, setPlotSummaries, setSentimentValues, setInflectionPoints, setCoverUrl, setCharacterSentimentValues, setChapterData, setChapterNetworkData, setCooccurrenceNetworkData);
-                }
-            }
-        };
-        fetchCharacterData();
-    }, [novelId]);
 
     useEffect(() => {
         if (title) {
@@ -132,15 +107,10 @@ const CharacterAnalysisLanding = () => {
                                         width={containerWidth}
                                         selectedChapter={selectedChapter}
                                         chapterNetworkData={chapterNetworkData}
-                                        onNodeHover={(node) => {
-                                            const key = Object.keys(characterData).find(
-                                                k => characterData[k].name?.toLowerCase() === node.id
-                                            );
-                                            setShowSideCard(key || null);
-                                        }}
                                         cumulative={cumulative}
                                         networkMode={networkMode}
-                                    />                                )}
+                                    />
+                                )}
                             </div>
                             {networkMode == "conversational" && (
                                 <div className="flex flex-col items-center w-full mt-2">
@@ -199,7 +169,6 @@ const CharacterAnalysisLanding = () => {
                 <div className="justify-between flex flex-row">
                     <h1 className="font-serif text-4xl">Characters</h1>
                     <TooltipComponent title="Characters" content={"This section provides a non-exhaustive list of all of the characters in the novel.\n\n Characters are selected based on their level of significance in the novel, so some may not appear.\n\nClick on a character's card to view a more detailed description, along with their top quotes and most closely related characters."} />
-                    {/* <Dropdown /> */}
                 </div>
                 <hr className="border-gray-300 my-4" />
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -211,7 +180,6 @@ const CharacterAnalysisLanding = () => {
                                 name={humanize(data.name)}
                                 image_url={"" ? `${import.meta.env.VITE_API_URL.replace('/api', '/data')}/${novelId}/${data.image_url}` : undefined}
                                 description={data.description ?? "No description available."}
-                                // size={"large"}
                             />
                         </Fragment>
                     ))
@@ -240,7 +208,7 @@ const CharacterAnalysisLanding = () => {
                 )}
             </div>
         </div>
-    )
-}
+    );
+};
 
 export default CharacterAnalysisLanding;

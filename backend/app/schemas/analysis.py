@@ -10,9 +10,9 @@ class AnalysisSchemaBase(BaseModel):
     cooccurrence_network: dict
     chapter_cooccurrence_network: dict
     character_chapter_occurences: dict
-    sentiment_values: list
-    inflection_points: list
-    plot_summaries: list
+    sentiment_values: Optional[list] = None
+    inflection_points: Optional[list] = None
+    plot_summaries: Optional[list] = None
     character_sentiment: dict
     chapter_networks: dict
     motifs: Optional[dict] = None

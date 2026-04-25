@@ -1,25 +1,20 @@
-import spacy
 from collections import defaultdict
 from app.utils.util import clean_string
-
-spacy.prefer_gpu()
-
 
 class CharacterExtractor:
     def __init__(
         self,
         text: str,
-        model: str = "en_core_web_trf",
+        nlp,
     ):
-        self.nlp = spacy.load(model, disable=["tagger", "parser", "lemmatizer", "attribute_ruler"])
         self.text = text
-        self.model = model
-        self.doc = self.process_text(text)
-        self.characters = self.get_characters_from_text()
-        self.consolidated_characters = self.consolidate_characters()
-        self.canonical_characters = [c[0] for c in self.consolidated_characters]
+        self.nlp = nlp 
 
-    def process_text(self, text: str):
+        self.doc = None
+        self.characters = []
+        self.consolidated_characters = []
+
+    def run(self):
         """
         Takes in entire content of a novel as a string
         and runs it through the spaCy NLP pipeline.
@@ -28,8 +23,10 @@ class CharacterExtractor:
         :param text: Description
         :type text: str
         """
-        self.doc = self.nlp(text)
-        return self.doc
+        self.doc = self.nlp(self.text)
+        self.characters = self.get_characters_from_text()
+        self.consolidated_characters = self.consolidate_characters()
+        return self
 
     def get_characters_from_text(self) -> list[str]:
         """
@@ -85,6 +82,8 @@ class CharacterExtractor:
                     if item in gen_characters[g_idx]:
                         seen = True
                 if seen:
+                    if p not in gen_characters[g_idx]:
+                        gen_characters[g_idx].append(p)
                     break
             if not seen:
                 if [p] == p_split:

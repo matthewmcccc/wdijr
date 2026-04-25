@@ -8,39 +8,17 @@ import MotifTreeGraph from "../components/MotifTreeGraph";
 import TooltipComponent from "../components/Tooltip";
 import MotifCard from "../components/MotifCard";
 import { scaleOrdinal, schemeTableau10 } from "d3";
+import useNovelData from "../hooks/useNovelData";
 
 const ThemesAndMotifs = () => {
     const title = "Themes and Motifs";
-    const bookContext = useContext(BookContext);
     const { novelId } = useParams<{ novelId: string }>();
-    const setNovelData = bookContext?.setNovelData;
-    const setCharacterData = bookContext?.setCharacterData;
-    const setNetworkData = bookContext?.setNetworkData;
-    const setTitle = bookContext?.setTitle;
-    const setQuoteData = bookContext?.setQuoteData;
-    const setPlotSummaries = bookContext?.setPlotSummaries;
-    const setSentimentValues = bookContext?.setSentimentValues;
-    const setInflectionPoints = bookContext?.setInflectionPoints;
-    const setCoverUrl = bookContext?.setCoverUrl;
-    const setCharacterSentimentValues = bookContext?.setCharacterSentimentValues;
-    const setChapterData = bookContext?.setChapterData;
-    const setChapterNetworkData = bookContext?.setChapterNetworkData;
-    const setCooccurrenceNetworkData = bookContext?.setCooccurrenceNetworkData;
-    const setAuthorData = bookContext?.setAuthorData;
-    const setMotifData = bookContext?.setMotifData;
-    const bookTitle = bookContext?.title;
-    const motifData = bookContext?.motifData;
+    const ctx = useNovelData(novelId);
+
+    const bookTitle = ctx?.title;
+    const motifData = ctx?.motifData;
 
     const color = scaleOrdinal(schemeTableau10);
-
-    useEffect(() => {
-        const fetchData = async () => {
-            if (novelId && setNovelData && setCharacterData && setNetworkData && setTitle && setQuoteData && setPlotSummaries && setSentimentValues && setInflectionPoints && setCoverUrl && setCharacterSentimentValues && setChapterData && setChapterNetworkData && setCooccurrenceNetworkData && setAuthorData && setMotifData ) {
-                await fetchNovelData(novelId, setNovelData, setCharacterData, setNetworkData, setTitle, setQuoteData, setPlotSummaries, setSentimentValues, setInflectionPoints, setCoverUrl, setCharacterSentimentValues, setChapterData, setChapterNetworkData, setCooccurrenceNetworkData, setAuthorData, setMotifData);
-            }
-        };
-        fetchData();
-    }, [novelId, setCharacterData, setTitle, setNetworkData, setQuoteData, setSentimentValues, setInflectionPoints, setPlotSummaries, setCoverUrl, setNovelData, setCharacterSentimentValues, setChapterData, setChapterNetworkData, setCooccurrenceNetworkData, setAuthorData, setMotifData]);
 
     useEffect(() => {
         document.title = `${title}`;

@@ -1,79 +1,60 @@
-import { useState, useEffect, useContext, use } from "react"
-import axios from "axios"
-import { useParams } from "react-router-dom"
+import { useState, useEffect, useContext } from "react";
+import axios from "axios";
+import { useParams, useNavigate } from "react-router-dom";
 import { BookContext } from "../contexts/bookContext";
-import { Navigate, useNavigate } from "react-router";
-import { Loader2 } from "lucide-react";
 import Navbar from "../components/Navbar";
 
 const Processing = () => {
     const taskId = useParams().taskid;
+    const ctx = useContext(BookContext);
+    const navigate = useNavigate();
+
     const [done, setDone] = useState(false);
     const [status, setStatus] = useState<string>("Processing...");
-    const [novelId, setNovelId] = useState<number | null>(null);
-    const setNetworkData = useContext(BookContext)?.setNetworkData;
-    const setCharacterData = useContext(BookContext)?.setCharacterData;
-    const setTitle = useContext(BookContext)?.setTitle;
-    const setAssociatedQuotes = useContext(BookContext)?.setAssociatedQuotes;
-    const setTopRelationships = useContext(BookContext)?.setTopCharacterRelationships;
-    const associatedQuotes = useContext(BookContext)?.associatedQuotes;
-    const setSentimentValues = useContext(BookContext)?.setSentimentValues;
-    const setInflectionPoints = useContext(BookContext)?.setInflectionPoints;
-    const setPlotSummaries = useContext(BookContext)?.setPlotSummaries;
-    const setCoverUrl = useContext(BookContext)?.setCoverUrl;
-    const setCharacterSentimentValues = useContext(BookContext)?.setCharacterSentimentValues;
-    const navigate = useNavigate();
-    const chapterNetworkData = useContext(BookContext)?.chapterNetworkData;
-    const setChapterNetworkData = useContext(BookContext)?.setChapterNetworkData;
-    const setChapterLengths = useContext(BookContext)?.setChapterLengths;
-    const setCooccurrenceNetworkData = useContext(BookContext)?.setCooccurrenceNetworkData;
-    const setAuthorData = useContext(BookContext)?.setAuthorData;
-    const setMotifData = useContext(BookContext)?.setMotifData;
-    const setLexicalRichness = useContext(BookContext)?.lexicalRichness;
-    const setChapterCooccurrenceData = useContext(BookContext)?.setChapterCooccurrenceData;
-    const setChapterOccurenceData = useContext(BookContext)?.setChapterOccurenceData;
+    const [novelId, setNovelId] = useState<string | null>(null);
 
     useEffect(() => {
-        if (done) return;
+        if (done || !ctx) return;
 
         const pollInterval = setInterval(async () => {
-            const data = await axios.get(`${import.meta.env.VITE_API_URL}/analysis/process/${taskId}`)
+            const data = await axios.get(`${import.meta.env.VITE_API_URL}/analysis/process/${taskId}`);
             setStatus(data.data.detail || "Processing...");
-        if (data.data.status == "complete") {
-                console.log("Analysis complete, fetching data...", data.data.data);
-                setTitle?.(data.data.data.title);
-                setNetworkData?.(data.data.data.conversational_network);
-                setSentimentValues?.(data.data.data.sentiment_values);
-                setInflectionPoints?.(data.data.data.inflection_points);
-                setCharacterData?.(data.data.data.characters);
-                setNovelId(data.data.data.novel_id);
-                setAssociatedQuotes?.(data.data.data.associated_quotes);
-                setTopRelationships?.(data.data.data.top_relationships);
-                setPlotSummaries?.(data.data.data.plot_summaries); 
-                setCoverUrl?.(`${import.meta.env.VITE_API_URL.replace('/api', '')}${data.data.data.cover_url}`);
-                setCharacterSentimentValues?.(data.data.data.character_sentiment);
-                setChapterNetworkData?.(data.data.data.chapter_network);
-                setChapterLengths?.(data.data.data.chapter_lengths);
-                setCooccurrenceNetworkData?.(data.data.data.cooccurrence_network);
-                setAuthorData?.(data.data.data.author_details);
-                setMotifData?.(data.data.data.motifs.motif_groups);
-                setChapterOccurenceData?.(data.data.data.character_chapter_occurences);
+
+            if (data.data.status === "complete") {
+                const result = data.data.data;
+                ctx.setTitle?.(result.title);
+                ctx.setNetworkData?.(result.conversational_network);
+                ctx.setSentimentValues?.(result.sentiment_values);
+                ctx.setInflectionPoints?.(result.inflection_points);
+                ctx.setCharacterData?.(result.characters);
+                setNovelId(result.novel_id);
+                ctx.setAssociatedQuotes?.(result.associated_quotes);
+                ctx.setTopCharacterRelationships?.(result.top_relationships);
+                ctx.setPlotSummaries?.(result.plot_summaries);
+                ctx.setCoverUrl?.(`${import.meta.env.VITE_API_URL.replace('/api', '')}${result.cover_url}`);
+                ctx.setCharacterSentimentValues?.(result.character_sentiment);
+                ctx.setChapterNetworkData?.(result.chapter_network);
+                ctx.setChapterLengths?.(result.chapter_lengths);
+                ctx.setCooccurrenceNetworkData?.(result.cooccurrence_network);
+                ctx.setAuthorData?.(result.author_details);
+                ctx.setMotifData?.(result.motifs.motif_groups);
+                ctx.setChapterOccurenceData?.(result.character_chapter_occurences);
                 setDone(true);
             }
         }, 2000);
 
         return () => clearInterval(pollInterval);
-    }, [taskId, done]);   
+    }, [taskId, done, ctx]);
 
     useEffect(() => {
-        document.title = "Processing Analysis"
+        document.title = "Processing Analysis";
     }, []);
 
     useEffect(() => {
-        if (done) {
+        if (done && novelId) {
             navigate(`/analysis/${novelId}`);
         }
-    }, [done, novelId, navigate, associatedQuotes]);
+    }, [done, novelId, navigate]);
 
     return (
         <>
@@ -84,7 +65,7 @@ const Processing = () => {
                 </div>
             </div>
         </>
-    )
-}
+    );
+};
 
 export default Processing;

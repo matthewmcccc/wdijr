@@ -7,7 +7,7 @@ type AttributedQuote = {
     sentiment: number,
 }
 
-interface BookContextType {
+export interface BookContextType {
     characterData: Array<{
         id: Number,
         name: string;

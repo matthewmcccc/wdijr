@@ -90,7 +90,7 @@ class QuoteAttributor:
                     break
             # TODO: test usefulness of this logic on different novels.
             # appears to be beneficial for some, detrimental for others
-            
+
             # if quote_obj["speaker"] == None:
             #     span_start = quote_obj["span"][0]
             #     for span_text, _direction in [(post.lower(), 1), (prior.lower(), -1)]:

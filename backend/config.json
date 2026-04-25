@@ -1,8 +1,9 @@
 {
     "excluded_phrases": [
         "license", "translate", "licensed", "translated", "contents",
-        "edition"    
-    ],
+        "edition", "version", "versions", "copyright", "copyrights", "trademark",
+        "glossary", "glossaries", "index", "indices", "appendix", "appendices", 
+        "references", "bibliography", "footnote", "footnotes"    ],
     "speech_verbs": [
         "say", "says", "said", "tell", "tells", "told",
         "ask", "asks", "asked", "reply", "replies", "replied",

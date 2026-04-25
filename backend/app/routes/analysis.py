@@ -24,7 +24,7 @@ async def create_analysis(
     return analysis
 
 
-@router.get("/")
+@router.get("/", response_model=List[AnalysisSchema])
 async def get_all_analyses(db: AsyncSession = Depends(get_db)):
     analyses = await AnalysisModel.get_all(db)
     return analyses

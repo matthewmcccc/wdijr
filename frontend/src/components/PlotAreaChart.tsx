@@ -1,3 +1,5 @@
+// Adapted from here: https://observablehq.com/@d3/focus-context
+
 import * as d3 from 'd3' 
 import { useContext, useEffect } from 'react'
 import { BookContext } from '../contexts/bookContext'

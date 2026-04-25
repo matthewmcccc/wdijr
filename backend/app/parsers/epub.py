@@ -87,8 +87,8 @@ class Epub(Book):
             words = text.split()
             if len(words) < MIN_CHAPTER_WORD_LEN:
                 continue
-            
-            paragraphs = [p.get_text() for p in soup.find_all()]
+
+            paragraphs = [p.get_text() for p in soup.find_all("p")]
             ch = Chapter(index=idx, title=ch_title, text=text, paragraphs=paragraphs)
             chapters[idx] = ch
             idx += 1
@@ -242,8 +242,8 @@ class Epub(Book):
 
                 quote_dict["quote"] = quote_str
                 quote_dict["prior"] = prior
-                quote_dict["post"] = post
                 quote_dict["span"] = (start_idx, end_idx)
+                quote_dict["post"] = post
                 quote_dict["word_count"] = word_count
                 quote_dict["chapter_number"] = chapter_number
 
@@ -278,7 +278,6 @@ class Epub(Book):
         with open(cover_url, "wb") as f:
             f.write(content)
         return f"/data/{novelId}/covers/cover.jpg"
-
 
     def compute_mattr(self, tokens, window):
         if len(tokens) < window:

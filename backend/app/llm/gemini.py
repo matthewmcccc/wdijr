@@ -1,6 +1,7 @@
 import os
 import time
 import json
+from app.utils.types import PromptInstruction
 from google import genai
 from google.genai import types
 from dotenv import load_dotenv
@@ -8,17 +9,6 @@ from concurrent.futures import ThreadPoolExecutor
 from enum import Enum
 
 load_dotenv()
-
-
-class PromptInstruction(str, Enum):
-    EXCERPT_SUMMARY = "excerpt_summary"
-    CHARACTER_SUMMARY = "character_summary"
-    CHAPTER_SUMMARY = "chapter_summary"
-    CONSOLIDATE_QUOTES = "consolidate_quotes"
-    AUTHOR_SUMMARY = "author_summary"
-    MOTIF_EXTRACTION = "motif_extraction"
-    MOTIF_CONSOLIDATION = "motif_consolidation"
-    NOVEL_DESCRIPTION = "novel_description"
 
 
 class Gemini:
@@ -30,7 +20,7 @@ class Gemini:
         self,
         model,
         prompt: str,
-        instruction: str,
+        instruction: PromptInstruction,
         character_name="",
         novel_title="",
         chapter_title: str = "",
@@ -48,7 +38,7 @@ class Gemini:
     def generate_novel_description(
         self,
         model,
-        instruction: str,
+        instruction: PromptInstruction,
         author: str,
         title: str,
     ):
@@ -62,12 +52,55 @@ class Gemini:
 
         return response.text
 
+    def generate_consolidated_characters(
+        self,
+        model,
+        characters: list[list[str]],
+        instruction: PromptInstruction,
+        author: str,
+        book_title: str,
+    ):
+        additional_instruction = self.get_additional_instruction(
+            instruction=instruction, author=author, novel_title=book_title
+        )
+
+        response = self.client.models.generate_content(
+            model=model,
+            contents=additional_instruction + "\n" + json.dumps(characters),
+            config={
+                "response_mime_type": "application/json",
+                "response_schema": {
+                    "type": "OBJECT",
+                    "properties": {
+                        "characters": {
+                            "type": "ARRAY",
+                            "items": {
+                                "type": "OBJECT",
+                                "properties": {
+                                    "canonical_name": {"type": "STRING"},
+                                    "aliases": {
+                                        "type": "ARRAY",
+                                        "items": {"type": "STRING"},
+                                    },
+                                },
+                                "required": ["canonical_name", "aliases"],
+                            },
+                        }
+                    },
+                    "required": ["characters"],
+                },
+                "temperature": 0,
+            },
+        )
+
+        return response.text
+
     def character_summary_mass_prompt(
         self,
         model,
         characters,
         associated_quotes: dict[str, list[dict]],
-        instruction: str,
+        instruction: PromptInstruction,
         book_title: str,
     ) -> dict[str, str]:
         character_ids = list(associated_quotes.keys())
@@ -186,7 +219,11 @@ class Gemini:
         return responses
 
     def text_span_summary_mass_prompt(
-        self, model, texts: list[str], instruction: str, characters: list[str]
+        self,
+        model,
+        texts: list[str],
+        instruction: PromptInstruction,
+        characters: list[str],
     ) -> list[str]:
         def send_request(text):
             additional_instruction = self.get_additional_instruction(
@@ -234,15 +271,14 @@ class Gemini:
         return summaries
 
     def generate_motif_extraction(
-        self, model, chunks: list, instruction: str, novel_title: str
+        self, model, chunks: list, instruction: PromptInstruction, novel_title: str
     ):
         def send_request(chunk):
             additional_instruction = self.get_additional_instruction(
                 instruction, novel_title=novel_title
             )
             prompt = f"{additional_instruction}\n{chunk}"
-            return (
-                self.client.models.generate_content(
+            response = self.client.models.generate_content(
                     model=model,
                     contents=prompt,
                     config=types.GenerateContentConfig(
@@ -256,11 +292,17 @@ class Gemini:
                         },
                     ),
                 )
-                .candidates[0]
-                .content.parts[0]
-                .text
-            )
-
+            if not response.candidates:
+                print(f"No candidates. prompt_feedback: {response.prompt_feedback}")
+                return '{"motifs": []}'
+    
+            candidate = response.candidates[0]
+            if candidate.content is None or not candidate.content.parts:
+                print(f"Empty candidate. finish_reason: {candidate.finish_reason}")
+                return '{"motifs": []}'
+            
+            return candidate.content.parts[0].text
+        
         with ThreadPoolExecutor(max_workers=len(chunks)) as executor:
             all_motifs = list(executor.map(send_request, chunks))
 
@@ -270,7 +312,7 @@ class Gemini:
         self,
         model,
         motifs: list,
-        instruction: str,
+        instruction: PromptInstruction,
         novel_title: str,
     ):
         additional_instruction = self.get_additional_instruction(
@@ -308,7 +350,6 @@ class Gemini:
 
         candidate = response.candidates[0]
         if candidate.finish_reason != "STOP":
-            print(f"WARNING: Motif consolidation truncated (finish_reason={candidate.finish_reason}), retrying with fewer motifs")
             unique_motifs = list(set(motifs))
             prompt = f"{additional_instruction}\n{(', ').join(unique_motifs)}"
             response = self.client.models.generate_content(
@@ -341,11 +382,13 @@ class Gemini:
             )
             candidate = response.candidates[0]
             if candidate.finish_reason != "STOP":
-                raise RuntimeError(f"Motif consolidation failed after retry: finish_reason={candidate.finish_reason}")
+                raise RuntimeError(
+                    f"Motif consolidation failed after retry: finish_reason={candidate.finish_reason}"
+                )
 
         return candidate.content.parts[0].text
 
-    def consolidate_quotes(self, model, network: dict, instruction: str):
+    def consolidate_quotes(self, model, network: dict, instruction: PromptInstruction):
         additional_instruction = self.get_additional_instruction(instruction)
         prompt = f"{additional_instruction}\n{str(json.dumps(network))}"
         return (
@@ -366,7 +409,7 @@ class Gemini:
 
     def get_additional_instruction(
         self,
-        instruction: str,
+        instruction: PromptInstruction,
         character_name: str = "",
         novel_title: str = "",
         chapter_title: str = "",
@@ -374,28 +417,35 @@ class Gemini:
         author: str = "",
     ) -> str:
         additional_instruction = ""
-        if instruction == PromptInstruction.EXCERPT_SUMMARY:
-            additional_instruction = self.excerpt_summary_prompt(characters)
-        if instruction == PromptInstruction.CHARACTER_SUMMARY:
-            additional_instruction = self.character_summary_prompt(
-                character_name, novel_title
-            )
-        if instruction == PromptInstruction.CHAPTER_SUMMARY:
-            additional_instruction = self.chapter_summary_prompt(
-                novel_title, chapter_title
-            )
-        if instruction == PromptInstruction.CONSOLIDATE_QUOTES:
-            additional_instruction = self.consolidate_quotes(novel_title)
-        if instruction == PromptInstruction.AUTHOR_SUMMARY:
-            additional_instruction = self.author_summary_prompt(novel_title)
-        if instruction == PromptInstruction.MOTIF_EXTRACTION:
-            additional_instruction = self.motif_analysis_prompt()
-        if instruction == PromptInstruction.MOTIF_CONSOLIDATION:
-            additional_instruction = self.consolidate_motifs_prompt(title=novel_title)
-        if instruction == PromptInstruction.NOVEL_DESCRIPTION:
-            additional_instruction = self.novel_description_prompt(
-                author=author, novel_title=novel_title
-            )
+        match instruction:
+            case PromptInstruction.EXCERPT_SUMMARY:
+                additional_instruction = self.excerpt_summary_prompt(characters)
+            case PromptInstruction.CHARACTER_SUMMARY:
+                additional_instruction = self.character_summary_prompt(
+                    character_name, novel_title
+                )
+            case PromptInstruction.CHAPTER_SUMMARY:
+                additional_instruction = self.chapter_summary_prompt(
+                    novel_title, chapter_title
+                )
+            case PromptInstruction.CONSOLIDATE_QUOTES:
+                additional_instruction = self.consolidate_quotes(novel_title)
+            case PromptInstruction.AUTHOR_SUMMARY:
+                additional_instruction = self.author_summary_prompt(novel_title)
+            case PromptInstruction.MOTIF_EXTRACTION:
+                additional_instruction = self.motif_analysis_prompt()
+            case PromptInstruction.MOTIF_CONSOLIDATION:
+                additional_instruction = self.consolidate_motifs_prompt(
+                    title=novel_title
+                )
+            case PromptInstruction.NOVEL_DESCRIPTION:
+                additional_instruction = self.novel_description_prompt(
+                    author=author, novel_title=novel_title
+                )
+            case PromptInstruction.CHARACTER_CONSOLIDATION:
+                additional_instruction = self.consolidate_characters_prompt(
+                    author=author, novel_title=novel_title
+                )
         return additional_instruction
 
     @staticmethod
@@ -418,16 +468,45 @@ class Gemini:
                 """
 
     @staticmethod
+    def consolidate_characters_prompt(author: str, novel_title: str):
+        return f"""
+        You will be presented with a list of groups of candidate characters
+        extracted from a novel. 
+        Each group is a list of strings that the extraction step believes belong
+        to the same character. You will also be given the novel title and author.
+
+        It is your job to: 
+        - Consolidate these groups by merging groups that refer to the same character
+        - To remove candidates from a group that shouldn't belong there
+        - Remove identified characters that are not in-fact characters
+        - Produce a single canonical name for each character, including titles or
+        honorifics used in the novel (e.g. 'Mr Darcy', 'Count Dracula')
+
+        Rules:
+        - Aliases should be the lowercase forms as provided in the input.
+        - Every input alias should either appear in the aliases list of a character, or be omitted entirely if it is not a character.
+        - Make no reference to the prompt.
+
+        Output schema:
+        {{
+        "characters": [
+            {{"canonical_name": "string", "aliases": ["string", ...]}}
+        ]
+        }}
+        
+        Author: {author}
+        Novel title: {novel_title}
+        """
+
+    @staticmethod
     def novel_description_prompt(author: str, novel_title: str):
         return f"""You are an expert in literary analysis.
         You will be given the title and author of a novel.
-        Your task is to generate a concise description of the novel suitable
-        for a landing page or book card.
+        Your task is to generate a concise description of the novel.
         Be specific, name characters and locations rather than describing them
         generally.
         Your description should include the year of publication and any well
         known context behind the novel's creation.
-
         The description should cover the premise, setting, and general tone
         of the novel in 6-7 sentences, approximately 100-120 words.
 
@@ -438,8 +517,6 @@ class Gemini:
         who may not have read the novel.
         - Do NOT use markdown formatting, headers, or bullet points.
         - Reference the author by surname after the first mention.
-        - Ground the description in the novel's content, not its
-        literary reception or cultural impact.
 
         Novel title: {novel_title}
         Author: {author}
