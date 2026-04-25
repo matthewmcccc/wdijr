@@ -16,5 +16,5 @@ jobs:
           python-version: '3.11'
       - run: pip install -r requirements-test.txt
         working-directory: ./backend
-      - run: PYTHONPATH=. pytest
+      - run: pytest
         working-directory: ./backend

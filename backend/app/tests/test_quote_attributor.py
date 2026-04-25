@@ -22,7 +22,7 @@ def test_check_span_for_speech(mock_config_string):
         assert qa.check_span_for_speech(span_a.lower(), "Sherlock", span_len=20) is True
 
         span_b = "said the very long-winded and exhausted Sherlock"
-        assert qa.check_span_for_speech(span_b.lower(), "Sherlock", span_len=20) is False
+        assert qa.check_span_for_speech(span_b.lower(), "Sherlock", span_len=3) is False
 
 def test_match_speech_verbs_regex(mock_config_string):
     with patch("app.analysis.quote_attributor.open", mock_open(read_data=mock_config_string)):

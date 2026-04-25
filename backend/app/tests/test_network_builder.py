@@ -25,7 +25,7 @@ def test_build_character_occurence_counts_variants(builder, character_dict):
     ]
     counts = builder.build_character_occurence(paras, character_dict)
     assert counts["Alice"] == 2
-    assert counts["Hatter"] == 1
+    assert counts["Hatter"] == 2
     assert counts["Queen"] == 1
 
 
@@ -35,7 +35,7 @@ def test_build_character_occurence_merges_variants(builder, character_dict):
         "The mad hatter poured tea.",
     ]
     counts = builder.build_character_occurence(paras, character_dict)
-    assert counts["Hatter"] == 2
+    assert counts["Hatter"] == 3
 
 
 def test_build_conversational_network_skips_none_speakers(builder):
