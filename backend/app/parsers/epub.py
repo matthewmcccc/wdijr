@@ -1,3 +1,4 @@
+from collections import defaultdict
 import os
 import string
 import re
@@ -209,8 +210,9 @@ class Epub(Book):
         :rtype list[dict]
         """
         quotes = []
-        text_len = range(len(self.text))
-        for i in text_len:
+        i = 0
+        text_len = len(self.text)
+        while i < text_len:
             if self.text[i] in ('"', "“"):
                 start_idx = i + 1
                 chars = []
@@ -248,7 +250,27 @@ class Epub(Book):
                 quote_dict["chapter_number"] = chapter_number
 
                 quotes.append(quote_dict)
+            i += 1
         return quotes
+    
+    def get_top_dialogue_chapters(self, n: int = 3) -> dict[int, list[dict]]:
+        quotes = self.get_full_text_quotes()
+        by_chapter = defaultdict(list)
+        for q in quotes:
+            by_chapter[q["chapter_number"]].append(q)
+        top = sorted(by_chapter.items(), key=lambda x: len(x[1]), reverse=True)[:n]
+        return dict(top)
+
+    def get_unattributed_quotes_by_chapter(self, chapter_number: int) -> list[dict]:
+        """
+        Get a list of all of the quotes from the text,
+        and spans of text before and after the quote, organized by chapter.
+        Quotes in this context are any instance of speech.
+
+        :return A list of all of the quotes, and spans of text surrounding the quote, organized by chapter
+        :rtype dict[int, list[dict]]
+        """
+        return [q for q in self.get_full_text_quotes() if q["chapter_number"] == chapter_number]
 
     def get_cover(self):
         def is_image(item):

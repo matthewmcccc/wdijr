@@ -110,10 +110,8 @@ class CharacterExtractor:
     def build_character_dict(self) -> dict:
         """
         Build dictionary for associating variations of a name with their
-        canonical name
-
-        e.g. {"Van Helsing": "Van Helsing", "Van": "Van Helsing"}
-
+        canonical name.
+        
         :return: Dictionary mapping variations of names to their parent or canonical name
         :rtype: dict
         """

@@ -82,8 +82,9 @@ class Gemini:
                                         "type": "ARRAY",
                                         "items": {"type": "STRING"},
                                     },
+                                    "gender": {"type": "STRING"},
                                 },
-                                "required": ["canonical_name", "aliases"],
+                                "required": ["canonical_name", "aliases", "gender"],
                             },
                         }
                     },
@@ -127,6 +128,7 @@ class Gemini:
                             },
                             "required": ["summary", "description"],
                         },
+                        temperature=0
                     ),
                 )
                 .candidates[0]
@@ -481,6 +483,7 @@ class Gemini:
         - Remove identified characters that are not in-fact characters
         - Produce a single canonical name for each character, including titles or
         honorifics used in the novel (e.g. 'Mr Darcy', 'Count Dracula')
+        - Identify a gender for each character if possible, stricly either male or female
 
         Rules:
         - Aliases should be the lowercase forms as provided in the input.
@@ -490,7 +493,7 @@ class Gemini:
         Output schema:
         {{
         "characters": [
-            {{"canonical_name": "string", "aliases": ["string", ...]}}
+            {{"canonical_name": "string", "aliases": ["string", ...], "gender": "male" or "female" or "unknown"}}
         ]
         }}
         

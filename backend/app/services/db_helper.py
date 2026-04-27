@@ -145,6 +145,7 @@ def save_analysis_to_db(
             ch_number = quote["chapter_number"]
             if not speaker:
                 continue
+            print(list(char_mapping.keys())[:20])
             char_id = char_mapping[speaker]
             session.add(
                 Quote(

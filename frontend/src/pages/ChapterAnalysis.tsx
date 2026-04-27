@@ -46,13 +46,6 @@ const ChapterAnalysis = () => {
         .slice(0, 4)
         .map(([name]) => name);
 
-    const characterImages = characterData?.filter(character => topCharacters.includes(character.name))
-        .reduce((acc, character) => {
-            acc[character.name] = character.image_url;
-            return acc;
-        }, {} as Record<string, string>);
-
-
     const keyEvents = plotSummaries
         ?.filter(item => item[1] === parseInt(chapterNumber))
         .map(item => item[0]);
@@ -73,7 +66,7 @@ const ChapterAnalysis = () => {
         sentiment: val,
     }));
 
-    const chapterHasNetworkData = chapterNetworkData && chapterNetworkData.nodes && chapterNetworkData.nodes.length > 0;
+    const chapterHasNetworkData = chapterNetworkData[chapterNumber] && chapterNetworkData[chapterNumber].nodes && chapterNetworkData[chapterNumber].nodes.length > 0;
     const chapterHasSentimentData = chapterSentimentData && chapterSentimentData.length > 0;
 
     return (
@@ -155,7 +148,7 @@ const ChapterAnalysis = () => {
                             <hr className="border-gray-300 my-4 w-1/2 mx-auto" />
                             <SentimentAreaChart
                                 data={chapterSentimentData}
-                                width={550}
+                                width={650}
                                 height={250}
                                 onChapterPage={true}
                             />
@@ -170,7 +163,7 @@ const ChapterAnalysis = () => {
                             key={`chapter-network-${chapterNumber}`}
                             id={`chapter-network-${chapterNumber}`}
                             height={250}
-                            width={550}
+                            width={650}
                             selectedChapter={parseInt(chapterNumber)}
                             chapterNetworkData={chapterNetworkData}
                             cumulative={false}

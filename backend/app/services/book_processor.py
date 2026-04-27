@@ -83,8 +83,8 @@ def process_text(self, book_path: str):
     self.update_state(
         state="PROCESSING", meta={"status": "Associating quotes with characters..."}
     )
-
-    associated_quotes = qa.associate_text_quotes(quotes, character_dict)
+    associated_quotes = qa.associate_text_quotes(quotes)
+    associated_quotes = normalise_quote_speakers(associated_quotes, character_dict)
 
     self.update_state(state="PROCESSING", meta={"status": "Building social network..."})
 
@@ -552,3 +552,25 @@ def build_character_dict_from_consolidated(consolidated):
         for alias in character["aliases"]:
             persons_dict[alias] = character["canonical_name"]
     return persons_dict
+
+def normalise_quote_speakers(associated_quotes, character_dict):
+    normalised = []
+    for q in associated_quotes:
+        speaker = q.get("speaker") if isinstance(q, dict) else getattr(q, "speaker", None)
+        if not speaker:
+            continue
+        canonical = character_dict.get(speaker) or character_dict.get(speaker.title()) or character_dict.get(speaker.lower())
+        if canonical is None:
+            lowered = speaker.lower()
+            for alias, canon in character_dict.items():
+                if alias.lower() == lowered:
+                    canonical = canon
+                    break
+        if canonical is None:
+            continue  
+        if isinstance(q, dict):
+            q["speaker"] = canonical
+        else:
+            q.speaker = canonical
+        normalised.append(q)
+    return normalised
