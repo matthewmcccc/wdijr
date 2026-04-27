@@ -212,7 +212,6 @@ class QuoteAttributor:
         female_entity = None
         ch_idx = 0
         
-        # Gender anchors
         MALE_TITLES = {"mr", "sir", "master", "captain", "colonel"}
         FEMALE_TITLES = {"mrs", "miss", "ms", "lady"}
         ALL_TITLES = MALE_TITLES | FEMALE_TITLES
@@ -224,28 +223,20 @@ class QuoteAttributor:
             canonical = None
             detected_gender = None
             
-            # Check if current word is a name or a title
             if clean_word in self.characters_dict or clean_word in ALL_TITLES:
                 
-                # Logic: If it's a title, try to pair it with the NEXT word
                 if clean_word in ALL_TITLES and word_idx < len(words) - 1:
                     next_word = words[word_idx + 1]
                     clean_next = clean_string(next_word)
                     
                     if clean_next in self.characters_dict:
-                        # Success: We found "Mr." + "Knightley"
                         canonical = self.characters_dict[clean_next]
                         detected_gender = "male" if clean_word in MALE_TITLES else "female"
                 
-                # If we haven't found a pair, check if the current word itself is a name
                 if canonical is None and clean_word in self.characters_dict and clean_word not in ALL_TITLES:
                     canonical = self.characters_dict[clean_word]
                     
-            # If we found a character, update our gender trackers
             if canonical is not None:
-                # 1. Use Title-based gender if we have it
-                # 2. Else use canonical_to_gender mapping
-                # 3. Else fallback to guessing the first name
                 g = detected_gender
                 if g is None and self.canonical_to_gender:
                     g = self.canonical_to_gender.get(canonical)
@@ -259,7 +250,6 @@ class QuoteAttributor:
                 elif g == "female":
                     female_entity = canonical
 
-            # Fill character arrays
             for i in range(ch_idx, min(ch_idx + len(word), len(s))):
                 male_at[i] = male_entity
                 female_at[i] = female_entity
